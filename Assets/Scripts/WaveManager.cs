@@ -11,17 +11,20 @@ public class WaveManager : MonoBehaviour
     public bool isAllEnemiesDefeated;
     void Start()
     {
-
+        activeEnemyCount = 0;
     }
 
-    void SpawnEnemies()
+void SpawnEnemies()
     {
+        if (GameManager.isGameActive == true)
+        {
             for (int i = 0; i < firstWave; i++)
             {
                 Instantiate(enemyPrefab, GenerateRandomPositions(spawnRange), enemyPrefab.transform.rotation);
                 activeEnemyCount++;
             }
             firstWave += enemyToAddByWave;
+        }
     }
 
     public Vector3 GenerateRandomPositions(float spawnRange)
@@ -37,11 +40,14 @@ public class WaveManager : MonoBehaviour
 
     void Update()
     {
-        if (PlayerHealth.gameOver == true) return;
-        
-        if(activeEnemyCount == 0)
+        if (GameManager.isGameActive == false) return;
+
+        else
         {
-            SpawnEnemies();
+            if (activeEnemyCount == 0)
+            {
+                SpawnEnemies();
+            }
         }
     }
 }

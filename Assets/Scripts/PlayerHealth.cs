@@ -6,11 +6,11 @@ using System.Collections.Generic;
 public class PlayerHealth : MonoBehaviour
 {
     public int playerHealth;
-    public static bool gameOver = false;
     public float invincibltyTime = 5;
+    public GameManager gameManager;
     void Start()
     {
-        
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
@@ -19,7 +19,7 @@ public class PlayerHealth : MonoBehaviour
         if(playerHealth <= 0)
         {
             Debug.Log("Game Over!");
-            gameOver = true;
+            gameManager.GameOver();
         }
 
     }

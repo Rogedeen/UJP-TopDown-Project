@@ -7,6 +7,7 @@ TagManager:
   - Ground
   - Enemy
   - Weapon
+  - Transform
   layers:
   - Default
   - TransparentFX
@@ -14,12 +15,12 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Weapon
+  - PowerUp
+  - Enemy
+  - Obstacles
+  - Ground
   - 
   - 
   - 

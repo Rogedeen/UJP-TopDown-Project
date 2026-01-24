@@ -3,7 +3,8 @@ using UnityEngine;
 public class OrbitWeapon : MonoBehaviour
 {
     public float rotationSpeed;
-    public Transform orbitTransform;
+    public Transform orbitTransform ;
+    
     void Start()
     {
        
@@ -11,6 +12,9 @@ public class OrbitWeapon : MonoBehaviour
 
     void Update()
     {
-        transform.RotateAround(orbitTransform.position, Vector3.up, rotationSpeed * Time.deltaTime);
+        if (GameManager.isGameActive) 
+        {
+                transform.RotateAround(orbitTransform.position, Vector3.up, rotationSpeed * Time.deltaTime);
+        }              
     }
 }

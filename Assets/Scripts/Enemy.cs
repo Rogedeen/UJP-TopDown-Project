@@ -10,7 +10,7 @@ public class Enemy : MonoBehaviour
     public float speed = 4.0f;
     public int health = 3;
     public bool canTakeDamage = true;
-    public float invincibilityDuration = 1.0f;
+    public float invincibilityDuration = 0.5f;
     public Slider enemyHealthSlider;
 
     private GameObject player;

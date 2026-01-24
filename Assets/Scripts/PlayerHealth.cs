@@ -6,8 +6,10 @@ using System.Collections.Generic;
 public class PlayerHealth : MonoBehaviour
 {
     public int playerHealth;
-    public float invincibltyTime = 5;
+    public float invincibltyTime = 1;
     public GameManager gameManager;
+
+    private bool isInvincible = false;
     void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
@@ -27,17 +29,19 @@ public class PlayerHealth : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (collision.gameObject.CompareTag("Enemy") && !isInvincible)
         {
             Debug.Log("Player collided with an enemy");
             playerHealth--;
             Debug.Log("Player health is now reduced to: " + playerHealth);
-            StartCoroutine(Invincible(invincibltyTime));
+            StartCoroutine(Invincible());
         }
     }
 
-    IEnumerator Invincible(float invincibltyTime)
+    IEnumerator Invincible()
     {
+        isInvincible = true;
         yield return new WaitForSeconds(invincibltyTime);
+        isInvincible = false;
     }
 }

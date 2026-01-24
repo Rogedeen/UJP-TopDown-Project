@@ -279,7 +279,7 @@ GameObject:
   - component: {fileID: 4013790986423080885}
   - component: {fileID: 6700407790357672706}
   - component: {fileID: -2300268720579683448}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -421,7 +421,7 @@ MonoBehaviour:
   speed: 4
   health: 3
   canTakeDamage: 1
-  invincibilityDuration: 1
+  invincibilityDuration: 0.5
   enemyHealthSlider: {fileID: 6116028359804488585}
 --- !u!1 &5447477776913751075
 GameObject:

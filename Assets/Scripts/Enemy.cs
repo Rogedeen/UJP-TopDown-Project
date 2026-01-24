@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Net;
+using UnityEngine.UI;
 
 
 public class Enemy : MonoBehaviour
@@ -10,6 +11,7 @@ public class Enemy : MonoBehaviour
     public int health = 3;
     public bool canTakeDamage = true;
     public float invincibilityDuration = 1.0f;
+    public Slider enemyHealthSlider;
 
     private GameObject player;
     private Rigidbody enemyRb;
@@ -18,6 +20,20 @@ public class Enemy : MonoBehaviour
     {
         enemyRb = GetComponent<Rigidbody>();
         player = GameObject.FindGameObjectWithTag("Player");
+        if (enemyHealthSlider != null)
+        {
+            enemyHealthSlider.maxValue = health;
+            enemyHealthSlider.value = health;
+            enemyHealthSlider.gameObject.SetActive(false);
+        }
+    }
+
+    void UpdateEnemyHealth()
+    {
+        if (enemyHealthSlider != null)
+        {
+            enemyHealthSlider.value = health;
+        }
     }
 
     void FixedUpdate()
@@ -46,6 +62,8 @@ public class Enemy : MonoBehaviour
     void TakeDamage(int damage)
     {
         health -= damage;
+        UpdateEnemyHealth();
+        enemyHealthSlider.gameObject.SetActive(true);
         if (health <= 0)
         {
             Die();

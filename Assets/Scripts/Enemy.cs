@@ -57,6 +57,15 @@ public class Enemy : MonoBehaviour
                 TakeDamage(weapon.damage);
             }
         }
+
+        else if (other.gameObject.CompareTag("OrbitWeapon"))
+        {
+            if (canTakeDamage)
+            {
+                OrbitWeapon orbitWeapon = other.GetComponent<OrbitWeapon>();
+                TakeDamage(orbitWeapon.damage);
+            }
+        }
     }
 
     void TakeDamage(int damage)

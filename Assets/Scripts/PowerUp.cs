@@ -26,10 +26,14 @@ public class PowerUp : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player")) 
+        if (other.CompareTag("Player"))
         {
-            playerController = other.gameObject.GetComponent<PlayerController>();
-            playerHealth = other.gameObject.GetComponent<PlayerHealth>();
+            playerController = other.GetComponent<PlayerController>();
+            playerHealth = other.GetComponent<PlayerHealth>();
+
+            weapon = other.GetComponentInChildren<Weapon>();
+            orbitWeapon = other.GetComponentInChildren<OrbitWeapon>();
+
             ApplyPowerUp(type);
             Destroy(gameObject);
         }
@@ -54,6 +58,7 @@ public class PowerUp : MonoBehaviour
 
             case PowerUpType.DamageBoost:
                 weapon.damage += 2;
+                orbitWeapon.damage += 2;
                 break;
 
             default:

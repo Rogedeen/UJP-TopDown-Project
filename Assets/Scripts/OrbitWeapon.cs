@@ -3,8 +3,9 @@ using UnityEngine;
 public class OrbitWeapon : MonoBehaviour
 {
     public float rotationSpeed;
-    public Transform orbitTransform ;
-    
+    public Transform orbitTransform;
+    public int damage;
+
     void Start()
     {
        

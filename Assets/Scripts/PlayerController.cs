@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -5,6 +6,8 @@ public class PlayerController : MonoBehaviour
     public float speed = 1.0f;
     public float verticalInput;
     public float horizontalInput;
+    public Weapon activeWeapon;
+
     private Rigidbody playerRb;
     private Animator animator;
 
@@ -14,7 +17,6 @@ public class PlayerController : MonoBehaviour
         playerRb = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -53,5 +55,28 @@ public class PlayerController : MonoBehaviour
             // 6. Karakteri o yöne döndür (LookAt yerine daha yumuşak Quaternion.LookRotation da olur)
             transform.LookAt(targetDirection);
         }
+    }
+    void Update()
+    {
+        if (GameManager.isGameActive && Input.GetMouseButtonDown(0))
+        {
+            StartCoroutine(AttackRoutine());
+        }
+    }
+
+    IEnumerator AttackRoutine() 
+    {
+        animator.SetBool("isAttacking", true); // Animasyonu başlat
+
+        // Profesyonel Dokunuş: Animasyonun tam vuruş anına kadar minik bir bekleme
+        yield return new WaitForSeconds(0.15f);
+
+        activeWeapon.SetWeaponCollider(true); // Collider'ı aç
+
+        // Kılıç savurma süresi (Karakterin animasyon hızına göre ayarla)
+        yield return new WaitForSeconds(0.3f);
+
+        animator.SetBool("isAttacking", false);
+        activeWeapon.SetWeaponCollider(false); // Collider'ı kapat
     }
 }

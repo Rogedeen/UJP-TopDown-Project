@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Weapon
   - Transform
+  - OrbitWeapon
   layers:
   - Default
   - TransparentFX

@@ -18,12 +18,6 @@ public class PowerUp : MonoBehaviour
     private Weapon weapon;
     private OrbitWeapon orbitWeapon;
 
-    void Start()
-    {
-        weapon = GameObject.Find("Weapon").GetComponent<Weapon>();
-        orbitWeapon = GameObject.Find("Weapon").GetComponent<OrbitWeapon>();
-    }
-
     public void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -39,7 +33,7 @@ public class PowerUp : MonoBehaviour
         }
     }
 
-    void ApplyPowerUp(PowerUpType type) 
+    public void ApplyPowerUp(PowerUpType type) 
     {
         switch (type)
         {
@@ -65,11 +59,5 @@ public class PowerUp : MonoBehaviour
                 break;
         }
 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

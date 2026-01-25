@@ -9,9 +9,12 @@ public class WaveManager : MonoBehaviour
     public float spawnRange;
     public static int activeEnemyCount = 0;
     public bool isAllEnemiesDefeated;
+
+    private PowerUpManager powerUpManager;
     void Start()
     {
         activeEnemyCount = 0;
+        powerUpManager = GameObject.Find("Power Up Manager").GetComponent<PowerUpManager>();
     }
 
 void SpawnEnemies()
@@ -47,6 +50,7 @@ void SpawnEnemies()
             if (activeEnemyCount == 0)
             {
                 SpawnEnemies();
+                powerUpManager.SpawnPowerUp();
             }
         }
     }

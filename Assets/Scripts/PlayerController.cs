@@ -14,6 +14,12 @@ public class PlayerController : MonoBehaviour
     public float hitRadius = 2.5f; // Vuruş alanının genişliği (Dairenin çapı gibi düşün)
     public float hitOffset = 1.5f; // Vuruşun karakterin ne kadar önünde olacağı
 
+    [Header("VFX Settings")]
+    public GameObject windVFXPrefab; // Normal atak efekti
+    public GameObject fireVFXPrefab; // Güçlendirilmiş atak efekti
+    public Transform vfxSpawnPoint;  // Efektin çıkacağı nokta (Genelde karakterin önü)
+    public int damageUpgradeThreshold = 2;
+
     private Rigidbody playerRb;
     private Animator animator;
 
@@ -75,6 +81,17 @@ public class PlayerController : MonoBehaviour
 
         // 2. Savurma başlamadan önceki kısa bekleme (Anticipation)
         yield return new WaitForSeconds(0.30f);
+
+        GameObject vfxToSpawn = (activeWeapon.damage >= damageUpgradeThreshold) ? fireVFXPrefab : windVFXPrefab;
+
+        if (vfxToSpawn != null)
+        {
+            // Efekti karakterin önünde oluştur
+            GameObject vfxInstance = Instantiate(vfxToSpawn, vfxSpawnPoint.position, vfxSpawnPoint.rotation);
+
+            // Profesyonel Not: Efektler sahnede birikmesin diye 2 saniye sonra yok et
+            Destroy(vfxInstance, 2f);
+        }
 
         // 3. TARAMA BAŞLIYOR: 0.3 saniye boyunca her karede kontrol et
         float timer = 0f;

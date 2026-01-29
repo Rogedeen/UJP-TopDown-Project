@@ -21,6 +21,23 @@ public class Enemy : MonoBehaviour
     private Animator animator;
     private bool isKnockedBack = false;
 
+    MaterialPropertyBlock mpb;
+    Renderer[] renderers;
+    Material[] mats;
+    Material[] originalMaterials;
+    public Material hitFlashMaterial;
+
+
+    void Awake()
+    {
+        renderers = GetComponentsInChildren<Renderer>();
+
+        List<Material> originals = new();
+        foreach (Renderer r in renderers)
+            originals.AddRange(r.materials);
+
+        originalMaterials = originals.ToArray();
+    }
 
     void Start()
     {
@@ -118,24 +135,33 @@ public class Enemy : MonoBehaviour
 
     IEnumerator HitFlashRoutine()
     {
-        // PBR Polyart canavarları genelde SkinnedMeshRenderer kullanır
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-
-        // Orijinal renkleri aklımızda tutalım
-        Color[] originalColors = new Color[renderers.Length];
-        for (int i = 0; i < renderers.Length; i++)
+        // FLASH
+        foreach (Renderer r in renderers)
         {
-            originalColors[i] = renderers[i].material.color;
-            renderers[i].material.color = Color.white;
+            Material[] mats = r.materials;
+            for (int i = 0; i < mats.Length; i++)
+                mats[i] = hitFlashMaterial;
+
+            r.materials = mats;
         }
 
         yield return new WaitForSeconds(0.1f);
 
-        for (int i = 0; i < renderers.Length; i++)
+        // GERİ AL
+        int index = 0;
+        foreach (Renderer r in renderers)
         {
-            renderers[i].material.color = originalColors[i]; // Eskisine dön
+            Material[] mats = r.materials;
+            for (int i = 0; i < mats.Length; i++)
+                mats[i] = originalMaterials[index++];
+
+            r.materials = mats;
         }
     }
+
+
+
+
 
     IEnumerator DieRoutine()
     {

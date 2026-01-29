@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Sound Settings")]
     public AudioSource audioSource;
-    public AudioClip[] whoosSounds;
+    public AudioClip[] whooshSounds;
 
     private Rigidbody playerRb;
     private Animator animator;
@@ -80,37 +80,35 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetBool("isAttacking", true);
 
-        // 1. Bu savurmada vurduğumuz düşmanları aklımızda tutmak için bir liste
-        List<Enemy> hitEnemiesInThisSwing = new();
+        // --- 1. SES EFEKTİ ---
+        if (whooshSounds.Length > 0)
+        {
+            audioSource.PlayOneShot(whooshSounds[Random.Range(0, whooshSounds.Length)]);
+        }
 
-        int randomIndex = Random.Range(0, whoosSounds.Length);
-        audioSource.PlayOneShot(whoosSounds[randomIndex]);
+        // --- 2. ANTICIPATION (Vuruş Öncesi Bekleme) ---
+        yield return new WaitForSeconds(0.20f);
 
-        // 2. Savurma başlamadan önceki kısa bekleme (Anticipation)
-        yield return new WaitForSeconds(0.30f);
+        // --- 3. VFX SEÇİMİ VE DOĞURMA ---
+        // Konsoldan hasarı kontrol et:
+        Debug.Log("Vuruş Anındaki Hasar: " + activeWeapon.damage);
 
         GameObject vfxToSpawn = (activeWeapon.damage >= damageUpgradeThreshold) ? fireVFXPrefab : windVFXPrefab;
 
-        
-
-        if (vfxToSpawn != null)
+        if (vfxToSpawn != null && vfxSpawnPoint != null)
         {
-            // Efekti karakterin önünde oluştur
-            GameObject vfxInstance = Instantiate(vfxToSpawn, vfxSpawnPoint.position, vfxSpawnPoint.rotation);
-
-            // Profesyonel Not: Efektler sahnede birikmesin diye 2 saniye sonra yok et
-            Destroy(vfxInstance, 2f);
+            GameObject vfx = Instantiate(vfxToSpawn, vfxSpawnPoint.position, vfxSpawnPoint.rotation);
+            Destroy(vfx, 1.5f);
         }
 
-        // 3. TARAMA BAŞLIYOR: 0.3 saniye boyunca her karede kontrol et
+        // --- 4. SÜPÜRME TARAMASI (SWEEP) ---
+        List<Enemy> hitEnemiesInThisSwing = new List<Enemy>();
         float timer = 0f;
-        float attackDuration = 0.3f; // Savurmanın ne kadar süreceği
+        float attackDuration = 0.3f;
 
         while (timer < attackDuration)
         {
             timer += Time.deltaTime;
-
-            // Vuruş alanını hesapla
             Vector3 hitCenter = transform.position + transform.forward * hitOffset;
             Collider[] hitColliders = Physics.OverlapSphere(hitCenter, hitRadius);
 
@@ -118,54 +116,24 @@ public class PlayerController : MonoBehaviour
             {
                 if (col.CompareTag("Enemy") && col.TryGetComponent<Enemy>(out var enemy))
                 {
-                    // EĞER bu düşmana bu savurmada daha önce vurmadıysak hasar ver
                     if (!hitEnemiesInThisSwing.Contains(enemy))
                     {
-                        enemy.TakeDamage(activeWeapon.damage, gameObject.transform.position);
-                        hitEnemiesInThisSwing.Add(enemy); // Listeye ekle ki bir daha vurmayalım
-                        Debug.Log(enemy.name + " savurma sırasında yakalandı!");
+                        // Hasar veriyoruz (Knockback için oyuncu pozisyonunu gönderiyoruz)
+                        enemy.TakeDamage(activeWeapon.damage, transform.position);
+                        hitEnemiesInThisSwing.Add(enemy);
                     }
                 }
             }
-
-            // Bir sonraki kareye kadar bekle
             yield return null;
         }
 
-        // 4. Savurma bitti
         animator.SetBool("isAttacking", false);
     }
 
-    // --- KRAL DOKUNUŞU: HIT EVENT ---
-    // Bu fonksiyonu Animasyon Penceresinden (Animation Event) çağıracaksın!
-    public void HitEvent()
-    {
-        // 1. Vuruş merkezini hesapla (Karakterin tam önünde)
-        Vector3 hitCenter = transform.position + transform.forward * hitOffset;
-
-        // 2. Bu hayali kürenin içindeki her şeyi yakala
-        Collider[] hitColliders = Physics.OverlapSphere(hitCenter, hitRadius);
-
-        foreach (var hitCollider in hitColliders)
-        {
-            // 3. Eğer çarptığımız şey düşmansa hasar ver
-            if (hitCollider.CompareTag("Enemy"))
-            {
-                // TryGetComponent kullanarak daha güvenli hasar verme
-                if (hitCollider.TryGetComponent<Enemy>(out var enemy))
-                {
-                    enemy.TakeDamage(activeWeapon.damage, gameObject.transform.position);
-                    Debug.Log(hitCollider.name + " alan hasarı yedi!");
-                }
-            }
-        }
-    }
-
-    // Editörde vuruş alanını görmek için (Sahnede kırmızı bir küre çizer)
-    private void OnDrawGizmosSelected()
+    /*private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Vector3 hitCenter = transform.position + transform.forward * hitOffset;
         Gizmos.DrawWireSphere(hitCenter, hitRadius);
-    }
+    }*/
 }

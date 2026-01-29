@@ -38,7 +38,7 @@ public class WaveManager : MonoBehaviour
         powerUpManager.SpawnPowerUp();
 
         // Wave başlarken 2-3 saniye hazırlanma süresi verebiliriz
-        yield return new WaitForSeconds(2.0f);
+        // sonra açarsın yield return new WaitForSeconds(2.0f);
 
         for (int i = 0; i < firstWave; i++)
         {

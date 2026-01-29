@@ -20,6 +20,10 @@ public class PlayerController : MonoBehaviour
     public Transform vfxSpawnPoint;  // Efektin çıkacağı nokta (Genelde karakterin önü)
     public int damageUpgradeThreshold = 2;
 
+    [Header("Sound Settings")]
+    public AudioSource audioSource;
+    public AudioClip[] whoosSounds;
+
     private Rigidbody playerRb;
     private Animator animator;
 
@@ -54,7 +58,7 @@ public class PlayerController : MonoBehaviour
         Vector3 newVelocity = new(moveDirection.x * speed, playerRb.linearVelocity.y, moveDirection.z * speed);
         playerRb.linearVelocity = newVelocity;
 
-        animator.SetFloat("moveSpeed", moveDirection.magnitude);
+        animator.SetFloat("moveSpeed", moveDirection.magnitude * speed);
 
         RotateTowardsMouse();
     }
@@ -79,10 +83,15 @@ public class PlayerController : MonoBehaviour
         // 1. Bu savurmada vurduğumuz düşmanları aklımızda tutmak için bir liste
         List<Enemy> hitEnemiesInThisSwing = new();
 
+        int randomIndex = Random.Range(0, whoosSounds.Length);
+        audioSource.PlayOneShot(whoosSounds[randomIndex]);
+
         // 2. Savurma başlamadan önceki kısa bekleme (Anticipation)
         yield return new WaitForSeconds(0.30f);
 
         GameObject vfxToSpawn = (activeWeapon.damage >= damageUpgradeThreshold) ? fireVFXPrefab : windVFXPrefab;
+
+        
 
         if (vfxToSpawn != null)
         {
@@ -112,7 +121,7 @@ public class PlayerController : MonoBehaviour
                     // EĞER bu düşmana bu savurmada daha önce vurmadıysak hasar ver
                     if (!hitEnemiesInThisSwing.Contains(enemy))
                     {
-                        enemy.TakeDamage(activeWeapon.damage);
+                        enemy.TakeDamage(activeWeapon.damage, gameObject.transform.position);
                         hitEnemiesInThisSwing.Add(enemy); // Listeye ekle ki bir daha vurmayalım
                         Debug.Log(enemy.name + " savurma sırasında yakalandı!");
                     }
@@ -145,7 +154,7 @@ public class PlayerController : MonoBehaviour
                 // TryGetComponent kullanarak daha güvenli hasar verme
                 if (hitCollider.TryGetComponent<Enemy>(out var enemy))
                 {
-                    enemy.TakeDamage(activeWeapon.damage);
+                    enemy.TakeDamage(activeWeapon.damage, gameObject.transform.position);
                     Debug.Log(hitCollider.name + " alan hasarı yedi!");
                 }
             }

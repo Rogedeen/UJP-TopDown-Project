@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class WaveManager : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class WaveManager : MonoBehaviour
     public static int activeEnemyCount = 0;
 
     private PowerUpManager powerUpManager;
-    private bool isSpawning = false; // AYNI ANDA BİRDEN FAZLA WAVE BAŞLAMASIN DİYE KİLİT
+    private bool isSpawning = false; 
 
     void Start()
     {
@@ -23,7 +24,6 @@ public class WaveManager : MonoBehaviour
     {
         if (!GameManager.isGameActive) return;
 
-        // Düşman kalmadıysa ve şu an yeni düşmanlar doğurtulmuyorsa başlat
         if (activeEnemyCount == 0 && !isSpawning)
         {
             StartCoroutine(SpawnWaveRoutine());
@@ -32,24 +32,24 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator SpawnWaveRoutine()
     {
-        isSpawning = true; // Kilidi kapat
+        //Kilidi kapat
+        isSpawning = true; 
 
-        // Önce bir PowerUp verelim (Wave başı hediyesi)
         powerUpManager.SpawnPowerUp();
 
-        // Wave başlarken 2-3 saniye "hazırlanma" süresi verebiliriz
+        // Wave başlarken 2-3 saniye hazırlanma süresi verebiliriz
         yield return new WaitForSeconds(2.0f);
 
         for (int i = 0; i < firstWave; i++)
         {
             SpawnSingleEnemy();
 
-            // İŞTE SİHİRLİ SATIR: Her spawn sonrası 1.5 saniye bekle
+            //Her spawn sonrası 1.5 saniye bekle
             yield return new WaitForSeconds(1.0f);
         }
 
         firstWave += enemyToAddByWave;
-        isSpawning = false; // İşlem bitti, kilidi aç
+        isSpawning = false; //İşlem bitti, kilidi aç
     }
 
     void SpawnSingleEnemy()

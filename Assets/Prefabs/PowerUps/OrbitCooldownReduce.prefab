@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 520130781158119487}
   - component: {fileID: 785322650820033416}
   m_Layer: 0
-  m_Name: OrbitSpeedPowerUp
+  m_Name: OrbitCooldownReduce
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -125,3 +125,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PowerUp
   type: 1
+  powerUpDuration: 5
+  amount: 2

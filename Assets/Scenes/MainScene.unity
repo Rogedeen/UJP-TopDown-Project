@@ -2191,13 +2191,29 @@ PrefabInstance:
       propertyPath: gameManager
       value: 
       objectReference: {fileID: 1144158818}
+    - target: {fileID: 909256729060056327, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 2021199515145597483, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.32
+      objectReference: {fileID: 0}
+    - target: {fileID: 4214589807617275607, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
+      propertyPath: duration
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4214589807617275607, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
+      propertyPath: rotationSpeed
+      value: 240
+      objectReference: {fileID: 0}
     - target: {fileID: 7215070463055794209, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

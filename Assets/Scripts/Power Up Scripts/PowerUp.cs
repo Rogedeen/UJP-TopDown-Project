@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq.Expressions;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -5,13 +6,15 @@ using UnityEngine;
 public enum PowerUpType
 {
     Health,
-    OrbitSpeed,
+    OrbitCoolDownReduce,
     MovementSpeed,
     DamageBoost
 }
 public class PowerUp : MonoBehaviour
 {
     public PowerUpType type;
+    public float powerUpDuration;
+    public float amount;
 
     private PlayerController playerController;
     private PlayerHealth playerHealth;
@@ -28,13 +31,15 @@ public class PowerUp : MonoBehaviour
             weapon = other.GetComponentInChildren<Weapon>();
             orbitWeapon = other.GetComponentInChildren<OrbitWeapon>();
 
-            ApplyPowerUp(type);
-            Destroy(gameObject);
+            StartCoroutine(ApplyPowerUp(type));
         }
     }
 
-    public void ApplyPowerUp(PowerUpType type) 
+    IEnumerator ApplyPowerUp(PowerUpType type) 
     {
+        GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<Collider>().enabled = false;
+
         switch (type)
         {
             case PowerUpType.Health:
@@ -42,22 +47,48 @@ public class PowerUp : MonoBehaviour
                    playerHealth.playerHealth++;
                 break;
 
-            case PowerUpType.OrbitSpeed:
-                orbitWeapon.rotationSpeed += 120.0f;
+            case PowerUpType.OrbitCoolDownReduce:
+                amount = 2.0f;
+                orbitWeapon.cooldown -= amount;
                 break;
 
             case PowerUpType.MovementSpeed:
-                playerController.speed += 0.5f;
+                amount = 2.0f;
+                playerController.speed += amount;
                 break;
 
             case PowerUpType.DamageBoost:
-                weapon.damage += 2;
-                orbitWeapon.damage += 2;
+                amount = 2;
+                weapon.damage += (int)amount;
+                orbitWeapon.damage += (int)amount;
                 break;
 
             default:
                 break;
         }
 
+        yield return new WaitForSeconds(powerUpDuration);
+
+        switch (type)
+        {
+            case PowerUpType.MovementSpeed:
+
+                playerController.speed -= amount;
+                break;
+
+            case PowerUpType.DamageBoost:
+
+                weapon.damage -= (int)amount;
+                orbitWeapon.damage -= (int)amount;
+                break;
+
+            default:
+                break;
+        }
+        Destroy(gameObject);
     }
+
+
+
+
 }

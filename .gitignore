@@ -99,5 +99,4 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
 # --- External Assets & Plugins ---
-/Assets/KayKit
-/Assets/KayKit.meta
+/[Aa]ssets/[Ee]xternal[Aa]ssets/

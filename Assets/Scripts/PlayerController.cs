@@ -1,12 +1,18 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 1.0f;
+    [Header("Movement Settings")]
+    public float speed = 5.0f;
     public float verticalInput;
     public float horizontalInput;
+
+    [Header("Attack Settings")]
     public Weapon activeWeapon;
+    public float hitRadius = 2.5f; // Vuruş alanının genişliği (Dairenin çapı gibi düşün)
+    public float hitOffset = 1.5f; // Vuruşun karakterin ne kadar önünde olacağı
 
     private Rigidbody playerRb;
     private Animator animator;
@@ -17,66 +23,123 @@ public class PlayerController : MonoBehaviour
         playerRb = GetComponent<Rigidbody>();
     }
 
+    void Update()
+    {
+        // Atak kontrolünü Update'te yapman doğru
+        if (GameManager.isGameActive && Input.GetMouseButtonDown(0))
+        {
+            // Eğer zaten saldırıyorsak tekrar başlatma (opsiyonel ama iyidir)
+            if (!animator.GetBool("isAttacking"))
+            {
+                StartCoroutine(AttackRoutine());
+            }
+        }
+    }
+
     void FixedUpdate()
     {
+        // Hareket ve Dönüş
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirection = new(horizontalInput, 0, verticalInput);
-        if (moveDirection.magnitude > 1){
-            moveDirection.Normalize();
-        }
+        if (moveDirection.magnitude > 1) moveDirection.Normalize();
 
         Vector3 newVelocity = new(moveDirection.x * speed, playerRb.linearVelocity.y, moveDirection.z * speed);
         playerRb.linearVelocity = newVelocity;
+
         animator.SetFloat("moveSpeed", moveDirection.magnitude);
 
         RotateTowardsMouse();
     }
 
-    public void RotateTowardsMouse() 
+    public void RotateTowardsMouse()
     {
-        // 1. Kameradan farenin pozisyonuna bir ışın (Ray) oluştur
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        // 2. Işının yere çarpıp çarpmadığını kontrol etmek için bir Plane (Düzlem) tanımlayalım
-        // (Y=0 düzleminde, yukarı bakan hayali bir yer)
         Plane groundPlane = new(Vector3.up, Vector3.zero);
 
-        // 3. Eğer ışın bu düzleme çarpıyorsa
         if (groundPlane.Raycast(ray, out float rayDistance))
         {
-            // 4. Çarpışma noktasını bul
             Vector3 pointToLook = ray.GetPoint(rayDistance);
-
-            // 5. Karakterin sadece Y ekseninde dönmesi için bakılacak noktanın Y değerini eşitle
             Vector3 targetDirection = new(pointToLook.x, transform.position.y, pointToLook.z);
-
-            // 6. Karakteri o yöne döndür (LookAt yerine daha yumuşak Quaternion.LookRotation da olur)
             transform.LookAt(targetDirection);
         }
     }
-    void Update()
+
+    IEnumerator AttackRoutine()
     {
-        if (GameManager.isGameActive && Input.GetMouseButtonDown(0))
+        animator.SetBool("isAttacking", true);
+
+        // 1. Bu savurmada vurduğumuz düşmanları aklımızda tutmak için bir liste
+        List<Enemy> hitEnemiesInThisSwing = new();
+
+        // 2. Savurma başlamadan önceki kısa bekleme (Anticipation)
+        yield return new WaitForSeconds(0.30f);
+
+        // 3. TARAMA BAŞLIYOR: 0.3 saniye boyunca her karede kontrol et
+        float timer = 0f;
+        float attackDuration = 0.3f; // Savurmanın ne kadar süreceği
+
+        while (timer < attackDuration)
         {
-            StartCoroutine(AttackRoutine());
+            timer += Time.deltaTime;
+
+            // Vuruş alanını hesapla
+            Vector3 hitCenter = transform.position + transform.forward * hitOffset;
+            Collider[] hitColliders = Physics.OverlapSphere(hitCenter, hitRadius);
+
+            foreach (var col in hitColliders)
+            {
+                if (col.CompareTag("Enemy") && col.TryGetComponent<Enemy>(out var enemy))
+                {
+                    // EĞER bu düşmana bu savurmada daha önce vurmadıysak hasar ver
+                    if (!hitEnemiesInThisSwing.Contains(enemy))
+                    {
+                        enemy.TakeDamage(activeWeapon.damage);
+                        hitEnemiesInThisSwing.Add(enemy); // Listeye ekle ki bir daha vurmayalım
+                        Debug.Log(enemy.name + " savurma sırasında yakalandı!");
+                    }
+                }
+            }
+
+            // Bir sonraki kareye kadar bekle
+            yield return null;
+        }
+
+        // 4. Savurma bitti
+        animator.SetBool("isAttacking", false);
+    }
+
+    // --- KRAL DOKUNUŞU: HIT EVENT ---
+    // Bu fonksiyonu Animasyon Penceresinden (Animation Event) çağıracaksın!
+    public void HitEvent()
+    {
+        // 1. Vuruş merkezini hesapla (Karakterin tam önünde)
+        Vector3 hitCenter = transform.position + transform.forward * hitOffset;
+
+        // 2. Bu hayali kürenin içindeki her şeyi yakala
+        Collider[] hitColliders = Physics.OverlapSphere(hitCenter, hitRadius);
+
+        foreach (var hitCollider in hitColliders)
+        {
+            // 3. Eğer çarptığımız şey düşmansa hasar ver
+            if (hitCollider.CompareTag("Enemy"))
+            {
+                // TryGetComponent kullanarak daha güvenli hasar verme
+                if (hitCollider.TryGetComponent<Enemy>(out var enemy))
+                {
+                    enemy.TakeDamage(activeWeapon.damage);
+                    Debug.Log(hitCollider.name + " alan hasarı yedi!");
+                }
+            }
         }
     }
 
-    IEnumerator AttackRoutine() 
+    // Editörde vuruş alanını görmek için (Sahnede kırmızı bir küre çizer)
+    private void OnDrawGizmosSelected()
     {
-        animator.SetBool("isAttacking", true); // Animasyonu başlat
-
-        // Profesyonel Dokunuş: Animasyonun tam vuruş anına kadar minik bir bekleme
-        yield return new WaitForSeconds(0.15f);
-
-        activeWeapon.SetWeaponCollider(true); // Collider'ı aç
-
-        // Kılıç savurma süresi (Karakterin animasyon hızına göre ayarla)
-        yield return new WaitForSeconds(0.3f);
-
-        animator.SetBool("isAttacking", false);
-        activeWeapon.SetWeaponCollider(false); // Collider'ı kapat
+        Gizmos.color = Color.red;
+        Vector3 hitCenter = transform.position + transform.forward * hitOffset;
+        Gizmos.DrawWireSphere(hitCenter, hitRadius);
     }
 }

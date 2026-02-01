@@ -9,6 +9,7 @@ TagManager:
   - Weapon
   - Transform
   - OrbitWeapon
+  - Barrier
   layers:
   - Default
   - TransparentFX

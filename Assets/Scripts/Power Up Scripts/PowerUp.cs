@@ -13,94 +13,80 @@ public enum PowerUpType
 public class PowerUp : MonoBehaviour
 {
     public PowerUpType type;
-    public float powerUpDuration;
-    public float amount;
-    public float destroyAfterThisMuchSeconds;
+    public float powerUpDuration = 5f;
+    public float amount = 2.0f;
+    public float floorLifeTime = 7f; 
 
-    private PlayerController playerController;
-    private PlayerHealth playerHealth;
-    private Weapon weapon;
-    private OrbitWeapon orbitWeapon;
+    private Coroutine floorCoroutine; 
+    private bool isCollected = false;
 
-    public void Update()
+    void Start()
     {
-        StartCoroutine(DestroyUncollectedPowerUp());
+        floorCoroutine = StartCoroutine(DestroyIfUncollected());
     }
-    public void OnTriggerEnter(Collider other)
+
+    IEnumerator DestroyIfUncollected()
     {
-        if (other.CompareTag("Player"))
+
+        yield return new WaitForSeconds(floorLifeTime - 2f);
+
+        // Buraya yanıp sönme animasyonu veya ses gelebilir
+
+        yield return new WaitForSeconds(2f);
+        Destroy(gameObject);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player") && !isCollected)
         {
-            playerController = other.GetComponent<PlayerController>();
-            playerHealth = other.GetComponent<PlayerHealth>();
+            isCollected = true;
+            if (floorCoroutine != null) StopCoroutine(floorCoroutine);
 
-            weapon = other.GetComponentInChildren<Weapon>();
-            orbitWeapon = other.GetComponentInChildren<OrbitWeapon>();
+            // Görseli ve collider'ı kapat ama objeyi henüz yok etme
+            GetComponent<MeshRenderer>().enabled = false;
+            GetComponent<Collider>().enabled = false;
 
-            StartCoroutine(ApplyPowerUp(type));
+            StartCoroutine(ApplyPowerUp(other.gameObject));
         }
     }
 
-    IEnumerator ApplyPowerUp(PowerUpType type) 
+    IEnumerator ApplyPowerUp(GameObject player)
     {
-        GetComponent<MeshRenderer>().enabled = false;
-        GetComponent<Collider>().enabled = false;
+        var pc = player.GetComponent<PlayerController>();
+        var w = player.GetComponentInChildren<Weapon>();
+        var ow = player.GetComponentInChildren<OrbitWeapon>();
+        var ph = player.GetComponent<PlayerHealth>();
 
-        switch (type)
-        {
-            case PowerUpType.Health:
-                if(playerHealth.playerHealth < 5)
-                   playerHealth.playerHealth++;
-                break;
-
-            case PowerUpType.OrbitCoolDownReduce:
-                amount = 2.0f;
-                orbitWeapon.cooldown -= amount;
-                break;
-
-            case PowerUpType.MovementSpeed:
-                amount = 2.0f;
-                playerController.speed += amount;
-                break;
-
-            case PowerUpType.DamageBoost:
-                amount = 2;
-                weapon.damage += (int)amount;
-                orbitWeapon.damage += (int)amount;
-                break;
-
-            default:
-                break;
-        }
+        // ETKİYİ VER (Multiplier = 1)
+        ModifyStats(pc, w, ow, ph, 1);
 
         yield return new WaitForSeconds(powerUpDuration);
 
+        // ETKİYİ GERİ AL (Multiplier = -1)
+        ModifyStats(pc, w, ow, ph, -1);
+
+        // Power up'ın işi bitti sahneden sil
+        Destroy(gameObject);
+    }
+
+    private void ModifyStats(PlayerController pc, Weapon w, OrbitWeapon ow, PlayerHealth ph, float multiplier)
+    {
         switch (type)
         {
             case PowerUpType.MovementSpeed:
-
-                playerController.speed -= amount;
+                pc.speed += amount * multiplier;
                 break;
-
             case PowerUpType.DamageBoost:
-
-                weapon.damage -= (int)amount;
-                orbitWeapon.damage -= (int)amount;
+                if (w != null) w.damage += (int)(amount * multiplier);
+                if (ow != null) ow.damage += (int)(amount * multiplier);
                 break;
-
-            default:
+            case PowerUpType.OrbitCoolDownReduce:
+                if (ow != null) ow.cooldown -= amount * multiplier;
+                break;
+            case PowerUpType.Health:
+                if (multiplier > 0 && ph.playerHealth < 5) ph.playerHealth++;
                 break;
         }
-        Destroy(gameObject);
     }
-
-    IEnumerator DestroyUncollectedPowerUp() 
-    {
-        yield return new WaitForSeconds(destroyAfterThisMuchSeconds);
-        //glare effect koyarız yanıp söner hesabı
-        Destroy(gameObject);
-    }
-
-
-
-
 }

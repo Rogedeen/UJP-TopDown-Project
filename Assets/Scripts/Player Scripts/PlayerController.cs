@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // --- 4. SÜPÜRME TARAMASI (SWEEP) ---
-        List<Enemy> hitEnemiesInThisSwing = new List<Enemy>();
+        List<Enemy> hitEnemiesInThisSwing = new();
         float timer = 0f;
         float attackDuration = 0.3f;
 
@@ -116,11 +116,30 @@ public class PlayerController : MonoBehaviour
             {
                 if (col.CompareTag("Enemy") && col.TryGetComponent<Enemy>(out var enemy))
                 {
+                    // foreach döngüsünün içindeki hasar verme kısmına ekle:
                     if (!hitEnemiesInThisSwing.Contains(enemy))
                     {
-                        // Hasar veriyoruz (Knockback için oyuncu pozisyonunu gönderiyoruz)
+                        // --- YENİ: ENGEL KONTROLÜ ---
+                        Vector3 directionToEnemy = col.transform.position - transform.position;
+                        float distanceToEnemy = directionToEnemy.magnitude;
+
+                        // Oyuncu ile düşman arasında bir Raycast (ışın) gönderiyoruz
+                        if (Physics.Raycast(transform.position + Vector3.up, directionToEnemy, out RaycastHit hit, distanceToEnemy))
+                        {
+                            // Eğer ışın önce bir engele (Barrier) çarparsa bu düşmanı geç
+                            if (hit.collider.CompareTag("Barrier"))
+                            {
+                                continue;
+                            }
+                        }
                         enemy.TakeDamage(activeWeapon.damage, transform.position);
                         hitEnemiesInThisSwing.Add(enemy);
+                        /*
+                        Time.timeScale = 0;
+                        yield return new WaitForSecondsRealtime(0.1f);
+                        Time.timeScale = 1;
+                        //hit stop denedim ama pek begenmedim
+                        */
                     }
                 }
             }

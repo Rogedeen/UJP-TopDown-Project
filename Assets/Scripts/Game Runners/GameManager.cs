@@ -7,31 +7,44 @@ public class GameManager : MonoBehaviour
     public static bool isGameActive;
     public GameObject titleScreen;
     public GameObject gameOverScreen;
+    public GameObject winScreen; // Yeni: Kazanma ekranı
     public GameObject player;
+
     void Start()
     {
+        Time.timeScale = 1;
         isGameActive = false;
-        titleScreen.gameObject.SetActive(true);
-        gameOverScreen.gameObject.SetActive(false);
-        player.gameObject.SetActive(false);
+        titleScreen.SetActive(true);
+        gameOverScreen.SetActive(false);
+        winScreen.SetActive(false);
+        player.SetActive(false);
     }
 
-    public void GameOver() 
+    public void StartGame()
     {
-        isGameActive = false;
-        gameOverScreen.gameObject.SetActive(true);
-        player.gameObject.SetActive(false);
-    }
-
-    public void StartGame() 
-    {
-        titleScreen.gameObject.SetActive(false);
+        titleScreen.SetActive(false);
         isGameActive = true;
-        player.gameObject.SetActive(true);
+        player.SetActive(true);
+        Time.timeScale = 1;
+    }
+
+    public void GameOver()
+    {
+        isGameActive = false;
+        gameOverScreen.SetActive(true);
+        Time.timeScale = 0;
+    }
+
+    public void WinGame()
+    {
+        isGameActive = false;
+        winScreen.SetActive(true);
+        Time.timeScale = 0; 
     }
 
     public void RestartGame()
     {
-        SceneManager.LoadScene("MainScene");
+        Time.timeScale = 1;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

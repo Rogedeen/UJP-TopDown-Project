@@ -359,7 +359,7 @@ Animator:
   m_GameObject: {fileID: 1877747612521769358}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 599b2dc9e6c44a8ebc02ddea1f18d215, type: 3}
-  m_Controller: {fileID: 9100000, guid: 1f68948a5bb74f2fa9e9087a872750e9, type: 2}
+  m_Controller: {fileID: 9100000, guid: 67b1e4b6f90076b4a9f1e9122504fc04, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -383,11 +383,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d6b14eafe3aeaa4a9087f4680238cf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  speed: 4
-  health: 3
+  speed: 5
+  health: 4
   canTakeDamage: 1
   invincibilityDuration: 0.5
   enemyHealthSlider: {fileID: 6981729356390908538}
+  hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
 --- !u!54 &8327390451245997028
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -434,8 +435,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.67132545
+  m_Center: {x: 0, y: 0.41, z: 0}
 --- !u!1 &1990510141015139124
 GameObject:
   m_ObjectHideFlags: 0

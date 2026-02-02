@@ -1,18 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class WaveManager : MonoBehaviour
 {
-    public int firstWave = 2;
+    public int firstWaveCount = 2;
     public int enemyToAddByWave = 1;
-    public GameObject enemyPrefab;
-    public Gates[] gates;
+    public GameObject normalEnemyPrefab;
+    public GameObject strongEnemyPrefab;
     public static int activeEnemyCount = 0;
+    public Gates[] gates;
+    
 
     private PowerUpManager powerUpManager;
-    private bool isSpawning = false; 
+    private bool isSpawning = false;
 
     void Start()
     {
@@ -24,6 +25,7 @@ public class WaveManager : MonoBehaviour
     {
         if (!GameManager.isGameActive) return;
 
+        // Eğer hiç düşman kalmadıysa ve yeni dalga doğurulmuyorsa başlat
         if (activeEnemyCount == 0 && !isSpawning)
         {
             StartCoroutine(SpawnWaveRoutine());
@@ -32,35 +34,49 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator SpawnWaveRoutine()
     {
-        //Kilidi kapat
-        isSpawning = true; 
-
+        isSpawning = true;
         powerUpManager.SpawnPowerUp();
 
-        // Wave başlarken 2-3 saniye hazırlanma süresi verebiliriz
-        // sonra açarsın yield return new WaitForSeconds(2.0f);
-
-        for (int i = 0; i < firstWave; i++)
+        // 1. Aktif kapıları filtrele
+        List<Gates> activeGates = new List<Gates>();
+        foreach (var gate in gates)
         {
-            SpawnSingleEnemy();
+            if (gate.isActive) activeGates.Add(gate);
+        }
 
-            //Her spawn sonrası 1.5 saniye bekle
+        // Oyun Kazanma Kontrolü
+        if (activeGates.Count == 0)
+        {
+            Debug.Log("Tebrikler çırak, tüm kapıları kapattın!");
+            // GameManager.Instance.GameOver(true); // Kazandın ekranı için
+            yield break;
+        }
+
+        // 2. Zorluk Hesabı (Kapılar kapandıkça artan 0-1 arası değer)
+        float difficultyScore = (float)(gates.Length - activeGates.Count) / gates.Length;
+
+        for (int i = 0; i < firstWaveCount; i++)
+        {
+            // Rastgele bir AKTİF kapı seç
+            Gates randomGate = activeGates[Random.Range(0, activeGates.Count)];
+
+            // Hangi düşmanı doğuralım? (Zorluğa göre karar ver)
+            GameObject prefabToSpawn = (Random.value < difficultyScore) ? strongEnemyPrefab : normalEnemyPrefab;
+
+            // Güncel spawn fonksiyonumuzu çağırıyoruz
+            SpawnAtGate(prefabToSpawn, randomGate.transform.position);
+
             yield return new WaitForSeconds(1.0f);
         }
 
-        firstWave += enemyToAddByWave;
-        isSpawning = false; //İşlem bitti, kilidi aç
+        firstWaveCount += enemyToAddByWave;
+        isSpawning = false;
     }
 
-    void SpawnSingleEnemy()
+    // Eski SpawnSingleEnemy yerine bu daha esnek fonksiyonu koyduk
+    void SpawnAtGate(GameObject enemyPrefab, Vector3 spawnPosition)
     {
-        int randomIndex = Random.Range(0, gates.Length);
-
-        if (gates[randomIndex].isActive)
-        {
-            Vector3 gatePosition = gates[randomIndex].gameObject.transform.position;
-            Instantiate(enemyPrefab, gatePosition, enemyPrefab.transform.rotation);
-            activeEnemyCount++;
-        }
+        Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        activeEnemyCount++;
     }
 }

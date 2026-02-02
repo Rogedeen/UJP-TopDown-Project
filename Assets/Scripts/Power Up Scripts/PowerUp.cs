@@ -15,12 +15,17 @@ public class PowerUp : MonoBehaviour
     public PowerUpType type;
     public float powerUpDuration;
     public float amount;
+    public float destroyAfterThisMuchSeconds;
 
     private PlayerController playerController;
     private PlayerHealth playerHealth;
     private Weapon weapon;
     private OrbitWeapon orbitWeapon;
 
+    public void Update()
+    {
+        StartCoroutine(DestroyUncollectedPowerUp());
+    }
     public void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -85,6 +90,13 @@ public class PowerUp : MonoBehaviour
             default:
                 break;
         }
+        Destroy(gameObject);
+    }
+
+    IEnumerator DestroyUncollectedPowerUp() 
+    {
+        yield return new WaitForSeconds(destroyAfterThisMuchSeconds);
+        //glare effect koyarız yanıp söner hesabı
         Destroy(gameObject);
     }
 

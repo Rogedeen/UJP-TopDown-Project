@@ -8,18 +8,6 @@ public class PowerUpManager : MonoBehaviour
     public float spawnRange;
     public List<GameObject> powerUpTypes;
 
-    private WaveManager waveManager;
-
-
-    void Start()
-    {
-        waveManager = GameObject.Find("WaveManager").GetComponent<WaveManager>();
-    }
-
-    void Update()
-    {
-
-    }
     public void SpawnPowerUp()
     {
             for (int i = 0; i < firstWavePowerUpCount; i++)

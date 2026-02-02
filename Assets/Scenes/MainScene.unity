@@ -1231,10 +1231,10 @@ MonoBehaviour:
   powerUpToAddByWave: 1
   spawnRange: 20
   powerUpTypes:
-  - {fileID: 5098557453793639346, guid: 76052b144962c2f4fa8851765ca645b0, type: 3}
-  - {fileID: 1559766832881692707, guid: 7141b6f1a20985749a68f81e8b8169ae, type: 3}
-  - {fileID: 9006181723304499319, guid: 869812a707848a34aa81ca3ec030500c, type: 3}
-  - {fileID: 2404205235488092724, guid: 365fa4d52ef7ad5449f22b8d31ef2d71, type: 3}
+  - {fileID: 463107931856031619, guid: 76052b144962c2f4fa8851765ca645b0, type: 3}
+  - {fileID: 3586597863669091523, guid: 7141b6f1a20985749a68f81e8b8169ae, type: 3}
+  - {fileID: 2310444904914611008, guid: 869812a707848a34aa81ca3ec030500c, type: 3}
+  - {fileID: 7474401964471204629, guid: 365fa4d52ef7ad5449f22b8d31ef2d71, type: 3}
 --- !u!1 &780635540
 GameObject:
   m_ObjectHideFlags: 0
@@ -1966,6 +1966,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4214589807617275607, guid: 3b727a3386c29f948bf89db4481e7615, type: 3}
+      propertyPath: isSkillActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

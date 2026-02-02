@@ -8,7 +8,9 @@ public class OrbitWeapon : MonoBehaviour
     public int damage;
     public float duration;
     public float cooldown;
-    public bool isSkillActive = false;
+
+    public bool canUseSkill = true;
+    public bool isRotating = false;
 
 
     private Renderer weaponRenderer;
@@ -26,20 +28,21 @@ public class OrbitWeapon : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.isGameActive && Input.GetKeyDown(KeyCode.F) && !isSkillActive)
+        if (GameManager.isGameActive && Input.GetKeyDown(KeyCode.F) && canUseSkill && !isRotating)
         {
-            StartCoroutine(UseSkill());
+            StartCoroutine(SkillCycle());
         }
 
-        if (isSkillActive) 
+        if (isRotating) 
         {
             transform.RotateAround(orbitTransform.position, Vector3.up, rotationSpeed * Time.deltaTime);
         }
     }
 
-    IEnumerator UseSkill() 
+    IEnumerator SkillCycle() 
     {
-        isSkillActive = true;
+        canUseSkill = false;
+        isRotating = true;
         weaponRenderer.enabled = true;
         weaponCollider.enabled = true;   
         
@@ -47,6 +50,9 @@ public class OrbitWeapon : MonoBehaviour
 
         weaponRenderer.enabled = false;
         weaponCollider.enabled = false;
-        isSkillActive = false;
+        isRotating = false;
+
+        yield return new WaitForSeconds(cooldown);
+        canUseSkill = true;
     }
 }

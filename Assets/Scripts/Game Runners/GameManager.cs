@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     public GameObject titleScreen;
     public GameObject gameOverScreen;
     public GameObject winScreen; // Yeni: Kazanma ekranı
+    public GameObject retryObject;
     public GameObject player;
 
     void Start()
@@ -18,6 +19,7 @@ public class GameManager : MonoBehaviour
         gameOverScreen.SetActive(false);
         winScreen.SetActive(false);
         player.SetActive(false);
+        retryObject.SetActive(false);
     }
 
     public void StartGame()
@@ -32,6 +34,7 @@ public class GameManager : MonoBehaviour
     {
         isGameActive = false;
         gameOverScreen.SetActive(true);
+        retryObject.SetActive(true);
         Time.timeScale = 0;
     }
 
@@ -39,6 +42,7 @@ public class GameManager : MonoBehaviour
     {
         isGameActive = false;
         winScreen.SetActive(true);
+        retryObject.SetActive(true);
         Time.timeScale = 0; 
     }
 

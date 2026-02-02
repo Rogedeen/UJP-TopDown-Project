@@ -351,7 +351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d6b14eafe3aeaa4a9087f4680238cf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  speed: 4
+  speed: 5
   health: 2
   canTakeDamage: 1
   invincibilityDuration: 0.5

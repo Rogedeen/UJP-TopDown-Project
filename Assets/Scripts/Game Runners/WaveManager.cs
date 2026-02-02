@@ -49,9 +49,7 @@ public class WaveManager : MonoBehaviour
         // Oyun Kazanma Kontrolü
         if (activeGates.Count == 0)
         {
-            Debug.Log("Tebrikler çırak, tüm kapıları kapattın!");
-            gameManager.WinGame(); // Kazandın ekranı için
-            yield break;
+            CheckForVictory();
         }
 
         // 2. Zorluk Hesabı (Kapılar kapandıkça artan 0-1 arası değer)
@@ -73,6 +71,20 @@ public class WaveManager : MonoBehaviour
 
         firstWaveCount += enemyToAddByWave;
         isSpawning = false;
+    }
+
+    // WaveManager.cs içine eklenecek yeni fonksiyon
+    public void CheckForVictory()
+    {
+        // Aktif kapı var mı diye bak
+        foreach (var gate in gates)
+        {
+            if (gate.isActive) return; // Hala bir kapı açık, fonksiyondan çık
+        }
+
+        // Eğer döngü bitmişse ve 'return' olmamışsa tüm kapılar kapalıdır!
+        Debug.Log("Tebrikler çırak, tüm kapıları kapattın!");
+        gameManager.WinGame();
     }
 
     // Eski SpawnSingleEnemy yerine bu daha esnek fonksiyonu koyduk

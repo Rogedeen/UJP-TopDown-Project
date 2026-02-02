@@ -3,8 +3,13 @@ using UnityEngine;
 public class Gates : MonoBehaviour
 {
     public bool isActive = true;
-    public Transform snapPoint; 
+    public Transform snapPoint;
+    private WaveManager waveManager;
 
+    public void Start()
+    {
+        waveManager = FindAnyObjectByType<WaveManager>();
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (isActive && other.CompareTag("Barrier"))
@@ -21,6 +26,8 @@ public class Gates : MonoBehaviour
             {
                 other.transform.SetPositionAndRotation(snapPoint.position, snapPoint.rotation);
             }
+
+            waveManager.CheckForVictory();
         }
     }
 }

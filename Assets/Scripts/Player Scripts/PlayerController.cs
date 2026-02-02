@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -102,7 +103,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // --- 4. SÜPÜRME TARAMASI (SWEEP) ---
-        List<Enemy> hitEnemiesInThisSwing = new();
+        List<EnemyBase> hitEnemiesInThisSwing = new();
         float timer = 0f;
         float attackDuration = 0.3f;
 
@@ -114,10 +115,9 @@ public class PlayerController : MonoBehaviour
 
             foreach (var col in hitColliders)
             {
-                if (col.CompareTag("Enemy") && col.TryGetComponent<Enemy>(out var enemy))
+                if (col.CompareTag("Enemy") && col.TryGetComponent<EnemyBase>(out var enemyBase))
                 {
-                    // foreach döngüsünün içindeki hasar verme kısmına ekle:
-                    if (!hitEnemiesInThisSwing.Contains(enemy))
+                    if (!hitEnemiesInThisSwing.Contains(enemyBase))
                     {
                         // --- YENİ: ENGEL KONTROLÜ ---
                         Vector3 directionToEnemy = col.transform.position - transform.position;
@@ -132,8 +132,8 @@ public class PlayerController : MonoBehaviour
                                 continue;
                             }
                         }
-                        enemy.TakeDamage(activeWeapon.damage, transform.position);
-                        hitEnemiesInThisSwing.Add(enemy);
+                        enemyBase.TakeDamage(activeWeapon.damage, transform.position);
+                        hitEnemiesInThisSwing.Add(enemyBase);
                         /*
                         Time.timeScale = 0;
                         yield return new WaitForSecondsRealtime(0.1f);

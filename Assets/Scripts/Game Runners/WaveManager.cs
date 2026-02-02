@@ -1,16 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WaveManager : MonoBehaviour
 {
     public int firstWaveCount = 2;
     public int enemyToAddByWave = 1;
+
+    [Header("Enemy Prefabs")]
     public GameObject normalEnemyPrefab;
     public GameObject strongEnemyPrefab;
+    public GameObject wizardEnemyPrefab; 
+
     public static int activeEnemyCount = 0;
     public Gates[] gates;
-    
 
     private PowerUpManager powerUpManager;
     private GameManager gameManager;
@@ -27,7 +31,6 @@ public class WaveManager : MonoBehaviour
     {
         if (!GameManager.isGameActive) return;
 
-        // Eğer hiç düşman kalmadıysa ve yeni dalga doğurulmuyorsa başlat
         if (activeEnemyCount == 0 && !isSpawning)
         {
             StartCoroutine(SpawnWaveRoutine());
@@ -39,31 +42,40 @@ public class WaveManager : MonoBehaviour
         isSpawning = true;
         powerUpManager.SpawnPowerUp();
 
-        // 1. Aktif kapıları filtrele
-        List<Gates> activeGates = new();
+        List<Gates> activeGates = new List<Gates>();
         foreach (var gate in gates)
         {
             if (gate.isActive) activeGates.Add(gate);
         }
 
-        // Oyun Kazanma Kontrolü
         if (activeGates.Count == 0)
         {
             CheckForVictory();
+            yield break; 
         }
 
-        // 2. Zorluk Hesabı (Kapılar kapandıkça artan 0-1 arası değer)
         float difficultyScore = (float)(gates.Length - activeGates.Count) / gates.Length;
 
         for (int i = 0; i < firstWaveCount; i++)
         {
-            // Rastgele bir AKTİF kapı seç
             Gates randomGate = activeGates[Random.Range(0, activeGates.Count)];
 
-            // Hangi düşmanı doğuralım? (Zorluğa göre karar ver)
-            GameObject prefabToSpawn = (Random.value < difficultyScore) ? strongEnemyPrefab : normalEnemyPrefab;
+            GameObject prefabToSpawn;
+            float roll = Random.value; 
 
-            // Güncel spawn fonksiyonumuzu çağırıyoruz
+            if (roll < difficultyScore * 0.5f)
+            {
+                prefabToSpawn = wizardEnemyPrefab; 
+            }
+            else if (roll < difficultyScore)
+            {
+                prefabToSpawn = strongEnemyPrefab; 
+            }
+            else
+            {
+                prefabToSpawn = normalEnemyPrefab; 
+            }
+
             SpawnAtGate(prefabToSpawn, randomGate.transform.position);
 
             yield return new WaitForSeconds(1.0f);
@@ -72,22 +84,16 @@ public class WaveManager : MonoBehaviour
         firstWaveCount += enemyToAddByWave;
         isSpawning = false;
     }
-
-    // WaveManager.cs içine eklenecek yeni fonksiyon
     public void CheckForVictory()
     {
-        // Aktif kapı var mı diye bak
         foreach (var gate in gates)
         {
-            if (gate.isActive) return; // Hala bir kapı açık, fonksiyondan çık
+            if (gate.isActive) return;
         }
 
-        // Eğer döngü bitmişse ve 'return' olmamışsa tüm kapılar kapalıdır!
         Debug.Log("Tebrikler çırak, tüm kapıları kapattın!");
         gameManager.WinGame();
     }
-
-    // Eski SpawnSingleEnemy yerine bu daha esnek fonksiyonu koyduk
     void SpawnAtGate(GameObject enemyPrefab, Vector3 spawnPosition)
     {
         Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);

@@ -13,12 +13,14 @@ public class WaveManager : MonoBehaviour
     
 
     private PowerUpManager powerUpManager;
+    private GameManager gameManager;
     private bool isSpawning = false;
 
     void Start()
     {
         activeEnemyCount = 0;
         powerUpManager = GameObject.Find("Power Up Manager").GetComponent<PowerUpManager>();
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
 
     void Update()
@@ -38,7 +40,7 @@ public class WaveManager : MonoBehaviour
         powerUpManager.SpawnPowerUp();
 
         // 1. Aktif kapıları filtrele
-        List<Gates> activeGates = new List<Gates>();
+        List<Gates> activeGates = new();
         foreach (var gate in gates)
         {
             if (gate.isActive) activeGates.Add(gate);
@@ -48,7 +50,7 @@ public class WaveManager : MonoBehaviour
         if (activeGates.Count == 0)
         {
             Debug.Log("Tebrikler çırak, tüm kapıları kapattın!");
-            // GameManager.Instance.GameOver(true); // Kazandın ekranı için
+            gameManager.WinGame(); // Kazandın ekranı için
             yield break;
         }
 

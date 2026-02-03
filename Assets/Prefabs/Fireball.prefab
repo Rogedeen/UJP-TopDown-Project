@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 8805208281352466346}
   - component: {fileID: 1889229501138413428}
   - component: {fileID: -4241898833135462948}
-  - component: {fileID: 413021225081157685}
   - component: {fileID: 2496389246742191360}
+  - component: {fileID: 9129347547415816207}
   m_Layer: 0
   m_Name: Fireball
   m_TagString: Untagged
@@ -109,27 +109,6 @@ MonoBehaviour:
   damage: 1
   lifeTime: 4
   explosionPrefab: {fileID: 1158318190275716005, guid: a557af495c46c0a4fac212eb14b87dc0, type: 3}
---- !u!135 &413021225081157685
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9063514842149012542}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.20632829
-  m_Center: {x: 0, y: -0.02, z: 0.02}
 --- !u!54 &2496389246742191360
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -157,6 +136,27 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!135 &9129347547415816207
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9063514842149012542}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.43673947
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &201090074299586669
 PrefabInstance:
   m_ObjectHideFlags: 0

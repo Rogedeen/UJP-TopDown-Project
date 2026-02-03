@@ -1,11 +1,13 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
     public int playerHealth = 5;
     public float invincibltyTime = 1f;
     public GameManager gameManager;
+    public Slider playerHealthBar;
 
     private bool isInvincible = false;
 
@@ -13,6 +15,14 @@ public class PlayerHealth : MonoBehaviour
     {
         GameObject gmObj = GameObject.Find("Game Manager");
         if (gmObj != null) gameManager = gmObj.GetComponent<GameManager>();
+
+        if (playerHealthBar != null)
+        {
+            playerHealthBar.maxValue = playerHealth;
+            playerHealthBar.value = playerHealth;
+            playerHealthBar.gameObject.SetActive(false);
+        }
+
     }
 
     void Update()
@@ -28,7 +38,11 @@ public class PlayerHealth : MonoBehaviour
         if (isInvincible) return;
 
         playerHealth -= damage;
-        Debug.Log("Oyuncu hasar aldı! Kalan Can: " + playerHealth);
+        if (playerHealthBar != null)
+        {
+            playerHealthBar.value = playerHealth;
+            playerHealthBar.gameObject.SetActive(true);
+        }
 
         StartCoroutine(InvincibleRoutine());
     }

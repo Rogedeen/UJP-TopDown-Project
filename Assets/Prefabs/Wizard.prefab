@@ -2554,14 +2554,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 166eae7d040ff7642a19e01da7645ee5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemy
-  health: 3
+  health: 2
   canTakeDamage: 1
   invincibilityDuration: 0.5
   enemyHealthSlider: {fileID: 4753014051656571696}
   hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
   speed: 3
-  stoppingDistance: 6
-  attackRange: 10
+  stoppingDistance: 5
+  attackRange: 7
   fireRate: 2
   projectilePrefab: {fileID: 9063514842149012542, guid: 130e4021cbaadf245a10abfb9d9cb563, type: 3}
   firePoint: {fileID: 8773369037139094902}

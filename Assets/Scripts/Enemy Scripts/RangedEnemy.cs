@@ -16,26 +16,44 @@ public class RangedEnemy : EnemyBase
 
     protected override void Start()
     {
-        base.Start(); // base.Start oyuncuyu bulacak
+        base.Start();
+        if (agent != null)
+        {
+            agent.speed = speed;
+            agent.stoppingDistance = stoppingDistance; 
+        }
     }
 
     void Update()
     {
-        if (player == null || health <= 0 || !GameManager.isGameActive) return;
+        if (player == null || health <= 0 || !GameManager.isGameActive || isKnockedBack) return;
 
-        float distance = Vector3.Distance(transform.position, player.transform.position);
-
-        if (distance <= attackRange && Time.time >= nextFireTime)
+        if (agent.isActiveAndEnabled)
         {
-            if (!IsObstacleInWay())
+            agent.SetDestination(player.transform.position);
+
+            float distance = Vector3.Distance(transform.position, player.transform.position);
+            animator.SetFloat("speed_f", agent.velocity.magnitude);
+
+            // Oyuncuya bak
+            Vector3 lookPos = player.transform.position - transform.position;
+            lookPos.y = 0;
+            if (lookPos != Vector3.zero)
+                transform.rotation = Quaternion.LookRotation(lookPos);
+
+            // Ates etme mantigi
+            if (distance <= attackRange && Time.time >= nextFireTime)
             {
-                Attack();
-                nextFireTime = Time.time + fireRate;
+                if (!IsObstacleInWay())
+                {
+                    Attack();
+                    nextFireTime = Time.time + fireRate;
+                }
             }
         }
     }
 
-    void FixedUpdate()
+    /*void FixedUpdate()
     {
         if (player == null || isKnockedBack || health <= 0) return;
 
@@ -54,7 +72,7 @@ public class RangedEnemy : EnemyBase
             enemyRb.linearVelocity = new Vector3(0, enemyRb.linearVelocity.y, 0);
             animator.SetFloat("speed_f", 0);
         }
-    }
+    }*/
 
     void Attack()
     {

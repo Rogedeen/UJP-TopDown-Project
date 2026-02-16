@@ -22,7 +22,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e43441994bc94724581a25cdb6b814f9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.26
+      value: -11.389999
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e43441994bc94724581a25cdb6b814f9, type: 3}
       propertyPath: m_LocalPosition.y
@@ -30,15 +30,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e43441994bc94724581a25cdb6b814f9, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -13.97
+      value: -7.0600004
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e43441994bc94724581a25cdb6b814f9, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.7071068
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e43441994bc94724581a25cdb6b814f9, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e43441994bc94724581a25cdb6b814f9, type: 3}
       propertyPath: m_LocalRotation.y
@@ -54,7 +54,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e43441994bc94724581a25cdb6b814f9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 270
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e43441994bc94724581a25cdb6b814f9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -156,6 +156,6 @@ NavMeshObstacle:
   m_Extents: {x: 1.511, y: 0.63900006, z: 0.15}
   m_MoveThreshold: 0.1
   m_Carve: 1
-  m_CarveOnlyStationary: 1
+  m_CarveOnlyStationary: 0
   m_Center: {x: -0.013, y: 0.63900006, z: 0.155}
   m_TimeToStationary: 0.5

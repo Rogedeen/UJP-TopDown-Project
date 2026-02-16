@@ -99,9 +99,17 @@ public class EnemyBase : MonoBehaviour
         enemyRb.AddForce(pushDir * 7f, ForceMode.Impulse);
 
         yield return new WaitForSeconds(0.2f);
+
+        enemyRb.linearVelocity = Vector3.zero;
         enemyRb.isKinematic = true;
-        isKnockedBack = false;
+
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
+        {
+            transform.position = hit.position;
+        }
+
         if (agent != null) agent.enabled = true;
+        isKnockedBack = false;
     }
 
     protected IEnumerator HitFlashRoutine()

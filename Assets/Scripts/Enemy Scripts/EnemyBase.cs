@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.AI;
 public class EnemyBase : MonoBehaviour
 {
     [Header("Core Stats")]
@@ -23,9 +23,11 @@ public class EnemyBase : MonoBehaviour
 
     protected Renderer[] renderers;
     protected Material[] originalMaterials;
+    protected NavMeshAgent agent;
 
     protected virtual void Awake()
     {
+        agent = GetComponent<NavMeshAgent>();
         renderers = GetComponentsInChildren<Renderer>();
         List<Material> originals = new();
         foreach (Renderer r in renderers)
@@ -46,8 +48,6 @@ public class EnemyBase : MonoBehaviour
             enemyHealthSlider.gameObject.SetActive(false);
         }
     }
-
-    // --- ÖNEMLİ: HASAR ALGILAMA ARTIK BURADA ---
     protected virtual void OnTriggerEnter(Collider other)
     {
         if (!canTakeDamage || health <= 0) return;
@@ -91,13 +91,17 @@ public class EnemyBase : MonoBehaviour
     protected IEnumerator ApplyKnockback(Vector3 source)
     {
         isKnockedBack = true;
-        Vector3 pushDir = (transform.position - source).normalized;
+        if (agent != null) agent.enabled = false;
+        enemyRb.isKinematic = false;
 
+        Vector3 pushDir = (transform.position - source).normalized;
         enemyRb.linearVelocity = Vector3.zero;
         enemyRb.AddForce(pushDir * 7f, ForceMode.Impulse);
 
         yield return new WaitForSeconds(0.2f);
+        enemyRb.isKinematic = true;
         isKnockedBack = false;
+        if (agent != null) agent.enabled = true;
     }
 
     protected IEnumerator HitFlashRoutine()

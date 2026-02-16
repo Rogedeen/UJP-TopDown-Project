@@ -2,34 +2,24 @@ using UnityEngine;
 
 public class Enemy : EnemyBase
 {
-    public float speed = 4f;
-
-    private GameObject player;
-
-    protected override void Awake()
-    {
-        base.Awake();
-    }
-
     protected override void Start()
     {
         base.Start();
-        player = GameObject.FindGameObjectWithTag("Player");
+        if (agent != null) agent.speed = 4f;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (player != null && !isKnockedBack && health > 0)
-        {
-            Vector3 dir = (player.transform.position - transform.position).normalized;
-            dir.y = 0;
+        {    
+            agent.SetDestination(player.transform.position);
 
-            enemyRb.linearVelocity = new(dir.x * speed,
-                                          enemyRb.linearVelocity.y,
-                                          dir.z * speed);
+            animator.SetFloat("speed_f", agent.velocity.magnitude);
 
-            transform.LookAt(player.transform.position);
-            animator.SetFloat("speed_f", speed);
+            if (agent.velocity.sqrMagnitude > 0.1f)
+            {
+                transform.rotation = Quaternion.LookRotation(agent.velocity.normalized);
+            }
         }
     }
 }

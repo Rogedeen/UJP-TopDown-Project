@@ -77,6 +77,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2826312424178288654}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1387755790019564679}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1246573012088495155}
   m_SourcePrefab: {fileID: 100100000, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
 --- !u!1 &3584477659805971674 stripped
 GameObject:
@@ -105,10 +111,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 1
 --- !u!136 &7491339145407731544
 CapsuleCollider:
@@ -129,10 +135,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1.0067972
-  m_Height: 1.9969301
+  m_Radius: 1.1056558
+  m_Height: 2.8903303
   m_Direction: 1
-  m_Center: {x: 0, y: -0.0015348196, z: 0}
+  m_Center: {x: 0.01, y: -0.01, z: -0.014005303}
 --- !u!208 &2826312424178288654
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -149,3 +155,47 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 0
   m_Center: {x: 0, y: -0.002, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &1387755790019564679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3584477659805971674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 695f9d220c9657f42b259f558464f0ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExplosiveBarrel
+  barrelHealth: 2
+  explosionRadius: 4
+  explosionDamage: 2
+  criticalAutoExplodeTime: 2.5
+  pulseSpeed: 5
+  pulseAmount: 0.15
+  explosionVFX: {fileID: 0}
+  hitFlashMaterial: {fileID: 2100000, guid: ab06fac1b5a2f8d4e9a65e58305cfde4, type: 2}
+  originalMaterial: {fileID: 2100000, guid: b0042ea1fa5439f45b47ad7e6bc9eb14, type: 2}
+--- !u!136 &1246573012088495155
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3584477659805971674}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.1056558
+  m_Height: 2.8903303
+  m_Direction: 1
+  m_Center: {x: 0.01, y: -0.01, z: -0.014005303}

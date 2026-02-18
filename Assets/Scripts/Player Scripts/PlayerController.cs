@@ -142,6 +142,11 @@ public class PlayerController : MonoBehaviour
                         */
                     }
                 }
+
+                else if (col.CompareTag("Barrel") && col.TryGetComponent<ExplosiveBarrel>(out var barrel))
+                {
+                    barrel.TakeBarrelDamage(activeWeapon.damage);
+                }
             }
             yield return null;
         }

@@ -18,6 +18,13 @@ public class ExplosiveBarrel : MonoBehaviour
     [Header("Referanslar")]
     public GameObject explosionVFX;
 
+
+    [Header("Hit Flash")]
+    public Material hitFlashMaterial;      
+    public Material originalMaterial;     
+
+    private Renderer barrelRenderer;
+
     // Dahili durum takibi
     private bool isCritical = false;    
     private bool hasExploded = false;   
@@ -26,6 +33,7 @@ public class ExplosiveBarrel : MonoBehaviour
     void Start()
     {
         originalScale = transform.localScale;
+        barrelRenderer = GetComponent<Renderer>();
     }
 
     void Update()
@@ -56,8 +64,12 @@ public class ExplosiveBarrel : MonoBehaviour
         }
     }
 
-    void TakeBarrelDamage(int damage)
+    public void TakeBarrelDamage(int damage)
     {
+        if (hasExploded) return;
+
+        StartCoroutine(HitFlashRoutine());
+
         if (isCritical)
         {
             Explode();
@@ -96,10 +108,9 @@ public class ExplosiveBarrel : MonoBehaviour
 
     void Explode()
     {
-        if (hasExploded) return; 
+        if (hasExploded) return;
         hasExploded = true;
         isCritical = false;
-
         transform.localScale = originalScale;
 
         if (explosionVFX != null)
@@ -113,11 +124,22 @@ public class ExplosiveBarrel : MonoBehaviour
         {
             if (col.TryGetComponent<EnemyBase>(out var enemy))
                 enemy.TakeDamage(explosionDamage, transform.position);
-
             if (col.TryGetComponent<PlayerHealth>(out var player))
                 player.TakeDamage(1);
         }
 
+        StartCoroutine(ExplodeAndDestroy());
+    }
+
+    IEnumerator ExplodeAndDestroy()
+    {
+        foreach (var col in GetComponents<Collider>())
+            col.enabled = false;
+
+        if (barrelRenderer != null)
+            barrelRenderer.enabled = false;
+
+        yield return new WaitForSeconds(0.15f);
         Destroy(gameObject);
     }
     private void OnDrawGizmosSelected()
@@ -126,5 +148,11 @@ public class ExplosiveBarrel : MonoBehaviour
         Gizmos.DrawSphere(transform.position, explosionRadius);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explosionRadius);
+    }
+    IEnumerator HitFlashRoutine()
+    {
+        barrelRenderer.material = hitFlashMaterial;
+        yield return new WaitForSeconds(0.1f);
+        barrelRenderer.material = originalMaterial;
     }
 }

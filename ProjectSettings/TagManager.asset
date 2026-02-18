@@ -12,6 +12,7 @@ TagManager:
   - Barrier
   - Power Up
   - Outdoor
+  - Barrel
   layers:
   - Default
   - TransparentFX

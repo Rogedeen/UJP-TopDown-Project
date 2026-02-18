@@ -91,25 +91,42 @@ public class EnemyBase : MonoBehaviour
     protected IEnumerator ApplyKnockback(Vector3 source)
     {
         isKnockedBack = true;
-        if (agent != null) agent.enabled = false;
-        enemyRb.isKinematic = false;
 
         Vector3 pushDir = (transform.position - source).normalized;
-        enemyRb.linearVelocity = Vector3.zero;
-        enemyRb.AddForce(pushDir * 7f, ForceMode.Impulse);
+        pushDir.y = 0; // Dikey bileşeni sıfırla, NavMesh düzleminde kalalım
 
-        yield return new WaitForSeconds(0.2f);
+        float knockbackSpeed = 8f;    // Başlangıç hızı
+        float knockbackDuration = 0.25f;
+        float elapsed = 0f;
 
-        enemyRb.linearVelocity = Vector3.zero;
-        enemyRb.isKinematic = true;
-
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
+        // Agent'ı kapatmak yerine, agent'ın kendi velocity'sini sıfırlıyoruz
+        // ve hareketi Warp ile biz yönetiyoruz
+        if (agent != null)
         {
-            transform.position = hit.position;
+            agent.ResetPath();          // Hedefe gitmeyi durdur
+            agent.velocity = Vector3.zero; // Agent'ın kendi momentumunu sıfırla
         }
 
-        if (agent != null) agent.enabled = true;
+        while (elapsed < knockbackDuration)
+        {
+            elapsed += Time.deltaTime;
+
+            // Hız zamanla azalıyor (easing) - bu daha doğal hissettirir
+            float t = 1f - (elapsed / knockbackDuration);
+            Vector3 movement = knockbackSpeed * t * Time.deltaTime * pushDir;
+
+            // NavMesh üzerinde güvenli hareket
+            if (agent != null && agent.isActiveAndEnabled)
+            {
+                // Warp, agent'ı NavMesh'e "yapıştırarak" hareket ettirir
+                agent.Warp(transform.position + movement);
+            }
+
+            yield return null;
+        }
+
         isKnockedBack = false;
+        // Artık agent yeni bir path hesaplayabilir
     }
 
     protected IEnumerator HitFlashRoutine()

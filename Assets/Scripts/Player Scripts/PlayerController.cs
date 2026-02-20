@@ -12,13 +12,13 @@ public class PlayerController : MonoBehaviour
 
     [Header("Attack Settings")]
     public Weapon activeWeapon;
-    public float hitRadius = 2.5f; // Vuruş alanının genişliği (Dairenin çapı gibi düşün)
-    public float hitOffset = 1.5f; // Vuruşun karakterin ne kadar önünde olacağı
+    public float hitRadius = 2.5f; 
+    public float hitOffset = 1.5f; 
 
     [Header("VFX Settings")]
-    public GameObject windVFXPrefab; // Normal atak efekti
-    public GameObject fireVFXPrefab; // Güçlendirilmiş atak efekti
-    public Transform vfxSpawnPoint;  // Efektin çıkacağı nokta (Genelde karakterin önü)
+    public GameObject windVFXPrefab; 
+    public GameObject fireVFXPrefab; 
+    public Transform vfxSpawnPoint; 
     public int damageUpgradeThreshold = 2;
 
     [Header("Sound Settings")]
@@ -27,19 +27,19 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody playerRb;
     private Animator animator;
+    private FollowPlayer camScript;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         playerRb = GetComponent<Rigidbody>();
+        camScript = Camera.main.GetComponent<FollowPlayer>();
     }
 
     void Update()
     {
-        // Atak kontrolünü Update'te yapman doğru
         if (GameManager.isGameActive && Input.GetMouseButtonDown(0))
         {
-            // Eğer zaten saldırıyorsak tekrar başlatma (opsiyonel ama iyidir)
             if (!animator.GetBool("isAttacking"))
             {
                 StartCoroutine(AttackRoutine());
@@ -81,17 +81,14 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetBool("isAttacking", true);
 
-        // --- 1. SES EFEKTİ ---
         if (whooshSounds.Length > 0)
         {
             audioSource.PlayOneShot(whooshSounds[Random.Range(0, whooshSounds.Length)]);
         }
 
-        // --- 2. ANTICIPATION (Vuruş Öncesi Bekleme) ---
         yield return new WaitForSeconds(0.20f);
 
-        // --- 3. VFX SEÇİMİ VE DOĞURMA ---
-        // Konsoldan hasarı kontrol et:
+
         Debug.Log("Vuruş Anındaki Hasar: " + activeWeapon.damage);
 
         GameObject vfxToSpawn = (activeWeapon.damage >= damageUpgradeThreshold) ? fireVFXPrefab : windVFXPrefab;
@@ -102,8 +99,7 @@ public class PlayerController : MonoBehaviour
             Destroy(vfx, 1.5f);
         }
 
-        // --- 4. SÜPÜRME TARAMASI (SWEEP) ---
-        List<EnemyBase> hitEnemiesInThisSwing = new();
+        List<Component> hitEnemiesInThisSwing = new();
         float timer = 0f;
         float attackDuration = 0.3f;
 
@@ -119,14 +115,11 @@ public class PlayerController : MonoBehaviour
                 {
                     if (!hitEnemiesInThisSwing.Contains(enemyBase))
                     {
-                        // --- YENİ: ENGEL KONTROLÜ ---
                         Vector3 directionToEnemy = col.transform.position - transform.position;
                         float distanceToEnemy = directionToEnemy.magnitude;
 
-                        // Oyuncu ile düşman arasında bir Raycast (ışın) gönderiyoruz
                         if (Physics.Raycast(transform.position + Vector3.up, directionToEnemy, out RaycastHit hit, distanceToEnemy))
                         {
-                            // Eğer ışın önce bir engele (Barrier) çarparsa bu düşmanı geç
                             if (hit.collider.CompareTag("Barrier"))
                             {
                                 continue;
@@ -134,6 +127,7 @@ public class PlayerController : MonoBehaviour
                         }
                         enemyBase.TakeDamage(activeWeapon.damage, transform.position);
                         hitEnemiesInThisSwing.Add(enemyBase);
+                        camScript.TriggerShake(0.1f, 0.15f);
                         /*
                         Time.timeScale = 0;
                         yield return new WaitForSecondsRealtime(0.1f);
@@ -145,7 +139,11 @@ public class PlayerController : MonoBehaviour
 
                 else if (col.CompareTag("Barrel") && col.TryGetComponent<ExplosiveBarrel>(out var barrel))
                 {
-                    barrel.TakeBarrelDamage(activeWeapon.damage);
+                    if (!hitEnemiesInThisSwing.Contains(barrel))
+                    {
+                        barrel.TakeBarrelDamage(activeWeapon.damage);
+                        hitEnemiesInThisSwing.Add(barrel);
+                    }
                 }
             }
             yield return null;

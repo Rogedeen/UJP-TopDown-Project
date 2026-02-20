@@ -28,12 +28,14 @@ public class ExplosiveBarrel : MonoBehaviour
     // Dahili durum takibi
     private bool isCritical = false;    
     private bool hasExploded = false;   
-    private Vector3 originalScale;      
+    private Vector3 originalScale;
+    private FollowPlayer camScript;
 
     void Start()
     {
         originalScale = transform.localScale;
         barrelRenderer = GetComponent<Renderer>();
+        camScript = Camera.main.GetComponent<FollowPlayer>();
     }
 
     void Update()
@@ -140,6 +142,7 @@ public class ExplosiveBarrel : MonoBehaviour
             barrelRenderer.enabled = false;
 
         yield return new WaitForSeconds(0.15f);
+        camScript.TriggerShake(0.5f, 0.4f);
         Destroy(gameObject);
     }
     private void OnDrawGizmosSelected()

@@ -13,6 +13,7 @@ TagManager:
   - Power Up
   - Outdoor
   - Barrel
+  - PlayerObstacle
   layers:
   - Default
   - TransparentFX
@@ -27,7 +28,7 @@ TagManager:
   - Obstacles
   - Ground
   - Outdoor
-  - 
+  - PlayerObstacle
   - 
   - 
   - 

@@ -76,7 +76,7 @@ public class WaveManager : MonoBehaviour
                 prefabToSpawn = normalEnemyPrefab; 
             }
 
-            SpawnAtGate(prefabToSpawn, randomGate.transform.position);
+            SpawnAtGate(prefabToSpawn, randomGate.spawnPoint.position);
 
             yield return new WaitForSeconds(1.0f);
         }

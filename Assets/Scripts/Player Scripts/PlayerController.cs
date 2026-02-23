@@ -45,6 +45,8 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(AttackRoutine());
             }
         }
+
+        
     }
 
     void FixedUpdate()
@@ -151,6 +153,7 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("isAttacking", false);
     }
+
 
     /*private void OnDrawGizmosSelected()
     {

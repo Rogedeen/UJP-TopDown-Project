@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class ExplosiveBarrel : MonoBehaviour
 {
@@ -16,7 +17,10 @@ public class ExplosiveBarrel : MonoBehaviour
     public float pulseAmount = 0.15f;            
 
     [Header("Referanslar")]
-    public GameObject explosionVFX;
+    public GameObject[] explosionVFX;
+    public AudioSource audioSource;
+    public AudioClip[] explosionSoundEffects;
+    private float offset = 1.2f;
 
 
     [Header("Hit Flash")]
@@ -51,11 +55,12 @@ public class ExplosiveBarrel : MonoBehaviour
     {
         if (hasExploded) return;
 
-        if (other.CompareTag("Weapon") || other.CompareTag("OrbitWeapon"))
+        if (other.CompareTag("Weapon") || other.CompareTag("OrbitWeapon") || other.CompareTag("Barrel"))
         {
             int damageValue = 1;
             if (other.TryGetComponent<Weapon>(out var w)) damageValue = w.damage;
             else if (other.TryGetComponent<OrbitWeapon>(out var ow)) damageValue = ow.damage;
+            else if (other.TryGetComponent<ExplosiveBarrel>(out var eb)) damageValue = eb.explosionDamage;
 
             TakeBarrelDamage(damageValue);
         }
@@ -115,9 +120,15 @@ public class ExplosiveBarrel : MonoBehaviour
         isCritical = false;
         transform.localScale = originalScale;
 
-        if (explosionVFX != null)
+        if (explosionVFX != null && explosionSoundEffects!= null)
         {
-            GameObject vfx = Instantiate(explosionVFX, transform.position, Quaternion.identity);
+            int rand = Random.Range(0, explosionVFX.Length);
+
+            Vector3 spawnPos = transform.position; 
+            spawnPos.y = transform.position.y + offset;
+
+            GameObject vfx = Instantiate(explosionVFX[rand], spawnPos, Quaternion.identity);
+            audioSource.PlayOneShot(explosionSoundEffects[Random.Range(0, explosionSoundEffects.Length)]);
             Destroy(vfx, 2f);
         }
 
@@ -128,6 +139,8 @@ public class ExplosiveBarrel : MonoBehaviour
                 enemy.TakeDamage(explosionDamage, transform.position);
             if (col.TryGetComponent<PlayerHealth>(out var player))
                 player.TakeDamage(1);
+            if (col.TryGetComponent<ExplosiveBarrel>(out var barrel))
+                barrel.TakeBarrelDamage(1);
         }
 
         StartCoroutine(ExplodeAndDestroy());
@@ -143,6 +156,7 @@ public class ExplosiveBarrel : MonoBehaviour
 
         yield return new WaitForSeconds(0.15f);
         camScript.TriggerShake(0.5f, 0.4f);
+        yield return new WaitForSeconds(4.0f);
         Destroy(gameObject);
     }
     private void OnDrawGizmosSelected()

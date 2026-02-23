@@ -54,6 +54,7 @@ public class EnemyBase : MonoBehaviour
 
         if (other.CompareTag("Weapon") || other.CompareTag("OrbitWeapon"))
         {
+            Debug.Log("Düşmana çarpan objenin adı: " + other.gameObject.name + " | Tag: " + other.tag);
             int damageValue = 1;
 
             // Silahın damage değerini alalım

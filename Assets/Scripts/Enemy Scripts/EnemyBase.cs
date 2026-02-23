@@ -157,6 +157,8 @@ public class EnemyBase : MonoBehaviour
     protected virtual IEnumerator DieRoutine()
     {
         canTakeDamage = false;
+        animator.ResetTrigger("Attack");
+        animator.ResetTrigger("TakeDamage");
         animator.SetTrigger("Die");
 
         enemyRb.linearVelocity = Vector3.zero;

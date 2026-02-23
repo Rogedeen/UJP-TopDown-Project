@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class RangedEnemy : EnemyBase
@@ -20,7 +21,8 @@ public class RangedEnemy : EnemyBase
         if (agent != null)
         {
             agent.speed = speed;
-            agent.stoppingDistance = stoppingDistance; 
+            agent.stoppingDistance = stoppingDistance;
+            agent.updateRotation = false;
         }
     }
 
@@ -46,50 +48,32 @@ public class RangedEnemy : EnemyBase
             {
                 if (!IsObstacleInWay())
                 {
-                    Attack();
+                    StartCoroutine(Attack());
                     nextFireTime = Time.time + fireRate;
                 }
             }
         }
     }
-
-    /*void FixedUpdate()
+    IEnumerator Attack()
     {
-        if (player == null || isKnockedBack || health <= 0) return;
-
-        float distance = Vector3.Distance(transform.position, player.transform.position);
-        transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
-
-        if (distance > stoppingDistance)
-        {
-            Vector3 dir = (player.transform.position - transform.position).normalized;
-            dir.y = 0;
-            enemyRb.linearVelocity = new Vector3(dir.x * speed, enemyRb.linearVelocity.y, dir.z * speed);
-            animator.SetFloat("speed_f", speed);
-        }
-        else
-        {
-            enemyRb.linearVelocity = new Vector3(0, enemyRb.linearVelocity.y, 0);
-            animator.SetFloat("speed_f", 0);
-        }
-    }*/
-
-    void Attack()
-    {
+        animator.ResetTrigger("Attack");
         animator.SetTrigger("Attack");
+
+        StartCoroutine(SpawnProjectileDelayed(1.0f));
+        yield return new WaitForSeconds(0);
+    }
+    IEnumerator SpawnProjectileDelayed(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        // Düşman bu sürede ölmüş olabilir, kontrol şart
+        if (health <= 0 || !gameObject.activeInHierarchy) yield break;
 
         if (projectilePrefab != null && firePoint != null)
         {
-            // 1. Mermiyi her zamanki gibi doğur
             GameObject spell = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
-
-            // 2. Merminin gideceği yönü hesapla (Oyuncu - Mermi)
             Vector3 targetDirection = (player.transform.position - firePoint.position).normalized;
-
-            // 3. Merminin havaya veya yere gitmesini engellemek için Y eksenini sıfırla
             targetDirection.y = 0;
-
-            // 4. Merminin önünü (Z eksenini) zorla bu yöne çevir
             spell.transform.forward = targetDirection;
         }
     }
@@ -99,7 +83,7 @@ public class RangedEnemy : EnemyBase
         Vector3 dir = (player.transform.position - firePoint.position).normalized;
         if (Physics.Raycast(firePoint.position, dir, out RaycastHit hit, attackRange))
         {
-            if (hit.collider.CompareTag("Barrier")) return true;
+            if (hit.collider.CompareTag("Barrier") || hit.collider.CompareTag("Barrel")) return true;
         }
         return false;
     }

@@ -96,7 +96,7 @@ public class EnemyBase : MonoBehaviour
         Vector3 pushDir = (transform.position - source).normalized;
         pushDir.y = 0; // Dikey bileşeni sıfırla, NavMesh düzleminde kalalım
 
-        float knockbackSpeed = 8f;    // Başlangıç hızı
+        float knockbackSpeed = 10.0f;    // Başlangıç hızı
         float knockbackDuration = 0.25f;
         float elapsed = 0f;
 
@@ -159,6 +159,7 @@ public class EnemyBase : MonoBehaviour
         canTakeDamage = false;
         animator.ResetTrigger("Attack");
         animator.ResetTrigger("TakeDamage");
+        animator.SetBool("isFizzy", true);
         animator.SetTrigger("Die");
 
         enemyRb.linearVelocity = Vector3.zero;

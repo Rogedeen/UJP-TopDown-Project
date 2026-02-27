@@ -5,7 +5,7 @@ public class RangedEnemy : EnemyBase
 {
     [Header("Movement & Combat")]
     public float speed = 3f;
-    public float stoppingDistance = 6f;
+    public float stoppingDistance = 8f;
     public float attackRange = 10f;
     public float fireRate = 2f;
 
@@ -14,6 +14,8 @@ public class RangedEnemy : EnemyBase
     public Transform firePoint;
 
     private float nextFireTime;
+    private const float stoppedVelocityThreshold = 0.1f;
+    private float delay = 3.0f;
 
     protected override void Start()
     {
@@ -32,41 +34,48 @@ public class RangedEnemy : EnemyBase
 
         if (agent.isActiveAndEnabled)
         {
-            agent.SetDestination(player.transform.position);
-
             float distance = Vector3.Distance(transform.position, player.transform.position);
-            animator.SetFloat("speed_f", agent.velocity.magnitude);
 
-            // Oyuncuya bak
             Vector3 lookPos = player.transform.position - transform.position;
             lookPos.y = 0;
             if (lookPos != Vector3.zero)
                 transform.rotation = Quaternion.LookRotation(lookPos);
 
-            // Ates etme mantigi
-            if (distance <= attackRange && Time.time >= nextFireTime)
+            animator.SetFloat("speed_f", agent.velocity.magnitude);
+
+            if (distance > stoppingDistance)
             {
-                if (!IsObstacleInWay())
-                {
-                    StartCoroutine(Attack());
-                    nextFireTime = Time.time + fireRate;
-                }
+                agent.SetDestination(player.transform.position);
             }
+            else
+            {
+                agent.ResetPath();
+            }
+
+            bool isCloseEnough = distance <= attackRange;
+            bool hasStopped = agent.velocity.magnitude <= stoppedVelocityThreshold;
+            bool cooldownReady = Time.time >= nextFireTime;
+
+            if (isCloseEnough && hasStopped && cooldownReady && !IsObstacleInWay())
+            {
+                Attack();
+                nextFireTime = Time.time + fireRate;
+            }
+
         }
     }
-    IEnumerator Attack()
+
+    void Attack()
     {
         animator.ResetTrigger("Attack");
         animator.SetTrigger("Attack");
-
-        StartCoroutine(SpawnProjectileDelayed(1.0f));
-        yield return new WaitForSeconds(0);
+        StartCoroutine(SpawnProjectileDelayed(delay));
     }
+
     IEnumerator SpawnProjectileDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        // Düşman bu sürede ölmüş olabilir, kontrol şart
         if (health <= 0 || !gameObject.activeInHierarchy) yield break;
 
         if (projectilePrefab != null && firePoint != null)
@@ -83,7 +92,9 @@ public class RangedEnemy : EnemyBase
         Vector3 dir = (player.transform.position - firePoint.position).normalized;
         if (Physics.Raycast(firePoint.position, dir, out RaycastHit hit, attackRange))
         {
-            if (hit.collider.CompareTag("Barrier") || hit.collider.CompareTag("Barrel")) return true;
+            // && değil || olmalı: Barrier VEYA Barrel engel sayılır
+            if (hit.collider.CompareTag("Barrier") || hit.collider.CompareTag("Barrel"))
+                return true;
         }
         return false;
     }

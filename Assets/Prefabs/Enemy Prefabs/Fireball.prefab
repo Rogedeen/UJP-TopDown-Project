@@ -52,7 +52,7 @@ MonoBehaviour:
   _SafetyDestroy: 6
   _DestoyDelay: 1
   _CastEffect: {fileID: 3523913026877113416}
-  _HitEffect: {fileID: 0}
+  _HitEffect: {fileID: 3475878327137486995, guid: a557af495c46c0a4fac212eb14b87dc0, type: 3}
   _ProjectileEffect: {fileID: 209672678247092378}
   _FlySpeed: 0.25
   _FlyCurve:
@@ -109,6 +109,8 @@ MonoBehaviour:
   speed: 12
   value: 1
   lifeTime: 4
+  slowAmount: 0.4
+  slowDuration: 2
   explosionPrefab: {fileID: 1158318190275716005, guid: a557af495c46c0a4fac212eb14b87dc0, type: 3}
 --- !u!54 &2496389246742191360
 Rigidbody:

@@ -1,3 +1,4 @@
+using PixPlays.ElementalVFX;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -15,6 +16,9 @@ public class RangedEnemy : EnemyBase
     public float attackRange = 10f;
     public float stopDistance = 6f;
     public float fleeDistance = 3f;
+
+    [Header("VFX Timing")]
+    public float projectileArrivalTime = 2f;
 
     [Header("Movement Settings")]
     public float strafeSpeed = 2f;
@@ -226,12 +230,12 @@ public class RangedEnemy : EnemyBase
     }
 
     [Header("Timing")]
-    public float spellDelay = 0.4f; // Inspector'dan ayarlayabilirsin!
+    public float spellDelay = 1f; // Inspector'dan ayarlayabilirsin!
 
     IEnumerator DelayedLaunch(float delay)
     {
-        yield return new WaitForSeconds(delay);
         LaunchSpell();
+        yield return new WaitForSeconds(delay);
     }
 
     // Bu metot Unity Animator Event olarak çağrılır (animasyon ortasında).
@@ -239,23 +243,53 @@ public class RangedEnemy : EnemyBase
     public void LaunchSpell()
     {
         if (health <= 0 || isKnockedBack) return;
-
-        // Support wizard farklı davranır: oyuncuya değil, müttefikine fırlatır
-        if (wizardType == WizardType.Support)
-        {
-            LaunchSupportSpell();
-            return;
-        }
+        if (wizardType == WizardType.Support) { LaunchSupportSpell(); return; }
 
         GameObject spellObj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-        Projectile projectile = spellObj.GetComponent<Projectile>();
+        ProjectileVfx vfx = spellObj.GetComponent<ProjectileVfx>();
 
-        if (projectile != null)
+        if (vfx != null)
         {
-            SetupProjectileByWizardType(projectile);
+            // Üçüncü constructor: (Transform source, Transform target, float duration, float radius)
+            // duration = projectileArrivalTime: efekt bu kadar sürecek
+            // radius = 0f: projectile için alan efekti yok
+            VfxData data = new VfxData(firePoint, player.transform, projectileArrivalTime, 0f);
 
-            Vector3 aimDir = CalculatePredictiveDirection();
-            spellObj.transform.forward = aimDir;
+            vfx.Play(data);
+
+            // Mermi hedefe projectileArrivalTime saniyede ulaşıyor
+            // O an gelince hasar veriyoruz
+            StartCoroutine(DealDamageOnArrival(projectileArrivalTime));
+
+            // Efektin kendisini biraz sonra temizle
+            // +2f: hit efektinin oynaması için ekstra süre
+            Destroy(spellObj, projectileArrivalTime + 2f);
+        }
+    }
+
+    IEnumerator DealDamageOnArrival(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (player == null) yield return null;
+
+        // Oyuncu hâlâ menzil içinde mi? Çok uzağa kaçtıysa mermi ıskaladı say
+        float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+        if (distanceToPlayer > attackRange * 1.5f) yield return null;
+
+        PlayerHealth pHealth = player.GetComponent<PlayerHealth>();
+        if (pHealth == null) yield return null;
+
+        // Wizard tipine göre efekt uygula
+        switch (wizardType)
+        {
+            case WizardType.Fire:
+                pHealth.TakeDamage(1);
+                break;
+            case WizardType.Ice:
+                pHealth.TakeDamage(1);
+                // pHealth.ApplySlow(0.4f, 2.5f); // Hazır olduğunda aç
+                break;
         }
     }
 

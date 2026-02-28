@@ -423,6 +423,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: IceWizard
       objectReference: {fileID: 0}
+    - target: {fileID: 5377230763139864259, guid: a21e7e67c0f59314dbd1c4f14739e921, type: 3}
+      propertyPath: spellDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5377230763139864259, guid: a21e7e67c0f59314dbd1c4f14739e921, type: 3}
+      propertyPath: projectileArrivalTime
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6592143794537805656, guid: a21e7e67c0f59314dbd1c4f14739e921, type: 3}
       propertyPath: m_LocalPosition.x
       value: 14.816202
@@ -7618,11 +7626,11 @@ PrefabInstance:
       objectReference: {fileID: 1144158818}
     - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: playerHealth
-      value: 6
+      value: 1231231231
       objectReference: {fileID: 0}
     - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: maxPlayerHealth
-      value: 10
+      value: 10321312
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7690,6 +7698,83 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 86aeecc425f316d4da0937d267df56de, type: 3}
+--- !u!1001 &7373710742965883885
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 442398732520133018, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 442398732520133018, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 442398732520133018, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 18.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00000023841858
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 11.004279
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.017647235
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.9998443
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 182.022
+      objectReference: {fileID: 0}
+    - target: {fileID: 891054491861138123, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1875963150541319173, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_Name
+      value: FireWizard
+      objectReference: {fileID: 0}
+    - target: {fileID: 5526458667215176080, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5526458667215176080, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -7700,3 +7785,4 @@ SceneRoots:
   - {fileID: 1153303448}
   - {fileID: 4129273922063839663}
   - {fileID: 70455113}
+  - {fileID: 7373710742965883885}

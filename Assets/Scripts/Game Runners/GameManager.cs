@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class GameManager : MonoBehaviour
     public GameObject winScreen; // Yeni: Kazanma ekranı
     public GameObject retryObject;
     public GameObject player;
+    public Animator playerControllerAnim;
 
     void Start()
     {
@@ -39,12 +41,24 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
     }
 
-    public void WinGame()
+    public IEnumerator WinGame()
     {
         isGameActive = false;
+        playerControllerAnim.SetTrigger("winGame_t");
+        KillAllEnemies();
+        yield return new WaitForSecondsRealtime(2);
         winScreen.SetActive(true);
         retryObject.SetActive(true);
-        Time.timeScale = 0; 
+    }
+
+    private void KillAllEnemies()
+    {
+        EnemyBase[] remainingEnemies = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+        foreach (EnemyBase enemy in remainingEnemies)
+        {
+            enemy.ForceKill();
+        }
+
     }
 
     public void RestartGame()

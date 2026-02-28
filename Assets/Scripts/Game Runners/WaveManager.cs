@@ -90,9 +90,7 @@ public class WaveManager : MonoBehaviour
         {
             if (gate.isActive) return;
         }
-
-        Debug.Log("Tebrikler çırak, tüm kapıları kapattın!");
-        gameManager.WinGame();
+        StartCoroutine(gameManager.WinGame());
     }
     void SpawnAtGate(GameObject enemyPrefab, Vector3 spawnPosition)
     {

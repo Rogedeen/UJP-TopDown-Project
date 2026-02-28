@@ -162,7 +162,9 @@ public class EnemyBase : MonoBehaviour
         animator.SetBool("isFizzy", true);
         animator.SetTrigger("Die");
 
-        enemyRb.linearVelocity = Vector3.zero;
+        if (!enemyRb.isKinematic)
+            enemyRb.linearVelocity = Vector3.zero;
+
         GetComponent<Collider>().enabled = false;
 
         WaveManager.activeEnemyCount--;
@@ -170,6 +172,12 @@ public class EnemyBase : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
+    }
+    public void ForceKill()
+    {
+        if (health <= 0) return; 
+        health = 0;
+        StartCoroutine(DieRoutine());
     }
 
     protected IEnumerator Invincible(float duration)

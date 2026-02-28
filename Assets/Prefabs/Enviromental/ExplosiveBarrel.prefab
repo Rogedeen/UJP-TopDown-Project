@@ -139,15 +139,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.43
+      value: -3.99
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.23
+      value: 1.047
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.58
+      value: 4.16
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       propertyPath: m_LocalRotation.w
@@ -268,9 +268,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 1.1056558
-  m_Height: 2.8903303
+  m_Height: 2.2113116
   m_Direction: 1
-  m_Center: {x: 0.01, y: -0.01, z: -0.014005303}
+  m_Center: {x: 0.00999999, y: 0.1704906, z: -0.014005303}
 --- !u!208 &2826312424178288654
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -283,7 +283,7 @@ NavMeshObstacle:
   m_Shape: 0
   m_Extents: {x: 1.0070001, y: 0.998, z: 1.0070001}
   m_MoveThreshold: 0.1
-  m_Carve: 1
+  m_Carve: 0
   m_CarveOnlyStationary: 0
   m_Center: {x: 0, y: -0.002, z: 0}
   m_TimeToStationary: 0.5
@@ -315,8 +315,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 74e8b2d96ae9d7545a1a8bcfdf6c28dd, type: 3}
   - {fileID: 8300000, guid: a880c49e8338b874bb240e6e8f634ce1, type: 3}
   - {fileID: 8300000, guid: aee0096db160a9a449f94fb4f6bd448e, type: 3}
-  hitFlashMaterial: {fileID: 2100000, guid: ab06fac1b5a2f8d4e9a65e58305cfde4, type: 2}
+  hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
   originalMaterial: {fileID: 2100000, guid: b0042ea1fa5439f45b47ad7e6bc9eb14, type: 2}
+  knockbackSpeed: 10
+  knockbackDuration: 1
 --- !u!136 &1246573012088495155
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -337,9 +339,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 1.1056558
-  m_Height: 2.8903303
+  m_Height: 2.2113116
   m_Direction: 1
-  m_Center: {x: 0.01, y: -0.01, z: -0.014005303}
+  m_Center: {x: 0.00999999, y: 0.1704906, z: -0.014005303}
 --- !u!4 &4248389630488915552 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}

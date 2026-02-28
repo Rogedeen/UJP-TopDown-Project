@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.VFX;
 
 public class ExplosiveBarrel : MonoBehaviour
@@ -25,7 +26,11 @@ public class ExplosiveBarrel : MonoBehaviour
 
     [Header("Hit Flash")]
     public Material hitFlashMaterial;      
-    public Material originalMaterial;     
+    public Material originalMaterial;
+
+    [Header("Knockback Ayarları")]
+    public float knockbackSpeed = 6f;
+    public float knockbackDuration = 0.3f;
 
     private Renderer barrelRenderer;
 
@@ -35,11 +40,15 @@ public class ExplosiveBarrel : MonoBehaviour
     private Vector3 originalScale;
     private FollowPlayer camScript;
 
+    private bool isKnockedBack = false;
+    private UnityEngine.AI.NavMeshObstacle navObstacle;
+
     void Start()
     {
         originalScale = transform.localScale;
         barrelRenderer = GetComponent<Renderer>();
         camScript = Camera.main.GetComponent<FollowPlayer>();
+        navObstacle = GetComponent<UnityEngine.AI.NavMeshObstacle>();
     }
 
     void Update()
@@ -55,6 +64,8 @@ public class ExplosiveBarrel : MonoBehaviour
     {
         if (hasExploded) return;
 
+        Debug.Log("Varile bir şey çarptı: " + other.gameObject.name + " | Tag: " + other.tag);
+
         if (other.CompareTag("Weapon") || other.CompareTag("OrbitWeapon") || other.CompareTag("Barrel"))
         {
             int damageValue = 1;
@@ -63,12 +74,63 @@ public class ExplosiveBarrel : MonoBehaviour
             else if (other.TryGetComponent<ExplosiveBarrel>(out var eb)) damageValue = eb.explosionDamage;
 
             TakeBarrelDamage(damageValue);
+            ApplyKnockback(other.transform.position);
         }
 
-        if (isCritical && other.CompareTag("Enemy"))
+
+
+        if (other.CompareTag("Enemy"))
         {
-            Explode();
+            // Kritik modda düşman teması anında patlat, bu mantık zaten vardı
+            if (isCritical)
+            {
+                Explode();
+                return;
+            }
+
+            // Normal modda düşman varile çarparsa hafif hasar ve knockback
+            // Düşmanın kendi pozisyonunu kaynak veriyoruz ki
+            // varil düşmandan uzağa doğru itilsin
+            TakeBarrelDamage(1);
+            ApplyKnockback(other.transform.position);
         }
+    }
+
+    public void ApplyKnockback(Vector3 source)
+    {
+        // Zaten knockback'teyse veya patladıysa tekrar başlatma
+        if (hasExploded || isKnockedBack) return;
+        StartCoroutine(KnockbackRoutine(source));
+    }
+
+    IEnumerator KnockbackRoutine(Vector3 source)
+    {
+        isKnockedBack = true;
+        if (navObstacle != null) navObstacle.enabled = false;
+
+        Vector3 pushDir = (transform.position - source).normalized;
+        pushDir.y = 0;
+
+        float elapsed = 0f;
+        while (elapsed < knockbackDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = 1f - (elapsed / knockbackDuration);
+            Vector3 targetPos = transform.position + knockbackSpeed * t * Time.deltaTime * pushDir;
+
+            // NavMesh üzerinde geçerli bir pozisyon var mı diye kontrol et
+            // SamplePosition "bu noktaya en yakın NavMesh yüzeyi neresi?" diye sorar
+            // Bu sayede varil NavMesh dışına veya collider içine giremez
+            if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
+            {
+                transform.position = hit.position;
+            }
+
+            yield return null;
+        }
+
+        if (navObstacle != null) navObstacle.enabled = true;
+        isKnockedBack = false;
     }
 
     public void TakeBarrelDamage(int damage)

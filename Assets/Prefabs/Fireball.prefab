@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 9129347547415816207}
   m_Layer: 0
   m_Name: Fireball
-  m_TagString: Untagged
+  m_TagString: EnemyProjectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -105,8 +105,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 866815eca206dc240aa5062c05f62b9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
+  type: 0
   speed: 12
-  damage: 1
+  value: 1
   lifeTime: 4
   explosionPrefab: {fileID: 1158318190275716005, guid: a557af495c46c0a4fac212eb14b87dc0, type: 3}
 --- !u!54 &2496389246742191360

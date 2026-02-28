@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e59ea6dc578ccac4dace42da79ee3b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  speed: 8
+  speed: 6
   verticalInput: 0
   horizontalInput: 0
   activeWeapon: {fileID: 7823102358665122030}
@@ -2869,7 +2869,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75a6e974bf5ff3b4a905f57fb79b36ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrbitWeapon
-  rotationSpeed: 240
+  rotationSpeed: 360
   orbitTransform: {fileID: 27789492408927112}
   damage: 1
   duration: 5

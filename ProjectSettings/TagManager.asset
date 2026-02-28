@@ -15,6 +15,7 @@ TagManager:
   - Barrel
   - PlayerObstacle
   - Walls
+  - EnemyProjectile
   layers:
   - Default
   - TransparentFX

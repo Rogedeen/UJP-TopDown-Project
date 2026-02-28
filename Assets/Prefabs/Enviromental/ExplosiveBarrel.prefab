@@ -283,7 +283,7 @@ NavMeshObstacle:
   m_Shape: 0
   m_Extents: {x: 1.0070001, y: 0.998, z: 1.0070001}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 0
   m_Center: {x: 0, y: -0.002, z: 0}
   m_TimeToStationary: 0.5
@@ -302,8 +302,8 @@ MonoBehaviour:
   barrelHealth: 2
   explosionRadius: 4
   explosionDamage: 2
-  criticalAutoExplodeTime: 2.5
-  pulseSpeed: 5
+  criticalAutoExplodeTime: 1.5
+  pulseSpeed: 10
   pulseAmount: 0.15
   explosionVFX:
   - {fileID: 1998830269065593993, guid: b70fbea4bc8994749ba52e4f560f9f28, type: 3}

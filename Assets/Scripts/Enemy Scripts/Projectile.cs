@@ -30,7 +30,7 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Düşmanlara çarparsa geç (hem normal hem heal mermisi için)
-        if (other.CompareTag("Enemy") || other.CompareTag("EnemyProjectile")) return;
+        if (other.CompareTag("EnemyProjectile")) return;
 
         // Heal mermisi oyuncuya çarparsa hasar verme, sadece yok ol
         if (type == ProjectileType.Heal)
@@ -45,6 +45,8 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        if (other.CompareTag("Enemy")) return;
 
         SpawnExplosion();
 

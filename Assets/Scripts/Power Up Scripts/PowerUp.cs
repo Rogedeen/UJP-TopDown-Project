@@ -85,7 +85,11 @@ public class PowerUp : MonoBehaviour
                 if (ow != null) ow.cooldown -= amount * multiplier;
                 break;
             case PowerUpType.Health:
-                if (multiplier > 0 && ph.playerHealth < 5) ph.playerHealth++;
+                if (multiplier > 0 && ph.playerHealth < ph.maxPlayerHealth) 
+                {
+                    ph.playerHealth++;
+                    ph.playerHealthBar.value = ph.playerHealth;
+                } 
                 break;
         }
     }

@@ -85,8 +85,15 @@ public class RangedEnemy : EnemyBase
 
     void HandleSmartMovement(float distance)
     {
+        if (wizardType == WizardType.Support)
+        {
+            HandleSupportMovement(); // Ayrı bir metot
+            return;
+        }
+
         if (distance > stopDistance + 1f) // stopDistance'a yaklaşana kadar koş
         {
+            agent.updateRotation = true;
             agent.isStopped = false;
             agent.speed = defaultAgentSpeed;
             agent.SetDestination(player.transform.position);
@@ -105,6 +112,7 @@ public class RangedEnemy : EnemyBase
             if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, 3f, NavMesh.AllAreas))
             {
                 agent.isStopped = false;
+                agent.updateRotation = false;
                 agent.SetDestination(hit.position);
             }
 
@@ -131,6 +139,7 @@ public class RangedEnemy : EnemyBase
             if (NavMesh.SamplePosition(strafeTarget, out NavMeshHit navHit, 2f, NavMesh.AllAreas))
             {
                 agent.isStopped = false;
+                agent.updateRotation = false;
                 agent.SetDestination(navHit.position);
                 // Hızı strafe hızıyla sınırla, yoksa tüm hızında koşar
                 agent.speed = strafeSpeed;
@@ -147,6 +156,48 @@ public class RangedEnemy : EnemyBase
         }
     }
 
+    void HandleSupportMovement()
+    {
+        // En yakın müttefiki bul, onun arkasına konumlan
+        EnemyBase[] allies = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+        EnemyBase closestAlly = null;
+        float closestDist = float.MaxValue;
+
+        foreach (EnemyBase ally in allies)
+        {
+            if (ally == this || ally.health <= 0) continue;
+            float d = Vector3.Distance(transform.position, ally.transform.position);
+            if (d < closestDist) { closestDist = d; closestAlly = ally; }
+        }
+
+        if (closestAlly != null)
+        {
+            // Müttefikin oyuncudan uzak tarafına konumlan
+            Vector3 behindAlly = closestAlly.transform.position +
+                (closestAlly.transform.position - player.transform.position).normalized * 2f;
+
+            if (NavMesh.SamplePosition(behindAlly, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            {
+                agent.isStopped = false;
+                agent.SetDestination(hit.position);
+            }
+        }
+        else
+        {
+            // Müttefik yoksa normal flee mantığı: kaç
+            float distance = Vector3.Distance(transform.position, player.transform.position);
+            if (distance < fleeDistance * 2f) // Support daha erken kaçsın
+            {
+                Vector3 fleeDir = (transform.position - player.transform.position).normalized;
+                if (NavMesh.SamplePosition(transform.position + fleeDir * 5f,
+                    out NavMeshHit fleeHit, 3f, NavMesh.AllAreas))
+                    agent.SetDestination(fleeHit.position);
+            }
+        }
+
+        animator.SetFloat(SpeedHash, agent.velocity.magnitude);
+    }
+
     void RotateTowardsPlayer()
     {
         Vector3 lookPos = player.transform.position - transform.position;
@@ -160,6 +211,8 @@ public class RangedEnemy : EnemyBase
 
     void Attack()
     {
+        if (isKnockedBack) return;
+
         float currentFireRate = wizardType == WizardType.Support ? supportFireRate : fireRate;
         nextFireTime = Time.time + currentFireRate;
         animator.SetTrigger(AttackHash);
@@ -216,7 +269,7 @@ public class RangedEnemy : EnemyBase
         foreach (EnemyBase enemy in allEnemies)
         {
             if (enemy == this) continue; // Kendini iyileştirmez
-            if (!enemy.canTakeDamage) continue; // Zaten ölüyor
+            if (enemy.health <= 0) continue; // Zaten ölüyor
             float dist = Vector3.Distance(transform.position, enemy.transform.position);
             if (dist > healRange) continue;
 

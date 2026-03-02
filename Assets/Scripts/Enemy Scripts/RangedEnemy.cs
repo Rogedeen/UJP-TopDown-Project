@@ -19,6 +19,7 @@ public class RangedEnemy : EnemyBase
 
     [Header("VFX Timing")]
     public float projectileArrivalTime = 2f;
+    public float projectilePhysicalSpeed = 15f;
 
     [Header("Movement Settings")]
     public float strafeSpeed = 2f;
@@ -167,45 +168,64 @@ public class RangedEnemy : EnemyBase
 
     public void LaunchSpell()
     {
-        if (health <= 0 || isKnockedBack) return;   
+        if (health <= 0 || isKnockedBack) return;
+
+        // 1. Oyuncunun hızını ve yönünü al
+        Rigidbody pRb = player.GetComponent<Rigidbody>();
+        Vector3 playerVel = (pRb != null) ? pRb.linearVelocity : Vector3.zero;
+
+        // 2. Tahmini vuruş noktasını hesapla (Senin eski mantığın)
+        float distToPlayer = Vector3.Distance(firePoint.position, player.transform.position);
+        float travelTimeToPlayer = distToPlayer / projectilePhysicalSpeed;
+        Vector3 predictedPoint = player.transform.position + (playerVel * travelTimeToPlayer);
+
+        // --- BASİT ÇÖZÜM BURASI ---
+        // Merminin durmasını istemiyoruz, o yüzden tahmin edilen noktaya değil, 
+        // o yöndeki çok uzak bir noktaya (mesela 50 birim uzağa) ateş ediyoruz.
+        Vector3 fireDirection = (predictedPoint - firePoint.position).normalized;
+        float maxDistance = 50f;
+        Vector3 farAwayTarget = firePoint.position + fireDirection * maxDistance;
+        float totalTravelTime = maxDistance / projectilePhysicalSpeed;
+        // ---------------------------
 
         GameObject spellObj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
         ProjectileVfx vfx = spellObj.GetComponent<ProjectileVfx>();
 
         if (vfx != null)
         {
-            // Tahmin bir kez yapılıp hem VFX'e hem hasar sistemine gönderiliyor
-            Vector3 predictedTarget = CalculatePredictedPosition(projectileArrivalTime);
+            // Asset'e "bu mermi 50 birim uzağa gitsin" diyoruz
+            vfx._FlySpeed = totalTravelTime;
 
-            VfxData data = new VfxData(firePoint, predictedTarget, projectileArrivalTime, 0f);
+            VfxData data = new VfxData(firePoint, farAwayTarget, totalTravelTime, 0f);
             vfx.Play(data);
 
-            StartCoroutine(DealDamageOnArrival(projectileArrivalTime, predictedTarget));
-            Destroy(spellObj, projectileArrivalTime + 2f);
+            // Hasar yine oyuncunun olduğu saniyede (travelTimeToPlayer) tetiklensin
+            StartCoroutine(DealDamageOnArrival(travelTimeToPlayer, predictedPoint, spellObj));
+
+            Destroy(spellObj, totalTravelTime + 1f);
         }
     }
 
-    IEnumerator DealDamageOnArrival(float delay, Vector3 targetedPosition)
+    IEnumerator DealDamageOnArrival(float delay, Vector3 targetedPosition, GameObject spellObj)
     {
         yield return new WaitForSeconds(delay);
 
-        if (player == null) yield break;
+        if (player == null || spellObj == null) yield break;
 
         float distancePlayerToImpact = Vector3.Distance(player.transform.position, targetedPosition);
-        if (distancePlayerToImpact > 1.5f) yield break;
 
-        PlayerHealth pHealth = player.GetComponent<PlayerHealth>();
-        if (pHealth == null) yield break;
-
-        switch (wizardType)
+        // Eğer oyuncu menzil içindeyse (vuruş gerçekleştiyse)
+        if (distancePlayerToImpact <= 1.5f)
         {
-            case WizardType.Fire:
-                pHealth.TakeDamage(1);
-                break;
-            case WizardType.Ice:
-                pHealth.TakeDamage(1);
-                // pHealth.ApplySlow(0.4f, 2.5f); // ApplySlow hazır olduğunda aç
-                break;
+            PlayerHealth pHealth = player.GetComponent<PlayerHealth>();
+            if (pHealth != null) pHealth.TakeDamage(1);
+
+            // --- BASİT ÇÖZÜM: MERMİYİ DURDUR VE YOK ET ---
+            ProjectileVfx vfx = spellObj.GetComponent<ProjectileVfx>();
+            if (vfx != null) vfx.Stop(); // Asset'in patlama (Hit) efektini tetikler
+
+            Destroy(spellObj, 0.5f); // 0.5 sn sonra yok et (patlama efekti görünsün diye)
+                                     // ----------------------------------------------
         }
     }
 

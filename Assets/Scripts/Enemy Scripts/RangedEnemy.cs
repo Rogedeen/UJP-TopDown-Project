@@ -10,6 +10,7 @@ public class RangedEnemy : EnemyBase
     [Header("Wizard Identity")]
     public WizardType wizardType;
     public GameObject projectilePrefab;
+    public GameObject hitEffectPrefab;
     public Transform firePoint;
 
     [Header("Combat Distances")]
@@ -214,18 +215,19 @@ public class RangedEnemy : EnemyBase
 
         float distancePlayerToImpact = Vector3.Distance(player.transform.position, targetedPosition);
 
-        // Eğer oyuncu menzil içindeyse (vuruş gerçekleştiyse)
         if (distancePlayerToImpact <= 1.5f)
         {
             PlayerHealth pHealth = player.GetComponent<PlayerHealth>();
             if (pHealth != null) pHealth.TakeDamage(1);
 
-            // --- BASİT ÇÖZÜM: MERMİYİ DURDUR VE YOK ET ---
-            ProjectileVfx vfx = spellObj.GetComponent<ProjectileVfx>();
-            if (vfx != null) vfx.Stop(); // Asset'in patlama (Hit) efektini tetikler
+            if (hitEffectPrefab != null)
+            {
+                GameObject hitFx = Instantiate(hitEffectPrefab, player.transform.position, Quaternion.identity);
+                Destroy(hitFx, 2f);
+            }
 
-            Destroy(spellObj, 0.5f); // 0.5 sn sonra yok et (patlama efekti görünsün diye)
-                                     // ----------------------------------------------
+            spellObj.SetActive(false); 
+            Destroy(spellObj, 0.1f);  
         }
     }
 

@@ -715,11 +715,13 @@ MonoBehaviour:
   hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
   wizardType: 0
   projectilePrefab: {fileID: 9063514842149012542, guid: 130e4021cbaadf245a10abfb9d9cb563, type: 3}
+  hitEffectPrefab: {fileID: 4830294202082529915, guid: 04e8b0b6ae02ffb419cc12f41626e4e5, type: 3}
   firePoint: {fileID: 4488095893295002380}
   attackRange: 10
   stopDistance: 8
   fleeDistance: 4
   projectileArrivalTime: 2
+  projectilePhysicalSpeed: 15
   strafeSpeed: 2
   fireRate: 2
   spellDelay: 0.5

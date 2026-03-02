@@ -44,7 +44,7 @@ public class EnemyBase : MonoBehaviour
 
         if (enemyHealthSlider != null)
         {
-            enemyHealthSlider.maxValue = health;
+            enemyHealthSlider.maxValue = maxHealth;
             enemyHealthSlider.value = health;
             enemyHealthSlider.gameObject.SetActive(false);
         }

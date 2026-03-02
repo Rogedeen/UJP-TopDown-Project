@@ -1034,9 +1034,9 @@ GameObject:
   - component: {fileID: 131578971640906940}
   - component: {fileID: 1774444969111528060}
   - component: {fileID: 5991262230576047933}
-  - component: {fileID: 7622680193621405880}
   - component: {fileID: 2558134655083741288}
   - component: {fileID: 7751419399954128730}
+  - component: {fileID: 2131744927888880933}
   m_Layer: 0
   m_Name: HealerWizard
   m_TagString: Enemy
@@ -1111,37 +1111,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 1
---- !u!114 &7622680193621405880
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3765176598023835571}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 166eae7d040ff7642a19e01da7645ee5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RangedEnemy
-  health: 3
-  maxHealth: 3
-  canTakeDamage: 1
-  invincibilityDuration: 0.5
-  enemyHealthSlider: {fileID: 3515808736806497310}
-  hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
-  wizardType: 2
-  projectilePrefab: {fileID: 2268428576765071778, guid: 8e48d8ace1006a74998a175eeb82234a, type: 3}
-  firePoint: {fileID: 3464033567376188418}
-  attackRange: 10
-  stopDistance: 8
-  fleeDistance: 4
-  strafeSpeed: 2
-  projectileSpeed: 18
-  fireRate: 2
-  healAmount: 1
-  healRange: 10
-  supportFireRate: 3
-  spellDelay: 0.4
 --- !u!65 &2558134655083741288
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1173,7 +1142,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 4.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -1185,6 +1154,30 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &2131744927888880933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3765176598023835571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbc2392113919b0459887c3e7763b907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SupportEnemy
+  health: 3
+  maxHealth: 3
+  canTakeDamage: 1
+  invincibilityDuration: 0.5
+  enemyHealthSlider: {fileID: 3515808736806497310}
+  hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
+  healingAuraPrefab: {fileID: 207745087118991948, guid: 89d63d299ec082e4ba294b11ce63d5ec, type: 3}
+  auraDuration: 3
+  auraCooldown: 4
+  checkAllyRange: 8
+  fleeDistance: 6
+  moveSpeed: 4
 --- !u!1 &3782017103278753239
 GameObject:
   m_ObjectHideFlags: 0

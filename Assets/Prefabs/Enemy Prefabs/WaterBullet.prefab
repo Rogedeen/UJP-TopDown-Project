@@ -10,12 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 7317352330088979879}
   - component: {fileID: 8922685332341523063}
-  - component: {fileID: -3321080145806077787}
-  - component: {fileID: -7555512906244324136}
   - component: {fileID: -7706046558581297832}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: WaterBullet
-  m_TagString: Untagged
+  m_TagString: EnemyProjectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -30,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 4.2, z: 4.2}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5588970462433137283}
@@ -94,52 +92,6 @@ MonoBehaviour:
   _FlyCurveStrength: 0.3
   _ProjectileFlyDelay: 0
   _ProjectileDeactivateDelay: 1
---- !u!114 &-3321080145806077787
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1144309072755386233}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 866815eca206dc240aa5062c05f62b9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Projectile
-  type: 1
-  speed: 15
-  value: 1
-  lifeTime: 4
-  slowAmount: 1
-  slowDuration: 2
-  explosionPrefab: {fileID: 5013003061549203214, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
---- !u!54 &-7555512906244324136
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1144309072755386233}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 1
 --- !u!135 &-7706046558581297832
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -169,6 +121,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7317352330088979879}
     m_Modifications:
+    - target: {fileID: 1233334632110845535, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 2377018923070682156, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 3657843123527116076, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 3690862996746917958, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.4335521
@@ -209,13 +173,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4735446684540221968, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 5013003061549203214, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
       propertyPath: m_Name
       value: WaterballHit
       objectReference: {fileID: 0}
     - target: {fileID: 5013003061549203214, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 5013003061549203214, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8375901852085325328, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8947360138116541796, guid: 2aa34b068c1a581478a60636f4fda771, type: 3}
+      propertyPath: m_Layer
+      value: 14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -240,6 +220,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7317352330088979879}
     m_Modifications:
+    - target: {fileID: 502069552842510338, guid: 1ef88370c527c5947961298e6f579c72, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 5996267423576138599, guid: 1ef88370c527c5947961298e6f579c72, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -250,7 +234,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5996267423576138599, guid: 1ef88370c527c5947961298e6f579c72, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.615
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5996267423576138599, guid: 1ef88370c527c5947961298e6f579c72, type: 3}
       propertyPath: m_LocalRotation.w
@@ -283,6 +267,10 @@ PrefabInstance:
     - target: {fileID: 8033368338064425645, guid: 1ef88370c527c5947961298e6f579c72, type: 3}
       propertyPath: m_Name
       value: WaterballProjectile
+      objectReference: {fileID: 0}
+    - target: {fileID: 8033368338064425645, guid: 1ef88370c527c5947961298e6f579c72, type: 3}
+      propertyPath: m_Layer
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 8033368338064425645, guid: 1ef88370c527c5947961298e6f579c72, type: 3}
       propertyPath: m_IsActive
@@ -321,7 +309,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 71427584914135367, guid: 8b3dca98eef6a98428c6829438d8495e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.6
+      value: -1.36
       objectReference: {fileID: 0}
     - target: {fileID: 71427584914135367, guid: 8b3dca98eef6a98428c6829438d8495e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -356,8 +344,16 @@ PrefabInstance:
       value: WaterballCast
       objectReference: {fileID: 0}
     - target: {fileID: 1451516067890809240, guid: 8b3dca98eef6a98428c6829438d8495e, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 1451516067890809240, guid: 8b3dca98eef6a98428c6829438d8495e, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6001878872921783398, guid: 8b3dca98eef6a98428c6829438d8495e, type: 3}
+      propertyPath: m_Layer
+      value: 14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

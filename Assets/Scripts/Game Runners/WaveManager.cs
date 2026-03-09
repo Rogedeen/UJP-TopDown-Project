@@ -1,17 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class WaveManager : MonoBehaviour
 {
     public int firstWaveCount = 2;
     public int enemyToAddByWave = 1;
 
-    [Header("Enemy Prefabs")]
+    [Header("Melee Enemy Prefabs")]
     public GameObject normalEnemyPrefab;
     public GameObject strongEnemyPrefab;
-    public GameObject wizardEnemyPrefab; 
+
+    [Header("Wizard Enemy Prefabs")]
+    public GameObject fireWizardPrefab;
+    public GameObject iceWizardPrefab;
+    public GameObject supportWizardPrefab;
 
     public static int activeEnemyCount = 0;
     public Gates[] gates;
@@ -51,7 +54,7 @@ public class WaveManager : MonoBehaviour
         if (activeGates.Count == 0)
         {
             CheckForVictory();
-            yield break; 
+            yield break;
         }
 
         float difficultyScore = (float)(gates.Length - activeGates.Count) / gates.Length;
@@ -59,31 +62,43 @@ public class WaveManager : MonoBehaviour
         for (int i = 0; i < firstWaveCount; i++)
         {
             Gates randomGate = activeGates[Random.Range(0, activeGates.Count)];
-
             GameObject prefabToSpawn;
-            float roll = Random.value; 
+            float roll = Random.value;
 
+            // --- YENİ SPAWN MANTIĞI ---
+            // Difficulty arttıkça wizard gelme şansı artıyor (max %50 wizard şansı gibi)
             if (roll < difficultyScore * 0.5f)
             {
-                prefabToSpawn = wizardEnemyPrefab; 
+                prefabToSpawn = GetRandomWizardPrefab();
             }
             else if (roll < difficultyScore)
             {
-                prefabToSpawn = strongEnemyPrefab; 
+                prefabToSpawn = strongEnemyPrefab;
             }
             else
             {
-                prefabToSpawn = normalEnemyPrefab; 
+                prefabToSpawn = normalEnemyPrefab;
             }
 
             SpawnAtGate(prefabToSpawn, randomGate.spawnPoint.position);
-
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(0.8f);
         }
 
         firstWaveCount += enemyToAddByWave;
         isSpawning = false;
     }
+
+    // Wizard seçimini kendi içinde rastgele yapıyoruz
+    GameObject GetRandomWizardPrefab()
+    {
+        float wizardRoll = Random.value;
+
+        // %40 Fire, %40 Ice, %20 Support (Support biraz daha nadir olsun ki kıymetli olsun)
+        if (wizardRoll < 0.4f) return fireWizardPrefab;
+        if (wizardRoll < 0.8f) return iceWizardPrefab;
+        return supportWizardPrefab;
+    }
+
     public void CheckForVictory()
     {
         foreach (var gate in gates)
@@ -92,8 +107,10 @@ public class WaveManager : MonoBehaviour
         }
         StartCoroutine(gameManager.WinGame());
     }
+
     void SpawnAtGate(GameObject enemyPrefab, Vector3 spawnPosition)
     {
+        if (enemyPrefab == null) return;
         Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
         activeEnemyCount++;
     }

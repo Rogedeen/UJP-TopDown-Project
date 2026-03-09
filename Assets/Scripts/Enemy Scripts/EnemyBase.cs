@@ -7,6 +7,7 @@ public class EnemyBase : MonoBehaviour
 {
     [Header("Core Stats")]
     public int health = 3;
+    public int maxHealth = 3;
     public bool canTakeDamage = true;
     public float invincibilityDuration = 0.5f;
 
@@ -43,7 +44,7 @@ public class EnemyBase : MonoBehaviour
 
         if (enemyHealthSlider != null)
         {
-            enemyHealthSlider.maxValue = health;
+            enemyHealthSlider.maxValue = maxHealth;
             enemyHealthSlider.value = health;
             enemyHealthSlider.gameObject.SetActive(false);
         }
@@ -75,6 +76,7 @@ public class EnemyBase : MonoBehaviour
             enemyHealthSlider.gameObject.SetActive(true);
         }
 
+        animator.ResetTrigger("TakeDamage");
         animator.SetTrigger("TakeDamage");
         StartCoroutine(HitFlashRoutine());
         StartCoroutine(ApplyKnockback(knockbackSource));
@@ -178,6 +180,18 @@ public class EnemyBase : MonoBehaviour
         if (health <= 0) return; 
         health = 0;
         StartCoroutine(DieRoutine());
+    }
+
+    public virtual void Heal(int amount)
+    {
+        // Ölü düşmanı iyileştirme
+        if (health <= 0) return;
+
+        // maxHealth değişkenin yoksa bunu da EnemyBase'e eklemelisin
+        health = Mathf.Min(health + amount, maxHealth);
+
+        if (enemyHealthSlider != null)
+            enemyHealthSlider.value = health;
     }
 
     protected IEnumerator Invincible(float duration)

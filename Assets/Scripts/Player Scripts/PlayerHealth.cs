@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class PlayerHealth : MonoBehaviour
 {
     public int playerHealth = 5;
+    public int maxPlayerHealth = 5;
     public float invincibltyTime = 1f;
     public GameManager gameManager;
     public Slider playerHealthBar;
@@ -18,7 +19,7 @@ public class PlayerHealth : MonoBehaviour
 
         if (playerHealthBar != null)
         {
-            playerHealthBar.maxValue = playerHealth;
+            playerHealthBar.maxValue = maxPlayerHealth;
             playerHealthBar.value = playerHealth;
             playerHealthBar.gameObject.SetActive(false);
         }

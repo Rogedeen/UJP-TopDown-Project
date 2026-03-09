@@ -10,12 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8805208281352466346}
   - component: {fileID: 1889229501138413428}
-  - component: {fileID: -4241898833135462948}
-  - component: {fileID: 2496389246742191360}
   - component: {fileID: 9129347547415816207}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Fireball
-  m_TagString: Untagged
+  m_TagString: EnemyProjectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -52,7 +50,7 @@ MonoBehaviour:
   _SafetyDestroy: 6
   _DestoyDelay: 1
   _CastEffect: {fileID: 3523913026877113416}
-  _HitEffect: {fileID: 0}
+  _HitEffect: {fileID: 3475878327137486995, guid: a557af495c46c0a4fac212eb14b87dc0, type: 3}
   _ProjectileEffect: {fileID: 209672678247092378}
   _FlySpeed: 0.25
   _FlyCurve:
@@ -93,49 +91,6 @@ MonoBehaviour:
   _FlyCurveStrength: 0
   _ProjectileFlyDelay: 0
   _ProjectileDeactivateDelay: 0.1
---- !u!114 &-4241898833135462948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9063514842149012542}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 866815eca206dc240aa5062c05f62b9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Projectile
-  speed: 12
-  damage: 1
-  lifeTime: 4
-  explosionPrefab: {fileID: 1158318190275716005, guid: a557af495c46c0a4fac212eb14b87dc0, type: 3}
---- !u!54 &2496389246742191360
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9063514842149012542}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 1
 --- !u!135 &9129347547415816207
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -165,6 +120,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8805208281352466346}
     m_Modifications:
+    - target: {fileID: 1639810943392827635, guid: a1f8d8aa14428af42809cddeac1f6381, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 2650003158570179580, guid: a1f8d8aa14428af42809cddeac1f6381, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -205,9 +164,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7131054048216414988, guid: a1f8d8aa14428af42809cddeac1f6381, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 8700258344733543052, guid: a1f8d8aa14428af42809cddeac1f6381, type: 3}
       propertyPath: m_Name
       value: FireballCast
+      objectReference: {fileID: 0}
+    - target: {fileID: 8700258344733543052, guid: a1f8d8aa14428af42809cddeac1f6381, type: 3}
+      propertyPath: m_Layer
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 8700258344733543052, guid: a1f8d8aa14428af42809cddeac1f6381, type: 3}
       propertyPath: m_IsActive
@@ -276,13 +243,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5611936989438460777, guid: ce5e6c05cc9837b4e8e08e6507db9d07, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7269632949906858993, guid: ce5e6c05cc9837b4e8e08e6507db9d07, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 7866002994442904433, guid: ce5e6c05cc9837b4e8e08e6507db9d07, type: 3}
       propertyPath: m_Name
       value: Fireball
       objectReference: {fileID: 0}
     - target: {fileID: 7866002994442904433, guid: ce5e6c05cc9837b4e8e08e6507db9d07, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 7866002994442904433, guid: ce5e6c05cc9837b4e8e08e6507db9d07, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7894262575351520053, guid: ce5e6c05cc9837b4e8e08e6507db9d07, type: 3}
+      propertyPath: m_Layer
+      value: 14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

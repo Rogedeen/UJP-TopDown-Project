@@ -29,7 +29,6 @@ public class PlayerController : MonoBehaviour
     private FollowPlayer camScript;
     private Camera mainCamera;
 
-    // ApplySlow race condition fix: orijinal hızı ve aktif coroutine'i takip et
     private float originalSpeed;
     private Coroutine activeSlowCoroutine;
 
@@ -55,7 +54,6 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Hareket ve Dönüş
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
@@ -65,9 +63,25 @@ public class PlayerController : MonoBehaviour
         Vector3 newVelocity = new(moveDirection.x * speed, playerRb.linearVelocity.y, moveDirection.z * speed);
         playerRb.linearVelocity = newVelocity;
 
-        animator.SetFloat("moveSpeed", moveDirection.magnitude * speed);
+        Vector3 localMove = transform.InverseTransformDirection(moveDirection);
+
+        animator.SetFloat("Horizontal", localMove.x, 0.15f, Time.fixedDeltaTime);
+        animator.SetFloat("Vertical", localMove.z, 0.15f, Time.fixedDeltaTime);
+        animator.SetFloat("moveSpeed", moveDirection.magnitude, 0.15f, Time.fixedDeltaTime);
+
 
         RotateTowardsMouse();
+    }
+
+    public void TakeDamageEffect()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger("takeDamage"); 
+        }
+
+        if (camScript != null) camScript.TriggerShake(0.15f, 0.2f);
+
     }
 
     public void RotateTowardsMouse()
@@ -149,17 +163,12 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isAttacking", false);
     }
 
-    /// <summary>
-    /// Oyuncuyu yavaşlatır. Aynı anda birden fazla yavaşlatma gelirse,
-    /// önceki iptal edilir ve hız her zaman orijinal değere göre hesaplanır.
-    /// </summary>
     public IEnumerator ApplySlow(float slowModifier, float slowDuration)
     {
-        // Önceki yavaşlatma varsa iptal et — hız karışmasın
         if (activeSlowCoroutine != null)
         {
             StopCoroutine(activeSlowCoroutine);
-            speed = originalSpeed; // Önce orijinal hıza dön
+            speed = originalSpeed; 
         }
 
         speed = originalSpeed * slowModifier;
@@ -169,11 +178,6 @@ public class PlayerController : MonoBehaviour
         speed = originalSpeed;
         activeSlowCoroutine = null;
     }
-
-    /// <summary>
-    /// ApplySlow'u dışarıdan güvenli şekilde başlatmak için.
-    /// Eski slow varsa otomatik olarak iptal eder.
-    /// </summary>
     public void StartSlow(float slowModifier, float slowDuration)
     {
         if (activeSlowCoroutine != null)

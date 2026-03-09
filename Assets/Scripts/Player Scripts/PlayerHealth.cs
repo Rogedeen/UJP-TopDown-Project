@@ -9,6 +9,8 @@ public class PlayerHealth : MonoBehaviour
     public float invincibilityTime = 1f;
 
     [SerializeField] private GameManager gameManager;
+    [SerializeField] private PlayerController playerController;
+
     public Slider playerHealthBar;
 
     private bool isInvincible = false;
@@ -22,12 +24,15 @@ public class PlayerHealth : MonoBehaviour
             playerHealthBar.value = playerHealth;
             playerHealthBar.gameObject.SetActive(false);
         }
+
+        
     }
 
     public void TakeDamage(int damage)
     {
         if (isInvincible || isDead) return;
 
+        playerController.TakeDamageEffect();
         playerHealth -= damage;
         if (playerHealthBar != null)
         {

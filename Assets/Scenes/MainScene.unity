@@ -7442,17 +7442,6 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 5095744454163644248, guid: e073629197bed2b439056054cae76f3e, type: 3}
   m_PrefabInstance: {fileID: 6734093373688703457}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &919132148538821616 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
-  m_PrefabInstance: {fileID: 6734093373688703457}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132148538821607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e59ea6dc578ccac4dace42da79ee3b17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
 --- !u!1001 &3597824267511458782
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7602,7 +7591,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1241488825052241317, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1241488825052241317, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -7636,22 +7625,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5095744454163644248, guid: e073629197bed2b439056054cae76f3e, type: 3}
-      propertyPath: m_Avatar
-      value: 
-      objectReference: {fileID: 9000000, guid: de6da84600e0a0c44ba6a329c45de938, type: 3}
-    - target: {fileID: 5095744454163644248, guid: e073629197bed2b439056054cae76f3e, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 1d4fa6fcf99fa5845ab58c4ac687bc4e, type: 2}
-    - target: {fileID: 5095744454163644248, guid: e073629197bed2b439056054cae76f3e, type: 3}
-      propertyPath: m_AnimatePhysics
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5095744454163644248, guid: e073629197bed2b439056054cae76f3e, type: 3}
-      propertyPath: m_ApplyRootMotion
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5498008653360955258, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -7664,18 +7637,6 @@ PrefabInstance:
       propertyPath: gameManager
       value: 
       objectReference: {fileID: 1144158818}
-    - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
-      propertyPath: playerHealth
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
-      propertyPath: maxPlayerHealth
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
-      propertyPath: playerController
-      value: 
-      objectReference: {fileID: 919132148538821616}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -12,10 +12,8 @@ public class OrbitWeapon : MonoBehaviour
     public bool canUseSkill = true;
     public bool isRotating = false;
 
-
     private Renderer weaponRenderer;
     private Collider weaponCollider;
-    
 
     void Start()
     {
@@ -28,24 +26,29 @@ public class OrbitWeapon : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.isGameActive && Input.GetKeyDown(KeyCode.F) && canUseSkill && !isRotating)
-        {
-            StartCoroutine(SkillCycle());
-        }
-
-        if (isRotating) 
+        if (isRotating)
         {
             transform.RotateAround(orbitTransform.position, Vector3.up, rotationSpeed * Time.deltaTime);
         }
     }
 
-    IEnumerator SkillCycle() 
+    /// <summary>
+    /// PlayerController tarafından Skill tuşuna basıldığında çağrılır.
+    /// Artık OrbitWeapon kendi input'unu okumaz — merkezi input yönetimi.
+    /// </summary>
+    public void ActivateSkill()
+    {
+        if (!GameManager.isGameActive || !canUseSkill || isRotating) return;
+        StartCoroutine(SkillCycle());
+    }
+
+    IEnumerator SkillCycle()
     {
         canUseSkill = false;
         isRotating = true;
         weaponRenderer.enabled = true;
-        weaponCollider.enabled = true;   
-        
+        weaponCollider.enabled = true;
+
         yield return new WaitForSeconds(duration);
 
         weaponRenderer.enabled = false;

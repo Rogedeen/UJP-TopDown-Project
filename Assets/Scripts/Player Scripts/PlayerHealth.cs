@@ -64,4 +64,13 @@ public class PlayerHealth : MonoBehaviour
         yield return new WaitForSeconds(invincibilityTime);
         isInvincible = false;
     }
+
+    /// <summary>
+    /// Dash gibi mekanikler sırasında dışarıdan invincibility açıp kapamak için.
+    /// Hasar alındıktan sonraki otomatik invincibility ile karışmaz.
+    /// </summary>
+    public void SetInvincible(bool value)
+    {
+        isInvincible = value;
+    }
 }

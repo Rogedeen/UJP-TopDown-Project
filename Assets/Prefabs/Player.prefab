@@ -209,8 +209,8 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 873242831106347482}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: b29b2128ad71ad649baeac918d2d5a2e, type: 2}
-  m_Controller: {fileID: 9100000, guid: 70cf581fa4f728240b9785c507dff78a, type: 2}
+  m_Avatar: {fileID: 9000000, guid: de6da84600e0a0c44ba6a329c45de938, type: 3}
+  m_Controller: {fileID: 9100000, guid: 1d4fa6fcf99fa5845ab58c4ac687bc4e, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -235,8 +235,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   speed: 6
-  verticalInput: 0
-  horizontalInput: 0
+  dashSpeed: 20
+  dashDuration: 0.15
+  dashCooldown: 1
   activeWeapon: {fileID: 7823102358665122030}
   hitRadius: 1.5
   hitOffset: 1.5
@@ -249,6 +250,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2f8a783f075bf4155ab4b59bdd5fd2be, type: 3}
   - {fileID: 8300000, guid: 936e0c7b18e034f1db5890e9aa95bc42, type: 3}
   - {fileID: 8300000, guid: 5777bd69665764cfcb1873a61f617a18, type: 3}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &8541911570114308902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,9 +263,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9b185d1ec09e7943843f23577f022fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  playerHealth: 10
-  invincibltyTime: 1
+  playerHealth: 5
+  maxPlayerHealth: 5
+  invincibilityTime: 1
   gameManager: {fileID: 0}
+  playerController: {fileID: 7842327706078446965}
   playerHealthBar: {fileID: 2374319625038943935}
 --- !u!54 &2826161343789828731
 Rigidbody:

@@ -103,8 +103,8 @@ public class EnemyBase : MonoBehaviour, IDamageable
             enemyHealthSlider.gameObject.SetActive(true);
         }
 
-        animator.ResetTrigger(TakeDamageHash);
-        animator.SetTrigger(TakeDamageHash);
+        SafeResetTrigger(animator, TakeDamageHash);
+        SafeSetTrigger(animator, TakeDamageHash);
         StartCoroutine(HitFlashRoutine());
         StartCoroutine(ApplyKnockback(knockbackSource));
 
@@ -178,10 +178,13 @@ public class EnemyBase : MonoBehaviour, IDamageable
     protected virtual IEnumerator DieRoutine()
     {
         canTakeDamage = false;
-        animator.ResetTrigger(AttackHash);
-        animator.ResetTrigger(TakeDamageHash);
-        animator.SetBool(IsFizzyHash, true);
-        animator.SetTrigger(DieHash);
+
+        // Bazı düşman Animator Controller'larında tüm parametreler olmayabilir
+        // Bu yüzden güvenli şekilde set ediyoruz
+        SafeResetTrigger(animator, AttackHash);
+        SafeResetTrigger(animator, TakeDamageHash);
+        SafeSetBool(animator, IsFizzyHash, true);
+        SafeSetTrigger(animator, DieHash);
 
         if (!enemyRb.isKinematic)
             enemyRb.linearVelocity = Vector3.zero;
@@ -195,6 +198,34 @@ public class EnemyBase : MonoBehaviour, IDamageable
 
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
+    }
+
+    // ─── GÜVENLİ ANİMATOR YARDIMCILARI ───
+    // Her Animator Controller'da her parametre olmayabilir
+    // Bu metodlar hata fırlatmak yerine sessizce atlar
+
+    protected static void SafeResetTrigger(Animator anim, int hash)
+    {
+        if (HasParameter(anim, hash)) anim.ResetTrigger(hash);
+    }
+
+    protected static void SafeSetTrigger(Animator anim, int hash)
+    {
+        if (HasParameter(anim, hash)) anim.SetTrigger(hash);
+    }
+
+    protected static void SafeSetBool(Animator anim, int hash, bool value)
+    {
+        if (HasParameter(anim, hash)) anim.SetBool(hash, value);
+    }
+
+    private static bool HasParameter(Animator anim, int hash)
+    {
+        foreach (var param in anim.parameters)
+        {
+            if (param.nameHash == hash) return true;
+        }
+        return false;
     }
 
     public void ForceKill()

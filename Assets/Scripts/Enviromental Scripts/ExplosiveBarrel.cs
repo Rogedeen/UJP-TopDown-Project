@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.VFX;
 
-public class ExplosiveBarrel : MonoBehaviour
+public class ExplosiveBarrel : MonoBehaviour, IDamageable
 {
     [Header("Varil Sağlığı")]
     public int barrelHealth = 2;
@@ -63,8 +63,6 @@ public class ExplosiveBarrel : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (hasExploded) return;
-
-        Debug.Log("Varile bir şey çarptı: " + other.gameObject.name + " | Tag: " + other.tag);
 
         if (other.CompareTag("Weapon") || other.CompareTag("OrbitWeapon") || other.CompareTag("Barrel"))
         {
@@ -131,6 +129,14 @@ public class ExplosiveBarrel : MonoBehaviour
 
         if (navObstacle != null) navObstacle.enabled = true;
         isKnockedBack = false;
+    }
+
+    // IDamageable interface implementasyonu
+    // Hasar veren kodların "IDamageable mısın?" diye sormasına olanak tanır
+    public void TakeDamage(int damage, Vector3 knockbackSource)
+    {
+        TakeBarrelDamage(damage);
+        ApplyKnockback(knockbackSource);
     }
 
     public void TakeBarrelDamage(int damage)

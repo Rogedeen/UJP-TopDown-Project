@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.AI;
-public class EnemyBase : MonoBehaviour
+
+public class EnemyBase : MonoBehaviour, IDamageable
 {
     [Header("Core Stats")]
     public int health = 3;
     public int maxHealth = 3;
     public bool canTakeDamage = true;
     public float invincibilityDuration = 0.5f;
+
+    [Header("Knockback")]
+    [SerializeField] protected float knockbackSpeed = 10f;
+    [SerializeField] protected float knockbackDuration = 0.25f;
 
     [Header("UI")]
     public Slider enemyHealthSlider;
@@ -20,11 +25,33 @@ public class EnemyBase : MonoBehaviour
     protected Rigidbody enemyRb;
     protected Animator animator;
     protected bool isKnockedBack = false;
-    protected GameObject player; // Buraya aldık
+    protected GameObject player;
 
     protected Renderer[] renderers;
     protected Material[] originalMaterials;
     protected NavMeshAgent agent;
+
+    // Animator parametrelerini hash olarak sakla (performans için)
+    // String karşılaştırması her frame yapılırsa yavaş kalır, hash ile anlık olur
+    protected static readonly int TakeDamageHash = Animator.StringToHash("TakeDamage");
+    protected static readonly int AttackHash = Animator.StringToHash("Attack");
+    protected static readonly int DieHash = Animator.StringToHash("Die");
+    protected static readonly int IsFizzyHash = Animator.StringToHash("isFizzy");
+
+    // Statik oyuncu referansı: Tüm düşmanlar aynı referansı paylaşır.
+    // Player sahnede aktif olduğunda kendini buraya kaydeder.
+    // Bu sayede her düşmanın tek tek FindGameObjectWithTag yapmasına gerek kalmaz.
+    private static GameObject _cachedPlayer;
+    public static GameObject CachedPlayer
+    {
+        get
+        {
+            // Eğer cache boşsa veya obje yok edilmişse yeniden bul
+            if (_cachedPlayer == null)
+                _cachedPlayer = GameObject.FindGameObjectWithTag("Player");
+            return _cachedPlayer;
+        }
+    }
 
     protected virtual void Awake()
     {
@@ -40,7 +67,7 @@ public class EnemyBase : MonoBehaviour
     {
         enemyRb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
-        player = GameObject.FindGameObjectWithTag("Player"); // Her düşman doğduğunda oyuncuyu bulur
+        player = CachedPlayer;
 
         if (enemyHealthSlider != null)
         {
@@ -49,22 +76,22 @@ public class EnemyBase : MonoBehaviour
             enemyHealthSlider.gameObject.SetActive(false);
         }
     }
+
     protected virtual void OnTriggerEnter(Collider other)
     {
         if (!canTakeDamage || health <= 0) return;
 
         if (other.CompareTag("Weapon") || other.CompareTag("OrbitWeapon"))
         {
-            Debug.Log("Düşmana çarpan objenin adı: " + other.gameObject.name + " | Tag: " + other.tag);
             int damageValue = 1;
 
-            // Silahın damage değerini alalım
             if (other.TryGetComponent<Weapon>(out var w)) damageValue = w.damage;
             else if (other.TryGetComponent<OrbitWeapon>(out var ow)) damageValue = ow.damage;
 
             TakeDamage(damageValue, player.transform.position);
         }
     }
+
     public virtual void TakeDamage(int damage, Vector3 knockbackSource)
     {
         if (!canTakeDamage) return;
@@ -76,8 +103,8 @@ public class EnemyBase : MonoBehaviour
             enemyHealthSlider.gameObject.SetActive(true);
         }
 
-        animator.ResetTrigger("TakeDamage");
-        animator.SetTrigger("TakeDamage");
+        animator.ResetTrigger(TakeDamageHash);
+        animator.SetTrigger(TakeDamageHash);
         StartCoroutine(HitFlashRoutine());
         StartCoroutine(ApplyKnockback(knockbackSource));
 
@@ -96,32 +123,25 @@ public class EnemyBase : MonoBehaviour
         isKnockedBack = true;
 
         Vector3 pushDir = (transform.position - source).normalized;
-        pushDir.y = 0; // Dikey bileşeni sıfırla, NavMesh düzleminde kalalım
+        pushDir.y = 0;
 
-        float knockbackSpeed = 10.0f;    // Başlangıç hızı
-        float knockbackDuration = 0.25f;
         float elapsed = 0f;
 
-        // Agent'ı kapatmak yerine, agent'ın kendi velocity'sini sıfırlıyoruz
-        // ve hareketi Warp ile biz yönetiyoruz
         if (agent != null)
         {
-            agent.ResetPath();          // Hedefe gitmeyi durdur
-            agent.velocity = Vector3.zero; // Agent'ın kendi momentumunu sıfırla
+            agent.ResetPath();
+            agent.velocity = Vector3.zero;
         }
 
         while (elapsed < knockbackDuration)
         {
             elapsed += Time.deltaTime;
 
-            // Hız zamanla azalıyor (easing) - bu daha doğal hissettirir
             float t = 1f - (elapsed / knockbackDuration);
             Vector3 movement = knockbackSpeed * t * Time.deltaTime * pushDir;
 
-            // NavMesh üzerinde güvenli hareket
             if (agent != null && agent.isActiveAndEnabled)
             {
-                // Warp, agent'ı NavMesh'e "yapıştırarak" hareket ettirir
                 agent.Warp(transform.position + movement);
             }
 
@@ -129,7 +149,6 @@ public class EnemyBase : MonoBehaviour
         }
 
         isKnockedBack = false;
-        // Artık agent yeni bir path hesaplayabilir
     }
 
     protected IEnumerator HitFlashRoutine()
@@ -159,35 +178,36 @@ public class EnemyBase : MonoBehaviour
     protected virtual IEnumerator DieRoutine()
     {
         canTakeDamage = false;
-        animator.ResetTrigger("Attack");
-        animator.ResetTrigger("TakeDamage");
-        animator.SetBool("isFizzy", true);
-        animator.SetTrigger("Die");
+        animator.ResetTrigger(AttackHash);
+        animator.ResetTrigger(TakeDamageHash);
+        animator.SetBool(IsFizzyHash, true);
+        animator.SetTrigger(DieHash);
 
         if (!enemyRb.isKinematic)
             enemyRb.linearVelocity = Vector3.zero;
 
         GetComponent<Collider>().enabled = false;
 
-        WaveManager.activeEnemyCount--;
+        // Event sistemi ile "bir düşman öldü" sinyali yayınla
+        // WaveManager bu sinyali dinliyor ve kendi sayacını azaltıyor
+        GameEvents.EnemyDied();
         enemyRb.isKinematic = true;
 
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
     }
+
     public void ForceKill()
     {
-        if (health <= 0) return; 
+        if (health <= 0) return;
         health = 0;
         StartCoroutine(DieRoutine());
     }
 
     public virtual void Heal(int amount)
     {
-        // Ölü düşmanı iyileştirme
         if (health <= 0) return;
 
-        // maxHealth değişkenin yoksa bunu da EnemyBase'e eklemelisin
         health = Mathf.Min(health + amount, maxHealth);
 
         if (enemyHealthSlider != null)
@@ -200,3 +220,4 @@ public class EnemyBase : MonoBehaviour
         canTakeDamage = true;
     }
 }
+

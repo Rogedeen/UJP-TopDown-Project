@@ -16,18 +16,30 @@ public class WaveManager : MonoBehaviour
     public GameObject iceWizardPrefab;
     public GameObject supportWizardPrefab;
 
-    public static int activeEnemyCount = 0;
+    [Header("References")]
+    [SerializeField] private PowerUpManager powerUpManager;
+    [SerializeField] private GameManager gameManager;
+
     public Gates[] gates;
 
-    private PowerUpManager powerUpManager;
-    private GameManager gameManager;
+    private int activeEnemyCount = 0;
     private bool isSpawning = false;
+
+    void OnEnable()
+    {
+        // Event'e abone ol: Bir düşman öldüğünde HandleEnemyDied çağrılacak
+        GameEvents.OnEnemyDied += HandleEnemyDied;
+    }
+
+    void OnDisable()
+    {
+        // Aboneliği kaldır (memory leak önleme)
+        GameEvents.OnEnemyDied -= HandleEnemyDied;
+    }
 
     void Start()
     {
         activeEnemyCount = 0;
-        powerUpManager = GameObject.Find("Power Up Manager").GetComponent<PowerUpManager>();
-        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
 
     void Update()
@@ -38,6 +50,16 @@ public class WaveManager : MonoBehaviour
         {
             StartCoroutine(SpawnWaveRoutine());
         }
+    }
+
+    /// <summary>
+    /// GameEvents.OnEnemyDied event'i tetiklendiğinde çağrılır.
+    /// Artık EnemyBase doğrudan WaveManager'ın değişkenine erişmiyor,
+    /// sadece bir sinyal yayınlıyor ve biz burada yakalıyoruz.
+    /// </summary>
+    private void HandleEnemyDied()
+    {
+        activeEnemyCount--;
     }
 
     IEnumerator SpawnWaveRoutine()
@@ -65,8 +87,6 @@ public class WaveManager : MonoBehaviour
             GameObject prefabToSpawn;
             float roll = Random.value;
 
-            // --- YENİ SPAWN MANTIĞI ---
-            // Difficulty arttıkça wizard gelme şansı artıyor (max %50 wizard şansı gibi)
             if (roll < difficultyScore * 0.5f)
             {
                 prefabToSpawn = GetRandomWizardPrefab();
@@ -88,12 +108,10 @@ public class WaveManager : MonoBehaviour
         isSpawning = false;
     }
 
-    // Wizard seçimini kendi içinde rastgele yapıyoruz
     GameObject GetRandomWizardPrefab()
     {
         float wizardRoll = Random.value;
 
-        // %40 Fire, %40 Ice, %20 Support (Support biraz daha nadir olsun ki kıymetli olsun)
         if (wizardRoll < 0.4f) return fireWizardPrefab;
         if (wizardRoll < 0.8f) return iceWizardPrefab;
         return supportWizardPrefab;

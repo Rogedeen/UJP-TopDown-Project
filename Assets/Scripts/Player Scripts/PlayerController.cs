@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -28,12 +27,19 @@ public class PlayerController : MonoBehaviour
     private Rigidbody playerRb;
     private Animator animator;
     private FollowPlayer camScript;
+    private Camera mainCamera;
+
+    // ApplySlow race condition fix: orijinal hızı ve aktif coroutine'i takip et
+    private float originalSpeed;
+    private Coroutine activeSlowCoroutine;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         playerRb = GetComponent<Rigidbody>();
-        camScript = Camera.main.GetComponent<FollowPlayer>();
+        mainCamera = Camera.main;
+        camScript = mainCamera.GetComponent<FollowPlayer>();
+        originalSpeed = speed;
     }
 
     void Update()
@@ -45,8 +51,6 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(AttackRoutine());
             }
         }
-
-        
     }
 
     void FixedUpdate()
@@ -68,7 +72,7 @@ public class PlayerController : MonoBehaviour
 
     public void RotateTowardsMouse()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         Plane groundPlane = new(Vector3.up, Vector3.zero);
 
         if (groundPlane.Raycast(ray, out float rayDistance))
@@ -89,9 +93,6 @@ public class PlayerController : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.20f);
-
-
-        Debug.Log("Vuruş Anındaki Hasar: " + activeWeapon.damage);
 
         GameObject vfxToSpawn = (activeWeapon.damage >= damageUpgradeThreshold) ? fireVFXPrefab : windVFXPrefab;
 
@@ -130,12 +131,6 @@ public class PlayerController : MonoBehaviour
                         enemyBase.TakeDamage(activeWeapon.damage, transform.position);
                         hitEnemiesInThisSwing.Add(enemyBase);
                         camScript.TriggerShake(0.1f, 0.15f);
-                        /*
-                        Time.timeScale = 0;
-                        yield return new WaitForSecondsRealtime(0.1f);
-                        Time.timeScale = 1;
-                        //hit stop denedim ama pek begenmedim
-                        */
                     }
                 }
 
@@ -154,24 +149,37 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isAttacking", false);
     }
 
+    /// <summary>
+    /// Oyuncuyu yavaşlatır. Aynı anda birden fazla yavaşlatma gelirse,
+    /// önceki iptal edilir ve hız her zaman orijinal değere göre hesaplanır.
+    /// </summary>
     public IEnumerator ApplySlow(float slowModifier, float slowDuration)
     {
-        Debug.Log("Yavaşlatma başladı! Eski hız: " + speed);
+        // Önceki yavaşlatma varsa iptal et — hız karışmasın
+        if (activeSlowCoroutine != null)
+        {
+            StopCoroutine(activeSlowCoroutine);
+            speed = originalSpeed; // Önce orijinal hıza dön
+        }
 
-        float originalSpeed = speed; 
-        speed *= slowModifier; 
+        speed = originalSpeed * slowModifier;
 
         yield return new WaitForSecondsRealtime(slowDuration);
 
-        speed = originalSpeed; 
-        Debug.Log("Yavaşlatma bitti! Yeni hız: " + speed);
+        speed = originalSpeed;
+        activeSlowCoroutine = null;
     }
 
-
-    /*private void OnDrawGizmosSelected()
+    /// <summary>
+    /// ApplySlow'u dışarıdan güvenli şekilde başlatmak için.
+    /// Eski slow varsa otomatik olarak iptal eder.
+    /// </summary>
+    public void StartSlow(float slowModifier, float slowDuration)
     {
-        Gizmos.color = Color.red;
-        Vector3 hitCenter = transform.position + transform.forward * hitOffset;
-        Gizmos.DrawWireSphere(hitCenter, hitRadius);
-    }*/
+        if (activeSlowCoroutine != null)
+        {
+            StopCoroutine(activeSlowCoroutine);
+        }
+        activeSlowCoroutine = StartCoroutine(ApplySlow(slowModifier, slowDuration));
+    }
 }

@@ -61,10 +61,7 @@ public class Projectile : MonoBehaviour
 
             case ProjectileType.Slow:
                 pHealth.TakeDamage(value);
-                Debug.Log("Yavaşlatma mermisi çarptı, efekt uygulanıyor...");
-                pController.StartCoroutine(pController.ApplySlow(slowAmount, slowDuration));
-                // PlayerHealth'e ApplySlow eklediğinde bu satırı aç:
-                // pHealth.ApplySlow(slowAmount, slowDuration);
+                pController.StartSlow(slowAmount, slowDuration);
                 break;
 
             case ProjectileType.Heal:

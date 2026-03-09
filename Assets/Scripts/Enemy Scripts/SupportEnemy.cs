@@ -4,20 +4,24 @@ using System.Collections;
 public class SupportEnemy : EnemyBase
 {
     [Header("Aura Management")]
-    public GameObject healingAuraPrefab; // wind aura prefabın
-    public float auraDuration = 4f;      // Aura ne kadar süre açık kalacak
-    public float auraCooldown = 10f;     // Bir sonraki aura için bekleme süresi
-    public float checkAllyRange = 8f;    // Yaralı müttefiki ne mesafeden fark etsin?
+    public GameObject healingAuraPrefab;
+    public float auraDuration = 4f;
+    public float auraCooldown = 10f;
+    public float checkAllyRange = 8f;
 
     [Header("Behavior")]
-    public float fleeDistance = 10f;     // Oyuncu gelirse topuklama mesafesi
+    public float fleeDistance = 10f;
     public float moveSpeed = 4f;
 
     private float nextAuraReadyTime;
     private bool isAuraActive = false;
 
+    // Müttefik taramasını optimize et: Her frame yerine belirli aralıklarla
+    private EnemyBase[] cachedAllies;
+    private float allyCacheTimer;
+    private const float ALLY_CACHE_INTERVAL = 0.5f;
+
     private static readonly int SpeedHash = Animator.StringToHash("speed_f");
-    private static readonly int AttackHash = Animator.StringToHash("Attack");
 
     protected override void Start()
     {
@@ -29,9 +33,16 @@ public class SupportEnemy : EnemyBase
     {
         if (player == null || health <= 0 || isKnockedBack) return;
 
+        // Müttefik listesini belirli aralıklarla güncelle (performans optimizasyonu)
+        allyCacheTimer -= Time.deltaTime;
+        if (allyCacheTimer <= 0f)
+        {
+            cachedAllies = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+            allyCacheTimer = ALLY_CACHE_INTERVAL;
+        }
+
         HandleSupportBehavior();
 
-        // Aurayı tetikleme kontrolü
         if (Time.time >= nextAuraReadyTime && !isAuraActive && HasInjuredAllyInRange())
         {
             StartCoroutine(AuraCycle());
@@ -42,14 +53,12 @@ public class SupportEnemy : EnemyBase
     {
         float distToPlayer = Vector3.Distance(transform.position, player.transform.position);
 
-        // ÖNCELİK 1: KAÇMAK (Seni hiç iplemiyor, sadece kaçıyor)
         if (distToPlayer < fleeDistance)
         {
             Vector3 fleeDir = (transform.position - player.transform.position).normalized;
             agent.isStopped = false;
             agent.SetDestination(transform.position + fleeDir * 6f);
         }
-        // ÖNCELİK 2: YARALIYA GİTMEK
         else
         {
             EnemyBase target = FindMostHurtAlly();
@@ -60,13 +69,12 @@ public class SupportEnemy : EnemyBase
             }
             else
             {
-                // Kimse yaralı değilse ve sen de yakın değilsen durup takılsın
                 agent.isStopped = true;
             }
         }
 
         animator.SetFloat(SpeedHash, agent.velocity.magnitude);
-        RotateTowards(player.transform.position); // Seni takip etmese de nerede olduğunu bilmek için sana baksın
+        RotateTowards(player.transform.position);
     }
 
     IEnumerator AuraCycle()
@@ -77,7 +85,7 @@ public class SupportEnemy : EnemyBase
         if (healingAuraPrefab != null)
         {
             GameObject aura = Instantiate(healingAuraPrefab, transform.position, Quaternion.identity);
-            aura.transform.SetParent(transform); // Büyücüyle beraber gitsin
+            aura.transform.SetParent(transform);
             aura.transform.localPosition = Vector3.zero;
             Destroy(aura, auraDuration);
         }
@@ -90,10 +98,11 @@ public class SupportEnemy : EnemyBase
 
     bool HasInjuredAllyInRange()
     {
-        EnemyBase[] allies = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
-        foreach (var ally in allies)
+        if (cachedAllies == null) return false;
+
+        foreach (var ally in cachedAllies)
         {
-            if (ally == this || ally.health <= 0) continue;
+            if (ally == null || ally == this || ally.health <= 0) continue;
             if (ally.health < ally.maxHealth && Vector3.Distance(transform.position, ally.transform.position) <= checkAllyRange)
                 return true;
         }
@@ -102,13 +111,14 @@ public class SupportEnemy : EnemyBase
 
     EnemyBase FindMostHurtAlly()
     {
-        EnemyBase[] allies = FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
+        if (cachedAllies == null) return null;
+
         EnemyBase worst = null;
         int minHealth = int.MaxValue;
 
-        foreach (var ally in allies)
+        foreach (var ally in cachedAllies)
         {
-            if (ally == this || ally.health <= 0 || ally.health >= ally.maxHealth) continue;
+            if (ally == null || ally == this || ally.health <= 0 || ally.health >= ally.maxHealth) continue;
             if (ally.health < minHealth)
             {
                 minHealth = ally.health;

@@ -16,7 +16,6 @@ public class Gates : MonoBehaviour
         if (isActive && other.CompareTag("Barrier"))
         {
             isActive = false;
-            Debug.Log(gameObject.name + " kapandı!");
 
             // Fizikleri kapatıyoruz
             Rigidbody barrierRb = other.GetComponent<Rigidbody>();

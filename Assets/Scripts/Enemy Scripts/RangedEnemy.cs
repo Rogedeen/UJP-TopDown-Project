@@ -171,38 +171,26 @@ public class RangedEnemy : EnemyBase
     {
         if (health <= 0 || isKnockedBack) return;
 
-        // 1. Oyuncunun hızını ve yönünü al
-        Rigidbody pRb = player.GetComponent<Rigidbody>();
-        Vector3 playerVel = (pRb != null) ? pRb.linearVelocity : Vector3.zero;
-
-        // 2. Tahmini vuruş noktasını hesapla (Senin eski mantığın)
         float distToPlayer = Vector3.Distance(firePoint.position, player.transform.position);
         float travelTimeToPlayer = distToPlayer / projectilePhysicalSpeed;
-        Vector3 predictedPoint = player.transform.position + (playerVel * travelTimeToPlayer);
 
-        // --- BASİT ÇÖZÜM BURASI ---
-        // Merminin durmasını istemiyoruz, o yüzden tahmin edilen noktaya değil, 
-        // o yöndeki çok uzak bir noktaya (mesela 50 birim uzağa) ateş ediyoruz.
+        Vector3 predictedPoint = CalculatePredictedPosition(travelTimeToPlayer);
+
         Vector3 fireDirection = (predictedPoint - firePoint.position).normalized;
         float maxDistance = 50f;
         Vector3 farAwayTarget = firePoint.position + fireDirection * maxDistance;
         float totalTravelTime = maxDistance / projectilePhysicalSpeed;
-        // ---------------------------
 
         GameObject spellObj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
         ProjectileVfx vfx = spellObj.GetComponent<ProjectileVfx>();
 
         if (vfx != null)
         {
-            // Asset'e "bu mermi 50 birim uzağa gitsin" diyoruz
             vfx._FlySpeed = totalTravelTime;
-
             VfxData data = new VfxData(firePoint, farAwayTarget, totalTravelTime, 0f);
             vfx.Play(data);
 
-            // Hasar yine oyuncunun olduğu saniyede (travelTimeToPlayer) tetiklensin
             StartCoroutine(DealDamageOnArrival(travelTimeToPlayer, predictedPoint, spellObj));
-
             Destroy(spellObj, totalTravelTime + 1f);
         }
     }
@@ -218,7 +206,19 @@ public class RangedEnemy : EnemyBase
         if (distancePlayerToImpact <= 1.5f)
         {
             PlayerHealth pHealth = player.GetComponent<PlayerHealth>();
-            if (pHealth != null) pHealth.TakeDamage(1);
+            PlayerController pController = player.GetComponent<PlayerController>();
+
+            if (pHealth != null)
+            {
+                // Her iki büyücü de hasar veriyor
+                pHealth.TakeDamage(1);
+
+                // Ice büyücüsü ek olarak yavaşlatma efekti de uyguluyor
+                if (wizardType == WizardType.Ice && pController != null)
+                {
+                    pController.StartCoroutine(pController.ApplySlow(0.4f, 2.5f));
+                }
+            }
 
             if (hitEffectPrefab != null)
             {
@@ -226,8 +226,8 @@ public class RangedEnemy : EnemyBase
                 Destroy(hitFx, 2f);
             }
 
-            spellObj.SetActive(false); 
-            Destroy(spellObj, 0.1f);  
+            spellObj.SetActive(false);
+            Destroy(spellObj, 0.1f);
         }
     }
 

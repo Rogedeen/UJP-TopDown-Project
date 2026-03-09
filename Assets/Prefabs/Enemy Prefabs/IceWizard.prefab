@@ -565,8 +565,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 166eae7d040ff7642a19e01da7645ee5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemy
-  health: 3
-  maxHealth: 3
+  health: 2
+  maxHealth: 2
   canTakeDamage: 1
   invincibilityDuration: 0.5
   enemyHealthSlider: {fileID: 7228002101805915587}

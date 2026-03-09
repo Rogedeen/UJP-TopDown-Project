@@ -51,7 +51,7 @@ public class PowerUp : MonoBehaviour
         }
     }
 
-    IEnumerator ApplyPowerUp(GameObject player)
+    public IEnumerator ApplyPowerUp(GameObject player)
     {
         var pc = player.GetComponent<PlayerController>();
         var w = player.GetComponentInChildren<Weapon>();

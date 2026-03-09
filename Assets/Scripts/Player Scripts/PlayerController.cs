@@ -154,6 +154,19 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isAttacking", false);
     }
 
+    public IEnumerator ApplySlow(float slowModifier, float slowDuration)
+    {
+        Debug.Log("Yavaşlatma başladı! Eski hız: " + speed);
+
+        float originalSpeed = speed; 
+        speed *= slowModifier; 
+
+        yield return new WaitForSecondsRealtime(slowDuration);
+
+        speed = originalSpeed; 
+        Debug.Log("Yavaşlatma bitti! Yeni hız: " + speed);
+    }
+
 
     /*private void OnDrawGizmosSelected()
     {

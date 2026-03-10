@@ -8,7 +8,8 @@ public class GameManager : MonoBehaviour
     public static bool isGameActive;
     public GameObject titleScreen;
     public GameObject gameOverScreen;
-    public GameObject winScreen; // Yeni: Kazanma ekranı
+    public GameObject winScreen;
+    public GameObject ingameScreen; // HUD — oyun sırasında görünür
     public GameObject retryObject;
     public GameObject player;
     public Animator playerControllerAnim;
@@ -21,6 +22,7 @@ public class GameManager : MonoBehaviour
         titleScreen.SetActive(true);
         gameOverScreen.SetActive(false);
         winScreen.SetActive(false);
+        ingameScreen.SetActive(false);
         player.SetActive(false);
         retryObject.SetActive(false);
     }
@@ -28,6 +30,7 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         titleScreen.SetActive(false);
+        ingameScreen.SetActive(true);
         isGameActive = true;
         player.SetActive(true);
         Time.timeScale = 1;
@@ -36,6 +39,7 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         isGameActive = false;
+        ingameScreen.SetActive(false);
         gameOverScreen.SetActive(true);
         retryObject.SetActive(true);
         Time.timeScale = 0;
@@ -44,6 +48,7 @@ public class GameManager : MonoBehaviour
     public IEnumerator WinGame()
     {
         isGameActive = false;
+        ingameScreen.SetActive(false);
         playerControllerAnim.SetTrigger("winGame_t");
         KillAllEnemies();
         yield return new WaitForSecondsRealtime(2);

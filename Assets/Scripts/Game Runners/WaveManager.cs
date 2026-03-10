@@ -24,22 +24,44 @@ public class WaveManager : MonoBehaviour
 
     private int activeEnemyCount = 0;
     private bool isSpawning = false;
+    private int currentWave = 0;
+
+    // ─── HUD İÇİN PUBLIC GETTER'LAR ───
+    public int CurrentWave => currentWave;
+    public int ActiveEnemyCount => activeEnemyCount;
+
+    /// <summary>
+    /// Kapatılmış kapı sayısını döndürür (HUD için).
+    /// </summary>
+    public int ClosedGateCount
+    {
+        get
+        {
+            int count = 0;
+            foreach (var gate in gates)
+            {
+                if (!gate.isActive) count++;
+            }
+            return count;
+        }
+    }
+
+    public int TotalGateCount => gates.Length;
 
     void OnEnable()
     {
-        // Event'e abone ol: Bir düşman öldüğünde HandleEnemyDied çağrılacak
         GameEvents.OnEnemyDied += HandleEnemyDied;
     }
 
     void OnDisable()
     {
-        // Aboneliği kaldır (memory leak önleme)
         GameEvents.OnEnemyDied -= HandleEnemyDied;
     }
 
     void Start()
     {
         activeEnemyCount = 0;
+        currentWave = 0;
     }
 
     void Update()
@@ -52,11 +74,6 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// GameEvents.OnEnemyDied event'i tetiklendiğinde çağrılır.
-    /// Artık EnemyBase doğrudan WaveManager'ın değişkenine erişmiyor,
-    /// sadece bir sinyal yayınlıyor ve biz burada yakalıyoruz.
-    /// </summary>
     private void HandleEnemyDied()
     {
         activeEnemyCount--;
@@ -65,6 +82,7 @@ public class WaveManager : MonoBehaviour
     IEnumerator SpawnWaveRoutine()
     {
         isSpawning = true;
+        currentWave++;
         powerUpManager.SpawnPowerUp();
 
         List<Gates> activeGates = new List<Gates>();

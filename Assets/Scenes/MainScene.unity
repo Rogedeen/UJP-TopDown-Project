@@ -248,7 +248,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1179,7 +1179,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -8452,6 +8452,14 @@ PrefabInstance:
     - target: {fileID: 5498008653360955258, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: speed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: dashCooldown
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: gameManager

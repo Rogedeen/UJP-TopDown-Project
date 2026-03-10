@@ -209,13 +209,16 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void HandleLook()
     {
-        // Gamepad sağ analog kontrolü
-        Vector2 lookInput = lookAction.ReadValue<Vector2>();
+        // Gamepad sağ analog GERÇEKTEN hareket ediyor mu kontrol et
+        // Gamepad.current != null yeterli değil — bağlı ama kullanılmıyor olabilir
+        bool gamepadRightStickActive = Gamepad.current != null &&
+            Gamepad.current.rightStick.ReadValue().sqrMagnitude > 0.1f;
 
-        // Eğer gamepad sağ analog hareket ediyorsa, ona göre dön
-        if (Gamepad.current != null && lookInput.sqrMagnitude > 0.1f)
+        if (gamepadRightStickActive)
         {
-            Vector3 lookDir = new(lookInput.x, 0, lookInput.y);
+            // Gamepad sağ analog ile bak
+            Vector2 stickInput = Gamepad.current.rightStick.ReadValue();
+            Vector3 lookDir = new(stickInput.x, 0, stickInput.y);
             if (lookDir != Vector3.zero)
             {
                 Quaternion targetRot = Quaternion.LookRotation(lookDir);

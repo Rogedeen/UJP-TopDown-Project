@@ -355,6 +355,15 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetBool(IsAttackingHash, true);
 
+        // Attack Layer'da animasyonu zorla başlat
+        // (Input System callback zamanlaması nedeniyle bool tek başına yetmiyor)
+        int attackLayerIndex = animator.GetLayerIndex("Attack Layer");
+        if (attackLayerIndex >= 0)
+        {
+            yield return null;
+            animator.Play("Attack", attackLayerIndex, 0f);
+        }
+
         if (whooshSounds.Length > 0)
         {
             audioSource.PlayOneShot(whooshSounds[Random.Range(0, whooshSounds.Length)]);

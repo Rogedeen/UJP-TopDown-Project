@@ -182,8 +182,16 @@ public class PlayerController : MonoBehaviour
     {
         if (isDashing) return; // Dash sırasında normal hareket yok
 
-        // Move action'dan Vector2 oku: x = horizontal, y = vertical
+        // Move action'dan Vector2 oku
         moveInput = moveAction.ReadValue<Vector2>();
+
+        // ─── GHOST INPUT DÜZELTMESİ (Deadzone) ───
+        // Bilgisayara takılı direksiyon veya sanal joystickler bazen mikroskobik
+        // veya sabit hatalı input gönderebilir. Küçük inputları yoksay:
+        if (moveInput.sqrMagnitude < 0.05f)
+        {
+            moveInput = Vector2.zero;
+        }
 
         Vector3 moveDirection = new(moveInput.x, 0, moveInput.y);
         if (moveDirection.magnitude > 1) moveDirection.Normalize();
@@ -191,9 +199,6 @@ public class PlayerController : MonoBehaviour
         Vector3 newVelocity = new(moveDirection.x * speed, playerRb.linearVelocity.y, moveDirection.z * speed);
         playerRb.linearVelocity = newVelocity;
 
-        // Blend Tree'ye gönder — senin blend tree zaten Horizontal ve Vertical bekliyor
-        // InverseTransformDirection: Dünya yönünü oyuncunun bakış yönüne çevirir
-        // Böylece oyuncu fareye bakarken W'ye basınca "ileri", A'ya basınca "sola strafe" animasyonu oynar
         Vector3 localMove = transform.InverseTransformDirection(moveDirection);
         animator.SetFloat(HorizontalHash, localMove.x, 0.15f, Time.fixedDeltaTime);
         animator.SetFloat(VerticalHash, localMove.z, 0.15f, Time.fixedDeltaTime);
@@ -204,19 +209,20 @@ public class PlayerController : MonoBehaviour
 
     /// <summary>
     /// Bakış yönü: Mouse veya Gamepad sağ analog.
-    /// Mouse kullanılıyorsa → mouse pozisyonuna bak.
-    /// Gamepad kullanılıyorsa → sağ analog yönüne bak.
+    /// Mouse hareket ediyorsa HER ZAMAN mouse önceliklidir.
     /// </summary>
     void HandleLook()
     {
-        // Gamepad sağ analog GERÇEKTEN hareket ediyor mu kontrol et
-        // Gamepad.current != null yeterli değil — bağlı ama kullanılmıyor olabilir
+        // 1. Mouse hareket ediyor mu?
+        bool isMouseMoving = Mouse.current != null && Mouse.current.delta.ReadValue().sqrMagnitude > 0.5f;
+
+        // 2. Gamepad sağ analog GERÇEKTEN hareket ediyor mu? (Deadzone'u yükselttik)
         bool gamepadRightStickActive = Gamepad.current != null &&
             Gamepad.current.rightStick.ReadValue().sqrMagnitude > 0.1f;
 
-        if (gamepadRightStickActive)
+        // Mouse hareket etmiyorsa ve Gamepad aktifse -> Gamepad kullan
+        if (gamepadRightStickActive && !isMouseMoving)
         {
-            // Gamepad sağ analog ile bak
             Vector2 stickInput = Gamepad.current.rightStick.ReadValue();
             Vector3 lookDir = new(stickInput.x, 0, stickInput.y);
             if (lookDir != Vector3.zero)

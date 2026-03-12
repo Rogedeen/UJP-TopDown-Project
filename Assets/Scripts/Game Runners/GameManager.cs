@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverScreen;
     public GameObject winScreen;
     public GameObject ingameScreen; // HUD — oyun sırasında görünür
+    public GameObject tutorialScreen; // Yeni: Kontrolleri gösteren panel
     public GameObject retryObject;
     public GameObject player;
     public Animator playerControllerAnim;
@@ -23,6 +24,10 @@ public class GameManager : MonoBehaviour
         gameOverScreen.SetActive(false);
         winScreen.SetActive(false);
         ingameScreen.SetActive(false);
+        
+        if (tutorialScreen != null)
+            tutorialScreen.SetActive(false);
+
         player.SetActive(false);
         retryObject.SetActive(false);
     }
@@ -34,6 +39,22 @@ public class GameManager : MonoBehaviour
         isGameActive = true;
         player.SetActive(true);
         Time.timeScale = 1;
+
+        // Tutorial ekranını göster ve 5 saniye sonra gizle
+        if (tutorialScreen != null)
+        {
+            tutorialScreen.SetActive(true);
+            StartCoroutine(HideTutorialRoutine());
+        }
+    }
+
+    private IEnumerator HideTutorialRoutine()
+    {
+        yield return new WaitForSeconds(15f);
+        if (tutorialScreen != null)
+        {
+            tutorialScreen.SetActive(false);
+        }
     }
 
     public void GameOver()

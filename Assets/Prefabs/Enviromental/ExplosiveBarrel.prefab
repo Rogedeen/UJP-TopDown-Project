@@ -139,7 +139,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.99
+      value: -5.43
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       propertyPath: m_LocalPosition.y
@@ -147,7 +147,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.16
+      value: 11.28
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4876cf406e3d6a14eba69cef05a134ab, type: 3}
       propertyPath: m_LocalRotation.w
@@ -230,7 +230,7 @@ Rigidbody:
   m_GameObject: {fileID: 3584477659805971674}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 1
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}

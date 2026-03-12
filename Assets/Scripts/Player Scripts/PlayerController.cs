@@ -1,74 +1,248 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
+/// <summary>
+/// NEW INPUT SYSTEM NASIL ÇALIŞIYOR?
+/// ─────────────────────────────────
+/// Eski sistem: Input.GetKey("space") → her frame "space basılı mı?" diye soruyorduk
+/// Yeni sistem: InputAction "Dash" → Space veya Gamepad B basıldığında BİZE HABER VERİYOR
+/// 
+/// Avantaj: Tuş atamasını kod değiştirmeden değiştirebilirsin (InputSystem_Actions dosyasından)
+/// Gamepad desteği otomatik gelir, rebinding yapılabilir.
+/// 
+/// KULLANIM:
+/// 1. InputActionAsset'i Inspector'dan ata (InputSystem_Actions dosyasını sürükle)
+/// 2. Her action (Move, Attack, Dash, Skill) otomatik bulunur
+/// 3. Action'lar OnEnable'da aktif, OnDisable'da deaktif edilir
+/// </summary>
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float speed = 5.0f;
-    public float verticalInput;
-    public float horizontalInput;
+
+    [Header("Dash Settings")]
+    [SerializeField] private float dashSpeed = 20f;
+    [SerializeField] private float dashDuration = 0.15f;
+    [SerializeField] private float dashCooldown = 1f;
 
     [Header("Attack Settings")]
     public Weapon activeWeapon;
-    public float hitRadius = 2.5f; 
-    public float hitOffset = 1.5f; 
+    public float hitRadius = 2.5f;
+    public float hitOffset = 1.5f;
 
     [Header("VFX Settings")]
-    public GameObject windVFXPrefab; 
-    public GameObject fireVFXPrefab; 
-    public Transform vfxSpawnPoint; 
+    public GameObject windVFXPrefab;
+    public GameObject fireVFXPrefab;
+    public Transform vfxSpawnPoint;
     public int damageUpgradeThreshold = 2;
 
     [Header("Sound Settings")]
     public AudioSource audioSource;
     public AudioClip[] whooshSounds;
 
+    [Header("Input")]
+    [SerializeField] private InputActionAsset inputActions;
+
+    // Component referansları
     private Rigidbody playerRb;
     private Animator animator;
     private FollowPlayer camScript;
+    private Camera mainCamera;
+    private PlayerHealth playerHealth;
+
+    // Input state
+    private InputAction moveAction;
+    private InputAction attackAction;
+    private InputAction dashAction;
+    private InputAction skillAction;
+    private InputAction lookAction;
+    private Vector2 moveInput;
+
+    // Dash state
+    private bool isDashing = false;
+    private bool canDash = true;
+
+    // Slow state
+    private float originalSpeed;
+    private Coroutine activeSlowCoroutine;
+
+    // Animator hash'ler
+    private static readonly int HorizontalHash = Animator.StringToHash("Horizontal");
+    private static readonly int VerticalHash = Animator.StringToHash("Vertical");
+    private static readonly int MoveSpeedHash = Animator.StringToHash("moveSpeed");
+    private static readonly int IsAttackingHash = Animator.StringToHash("isAttacking");
+    private static readonly int TakeDamageHash = Animator.StringToHash("takeDamage");
+    private static readonly int IsDashingHash = Animator.StringToHash("isDashing");
+
+    // OrbitWeapon referansı - Skill tuşu basıldığında tetiklenir
+    private OrbitWeapon orbitWeapon;
+
+    void Awake()
+    {
+        // Animator'ı en erken Awake'de al — OnEnable'daki callback'lerden ÖNCE hazır olmalı
+        animator = GetComponent<Animator>();
+        playerRb = GetComponent<Rigidbody>();
+        playerHealth = GetComponent<PlayerHealth>();
+
+        // Input action'ları bul
+        var playerMap = inputActions.FindActionMap("Player");
+        moveAction = playerMap.FindAction("Move");
+        attackAction = playerMap.FindAction("Attack");
+        dashAction = playerMap.FindAction("Dash");
+        skillAction = playerMap.FindAction("Skill");
+        lookAction = playerMap.FindAction("Look");
+    }
 
     void Start()
     {
-        animator = GetComponent<Animator>();
-        playerRb = GetComponent<Rigidbody>();
-        camScript = Camera.main.GetComponent<FollowPlayer>();
+        mainCamera = Camera.main;
+        camScript = mainCamera.GetComponent<FollowPlayer>();
+        originalSpeed = speed;
+
+        // OrbitWeapon varsa bul
+        orbitWeapon = GetComponentInChildren<OrbitWeapon>();
+
+        // ─── PARAMETRE DOĞRULAMASI ───
+        // Animator Controller'da hangi parametrelerin eksik olduğunu tespit et
+        ValidateAnimatorParameters();
     }
 
-    void Update()
+    /// <summary>
+    /// Animator Controller'daki parametreleri kontrol eder.
+    /// Eksik parametreleri konsola yazdırarak sorunları hızlıca bulmamızı sağlar.
+    /// </summary>
+    void ValidateAnimatorParameters()
     {
-        if (GameManager.isGameActive && Input.GetMouseButtonDown(0))
+        if (animator == null)
         {
-            if (!animator.GetBool("isAttacking"))
-            {
-                StartCoroutine(AttackRoutine());
-            }
+            Debug.LogError("[PlayerController] Animator component bulunamadı!", gameObject);
+            return;
         }
 
-        
+        // Kontrol edilecek parametreler ve isimleri
+        var requiredParams = new (int hash, string name, AnimatorControllerParameterType type)[]
+        {
+            (HorizontalHash, "Horizontal", AnimatorControllerParameterType.Float),
+            (VerticalHash, "Vertical", AnimatorControllerParameterType.Float),
+            (MoveSpeedHash, "moveSpeed", AnimatorControllerParameterType.Float),
+            (IsAttackingHash, "isAttacking", AnimatorControllerParameterType.Bool),
+            (TakeDamageHash, "takeDamage", AnimatorControllerParameterType.Trigger),
+            (IsDashingHash, "isDashing", AnimatorControllerParameterType.Bool),
+        };
+
+        foreach (var (hash, name, type) in requiredParams)
+        {
+            bool found = false;
+            foreach (var param in animator.parameters)
+            {
+                if (param.nameHash == hash)
+                {
+                    found = true;
+                    if (param.type != type)
+                    {
+                        Debug.LogWarning($"[PlayerController] Parametre '{name}' var ama tipi yanlış! " +
+                                         $"Beklenen: {type}, Bulunan: {param.type}", gameObject);
+                    }
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                Debug.LogError($"[PlayerController] ❌ Animator'da '{name}' ({type}) parametresi YOK! " +
+                               $"Animator Controller'a bu parametreyi ekle.", gameObject);
+            }
+        }
+    }
+
+    void OnEnable()
+    {
+        // Action'ları aktif et — bu olmadan input okunmaz!
+        inputActions.Enable();
+
+        // Event'lere abone ol
+        attackAction.performed += OnAttack;
+        dashAction.performed += OnDash;
+        skillAction.performed += OnSkill;
+    }
+
+    void OnDisable()
+    {
+        // Event aboneliklerini kaldır (memory leak önleme)
+        attackAction.performed -= OnAttack;
+        dashAction.performed -= OnDash;
+        skillAction.performed -= OnSkill;
+
+        inputActions.Disable();
     }
 
     void FixedUpdate()
     {
-        // Hareket ve Dönüş
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        verticalInput = Input.GetAxisRaw("Vertical");
+        if (isDashing) return; // Dash sırasında normal hareket yok
 
-        Vector3 moveDirection = new(horizontalInput, 0, verticalInput);
+        // Move action'dan Vector2 oku
+        moveInput = moveAction.ReadValue<Vector2>();
+
+        // ─── GHOST INPUT DÜZELTMESİ (Deadzone) ───
+        // Bilgisayara takılı direksiyon veya sanal joystickler bazen mikroskobik
+        // veya sabit hatalı input gönderebilir. Küçük inputları yoksay:
+        if (moveInput.sqrMagnitude < 0.05f)
+        {
+            moveInput = Vector2.zero;
+        }
+
+        Vector3 moveDirection = new(moveInput.x, 0, moveInput.y);
         if (moveDirection.magnitude > 1) moveDirection.Normalize();
 
         Vector3 newVelocity = new(moveDirection.x * speed, playerRb.linearVelocity.y, moveDirection.z * speed);
         playerRb.linearVelocity = newVelocity;
 
-        animator.SetFloat("moveSpeed", moveDirection.magnitude * speed);
+        Vector3 localMove = transform.InverseTransformDirection(moveDirection);
+        animator.SetFloat(HorizontalHash, localMove.x, 0.15f, Time.fixedDeltaTime);
+        animator.SetFloat(VerticalHash, localMove.z, 0.15f, Time.fixedDeltaTime);
+        animator.SetFloat(MoveSpeedHash, moveDirection.magnitude, 0.15f, Time.fixedDeltaTime);
 
-        RotateTowardsMouse();
+        HandleLook();
+    }
+
+    /// <summary>
+    /// Bakış yönü: Mouse veya Gamepad sağ analog.
+    /// Mouse hareket ediyorsa HER ZAMAN mouse önceliklidir.
+    /// </summary>
+    void HandleLook()
+    {
+        // 1. Mouse hareket ediyor mu?
+        bool isMouseMoving = Mouse.current != null && Mouse.current.delta.ReadValue().sqrMagnitude > 0.5f;
+
+        // 2. Gamepad sağ analog GERÇEKTEN hareket ediyor mu? (Deadzone'u yükselttik)
+        bool gamepadRightStickActive = Gamepad.current != null &&
+            Gamepad.current.rightStick.ReadValue().sqrMagnitude > 0.1f;
+
+        // Mouse hareket etmiyorsa ve Gamepad aktifse -> Gamepad kullan
+        if (gamepadRightStickActive && !isMouseMoving)
+        {
+            Vector2 stickInput = Gamepad.current.rightStick.ReadValue();
+            Vector3 lookDir = new(stickInput.x, 0, stickInput.y);
+            if (lookDir != Vector3.zero)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(lookDir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * 15f);
+            }
+        }
+        else
+        {
+            // Mouse ile bak (varsayılan)
+            RotateTowardsMouse();
+        }
     }
 
     public void RotateTowardsMouse()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        // Mouse pozisyonunu yeni input system'den oku
+        Vector2 mousePos = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+        Ray ray = mainCamera.ScreenPointToRay(mousePos);
         Plane groundPlane = new(Vector3.up, Vector3.zero);
 
         if (groundPlane.Raycast(ray, out float rayDistance))
@@ -79,9 +253,125 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // ─── INPUT EVENT HANDLER'LARI ───
+    // Bu metodlar tuşa basıldığında otomatik çağrılır
+
+    void OnAttack(InputAction.CallbackContext ctx)
+    {
+        if (!GameManager.isGameActive) return;
+        if (!animator.GetBool(IsAttackingHash))
+        {
+            StartCoroutine(AttackRoutine());
+        }
+    }
+
+    void OnDash(InputAction.CallbackContext ctx)
+    {
+        if (!GameManager.isGameActive || !canDash || isDashing) return;
+        StartCoroutine(DashRoutine());
+    }
+
+    void OnSkill(InputAction.CallbackContext ctx)
+    {
+        if (!GameManager.isGameActive) return;
+
+        // OrbitWeapon'ı tetikle
+        if (orbitWeapon == null)
+            orbitWeapon = GetComponentInChildren<OrbitWeapon>();
+
+        if (orbitWeapon != null)
+            orbitWeapon.ActivateSkill();
+    }
+
+    // ─── DASH MEKANİĞİ ───
+
+    IEnumerator DashRoutine()
+    {
+        isDashing = true;
+        canDash = false;
+
+        // Doğrudan klavye/gamepad durumunu oku
+        Vector2 currentInput = ReadCurrentMovementInput();
+        Vector3 dashDirection;
+
+        if (currentInput.sqrMagnitude > 0.1f)
+        {
+            dashDirection = new Vector3(currentInput.x, 0, currentInput.y).normalized;
+        }
+        else
+        {
+            dashDirection = transform.forward;
+        }
+
+        // Lokal yön hesapla (oyuncunun baktığı yöne göre)
+        Vector3 localDir = transform.InverseTransformDirection(dashDirection);
+
+        // Baskın yöne göre doğru animasyonu seç
+        // |z| > |x| → ileri/geri, |x| > |z| → sağ/sol
+        string dashStateName;
+        if (Mathf.Abs(localDir.z) >= Mathf.Abs(localDir.x))
+            dashStateName = localDir.z >= 0 ? "DashForward" : "DashBack";
+        else
+            dashStateName = localDir.x >= 0 ? "DashRight" : "DashLeft";
+
+        // Attack Layer'ı dash sırasında kapat
+        int attackLayerIndex = animator.GetLayerIndex("Attack Layer");
+        if (attackLayerIndex >= 0)
+            animator.SetLayerWeight(attackLayerIndex, 0f);
+
+        animator.SetBool(IsDashingHash, true);
+
+        // Bir frame bekle + doğrudan o state'i oynat
+        yield return null;
+        animator.Play(dashStateName, 0, 0f);
+
+        // Player collider'ını kapat
+        Collider playerCollider = GetComponent<Collider>();
+        if (playerCollider != null)
+            playerCollider.enabled = false;
+
+        // Dash hareketi
+        float elapsed = 0f;
+        while (elapsed < dashDuration)
+        {
+            elapsed += Time.fixedDeltaTime;
+            playerRb.linearVelocity = new Vector3(
+                dashDirection.x * dashSpeed,
+                playerRb.linearVelocity.y,
+                dashDirection.z * dashSpeed
+            );
+            yield return new WaitForFixedUpdate();
+        }
+
+        // Dash bitti — isDashing=false ile Animator transition'ı tetiklenir
+        isDashing = false;
+        if (playerCollider != null)
+            playerCollider.enabled = true;
+        animator.SetBool(IsDashingHash, false);
+
+        // Attack layer'ı geri aç
+        if (attackLayerIndex >= 0)
+            animator.SetLayerWeight(attackLayerIndex, 1f);
+
+        // Cooldown
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
+    // ─── SALDIRI SİSTEMİ ───
+
     IEnumerator AttackRoutine()
     {
-        animator.SetBool("isAttacking", true);
+        animator.SetBool(IsAttackingHash, true);
+
+        // Attack Layer'da animasyonu zorla başlat
+        // (Input System callback zamanlaması nedeniyle bool tek başına yetmiyor)
+        int attackLayerIndex = animator.GetLayerIndex("Attack Layer");
+        if (attackLayerIndex >= 0)
+        {
+            yield return null;
+            animator.Play("Attack", attackLayerIndex, 0f);
+        }
 
         if (whooshSounds.Length > 0)
         {
@@ -89,9 +379,6 @@ public class PlayerController : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.20f);
-
-
-        Debug.Log("Vuruş Anındaki Hasar: " + activeWeapon.damage);
 
         GameObject vfxToSpawn = (activeWeapon.damage >= damageUpgradeThreshold) ? fireVFXPrefab : windVFXPrefab;
 
@@ -130,12 +417,6 @@ public class PlayerController : MonoBehaviour
                         enemyBase.TakeDamage(activeWeapon.damage, transform.position);
                         hitEnemiesInThisSwing.Add(enemyBase);
                         camScript.TriggerShake(0.1f, 0.15f);
-                        /*
-                        Time.timeScale = 0;
-                        yield return new WaitForSecondsRealtime(0.1f);
-                        Time.timeScale = 1;
-                        //hit stop denedim ama pek begenmedim
-                        */
                     }
                 }
 
@@ -151,27 +432,77 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
-        animator.SetBool("isAttacking", false);
+        animator.SetBool(IsAttackingHash, false);
+    }
+
+    // ─── DAMAGE & EFFECTS ───
+
+    public void TakeDamageEffect()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(TakeDamageHash);
+        }
+
+        if (camScript != null) camScript.TriggerShake(0.15f, 0.2f);
     }
 
     public IEnumerator ApplySlow(float slowModifier, float slowDuration)
     {
-        Debug.Log("Yavaşlatma başladı! Eski hız: " + speed);
+        if (activeSlowCoroutine != null)
+        {
+            StopCoroutine(activeSlowCoroutine);
+            speed = originalSpeed;
+        }
 
-        float originalSpeed = speed; 
-        speed *= slowModifier; 
+        speed = originalSpeed * slowModifier;
 
         yield return new WaitForSecondsRealtime(slowDuration);
 
-        speed = originalSpeed; 
-        Debug.Log("Yavaşlatma bitti! Yeni hız: " + speed);
+        speed = originalSpeed;
+        activeSlowCoroutine = null;
     }
 
-
-    /*private void OnDrawGizmosSelected()
+    public void StartSlow(float slowModifier, float slowDuration)
     {
-        Gizmos.color = Color.red;
-        Vector3 hitCenter = transform.position + transform.forward * hitOffset;
-        Gizmos.DrawWireSphere(hitCenter, hitRadius);
-    }*/
-}
+        if (activeSlowCoroutine != null)
+        {
+            StopCoroutine(activeSlowCoroutine);
+        }
+        activeSlowCoroutine = StartCoroutine(ApplySlow(slowModifier, slowDuration));
+    }
+
+    /// <summary>
+    /// Doğrudan klavye/gamepad durumunu okur.
+    /// moveAction.ReadValue() callback zamanlamasında güvenilir olmayabiliyor,
+    /// bu yüzden dash yönü için bu metodu kullanıyoruz.
+    /// </summary>
+    Vector2 ReadCurrentMovementInput()
+    {
+        Vector2 input = Vector2.zero;
+
+        // Önce gamepad kontrol et
+        if (Gamepad.current != null)
+        {
+            Vector2 stick = Gamepad.current.leftStick.ReadValue();
+            if (stick.sqrMagnitude > 0.1f)
+                return stick;
+        }
+
+        // Klavyeden oku
+        var kb = Keyboard.current;
+        if (kb != null)
+        {
+            if (kb.wKey.isPressed || kb.upArrowKey.isPressed) input.y += 1;
+            if (kb.sKey.isPressed || kb.downArrowKey.isPressed) input.y -= 1;
+            if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) input.x -= 1;
+            if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) input.x += 1;
+        }
+
+        if (input.sqrMagnitude > 1f) input.Normalize();
+        return input;
+    }
+
+    // Dash durumunu dışarıdan kontrol etmek için
+    public bool IsDashing => isDashing;
+}

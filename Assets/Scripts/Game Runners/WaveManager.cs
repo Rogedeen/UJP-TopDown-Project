@@ -16,18 +16,52 @@ public class WaveManager : MonoBehaviour
     public GameObject iceWizardPrefab;
     public GameObject supportWizardPrefab;
 
-    public static int activeEnemyCount = 0;
+    [Header("References")]
+    [SerializeField] private PowerUpManager powerUpManager;
+    [SerializeField] private GameManager gameManager;
+
     public Gates[] gates;
 
-    private PowerUpManager powerUpManager;
-    private GameManager gameManager;
+    private int activeEnemyCount = 0;
     private bool isSpawning = false;
+    private int currentWave = 0;
+
+    // ─── HUD İÇİN PUBLIC GETTER'LAR ───
+    public int CurrentWave => currentWave;
+    public int ActiveEnemyCount => activeEnemyCount;
+
+    /// <summary>
+    /// Kapatılmış kapı sayısını döndürür (HUD için).
+    /// </summary>
+    public int ClosedGateCount
+    {
+        get
+        {
+            int count = 0;
+            foreach (var gate in gates)
+            {
+                if (!gate.isActive) count++;
+            }
+            return count;
+        }
+    }
+
+    public int TotalGateCount => gates.Length;
+
+    void OnEnable()
+    {
+        GameEvents.OnEnemyDied += HandleEnemyDied;
+    }
+
+    void OnDisable()
+    {
+        GameEvents.OnEnemyDied -= HandleEnemyDied;
+    }
 
     void Start()
     {
         activeEnemyCount = 0;
-        powerUpManager = GameObject.Find("Power Up Manager").GetComponent<PowerUpManager>();
-        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        currentWave = 0;
     }
 
     void Update()
@@ -40,9 +74,15 @@ public class WaveManager : MonoBehaviour
         }
     }
 
+    private void HandleEnemyDied()
+    {
+        activeEnemyCount--;
+    }
+
     IEnumerator SpawnWaveRoutine()
     {
         isSpawning = true;
+        currentWave++;
         powerUpManager.SpawnPowerUp();
 
         List<Gates> activeGates = new List<Gates>();
@@ -65,8 +105,6 @@ public class WaveManager : MonoBehaviour
             GameObject prefabToSpawn;
             float roll = Random.value;
 
-            // --- YENİ SPAWN MANTIĞI ---
-            // Difficulty arttıkça wizard gelme şansı artıyor (max %50 wizard şansı gibi)
             if (roll < difficultyScore * 0.5f)
             {
                 prefabToSpawn = GetRandomWizardPrefab();
@@ -88,12 +126,10 @@ public class WaveManager : MonoBehaviour
         isSpawning = false;
     }
 
-    // Wizard seçimini kendi içinde rastgele yapıyoruz
     GameObject GetRandomWizardPrefab()
     {
         float wizardRoll = Random.value;
 
-        // %40 Fire, %40 Ice, %20 Support (Support biraz daha nadir olsun ki kıymetli olsun)
         if (wizardRoll < 0.4f) return fireWizardPrefab;
         if (wizardRoll < 0.8f) return iceWizardPrefab;
         return supportWizardPrefab;

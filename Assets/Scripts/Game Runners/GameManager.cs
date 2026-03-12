@@ -8,7 +8,9 @@ public class GameManager : MonoBehaviour
     public static bool isGameActive;
     public GameObject titleScreen;
     public GameObject gameOverScreen;
-    public GameObject winScreen; // Yeni: Kazanma ekranı
+    public GameObject winScreen;
+    public GameObject ingameScreen; // HUD — oyun sırasında görünür
+    public GameObject tutorialScreen; // Yeni: Kontrolleri gösteren panel
     public GameObject retryObject;
     public GameObject player;
     public Animator playerControllerAnim;
@@ -21,6 +23,11 @@ public class GameManager : MonoBehaviour
         titleScreen.SetActive(true);
         gameOverScreen.SetActive(false);
         winScreen.SetActive(false);
+        ingameScreen.SetActive(false);
+        
+        if (tutorialScreen != null)
+            tutorialScreen.SetActive(false);
+
         player.SetActive(false);
         retryObject.SetActive(false);
     }
@@ -28,14 +35,32 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         titleScreen.SetActive(false);
+        ingameScreen.SetActive(true);
         isGameActive = true;
         player.SetActive(true);
         Time.timeScale = 1;
+
+        // Tutorial ekranını göster ve 5 saniye sonra gizle
+        if (tutorialScreen != null)
+        {
+            tutorialScreen.SetActive(true);
+            StartCoroutine(HideTutorialRoutine());
+        }
+    }
+
+    private IEnumerator HideTutorialRoutine()
+    {
+        yield return new WaitForSeconds(15f);
+        if (tutorialScreen != null)
+        {
+            tutorialScreen.SetActive(false);
+        }
     }
 
     public void GameOver()
     {
         isGameActive = false;
+        ingameScreen.SetActive(false);
         gameOverScreen.SetActive(true);
         retryObject.SetActive(true);
         Time.timeScale = 0;
@@ -44,6 +69,7 @@ public class GameManager : MonoBehaviour
     public IEnumerator WinGame()
     {
         isGameActive = false;
+        ingameScreen.SetActive(false);
         playerControllerAnim.SetTrigger("winGame_t");
         KillAllEnemies();
         yield return new WaitForSecondsRealtime(2);

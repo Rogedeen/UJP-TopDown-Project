@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Enemy : EnemyBase
 {
+    private static readonly int SpeedHash = Animator.StringToHash("speed_f");
+
     protected override void Start()
     {
         base.Start();
@@ -14,7 +16,7 @@ public class Enemy : EnemyBase
         {    
             agent.SetDestination(player.transform.position);
 
-            animator.SetFloat("speed_f", agent.velocity.magnitude);
+            animator.SetFloat(SpeedHash, agent.velocity.magnitude);
 
             if (agent.velocity.sqrMagnitude > 0.1f)
             {

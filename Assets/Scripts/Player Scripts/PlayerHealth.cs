@@ -6,17 +6,18 @@ public class PlayerHealth : MonoBehaviour
 {
     public int playerHealth = 5;
     public int maxPlayerHealth = 5;
-    public float invincibltyTime = 1f;
-    public GameManager gameManager;
+    public float invincibilityTime = 1f;
+
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private PlayerController playerController;
+
     public Slider playerHealthBar;
 
     private bool isInvincible = false;
+    private bool isDead = false;
 
     void Start()
     {
-        GameObject gmObj = GameObject.Find("Game Manager");
-        if (gmObj != null) gameManager = gmObj.GetComponent<GameManager>();
-
         if (playerHealthBar != null)
         {
             playerHealthBar.maxValue = maxPlayerHealth;
@@ -24,25 +25,26 @@ public class PlayerHealth : MonoBehaviour
             playerHealthBar.gameObject.SetActive(false);
         }
 
-    }
-
-    void Update()
-    {
-        if (playerHealth <= 0)
-        {
-            gameManager.GameOver();
-        }
+        
     }
 
     public void TakeDamage(int damage)
     {
-        if (isInvincible) return;
+        if (isInvincible || isDead) return;
 
+        playerController.TakeDamageEffect();
         playerHealth -= damage;
         if (playerHealthBar != null)
         {
             playerHealthBar.value = playerHealth;
             playerHealthBar.gameObject.SetActive(true);
+        }
+
+        if (playerHealth <= 0)
+        {
+            isDead = true;
+            gameManager.GameOver();
+            return;
         }
 
         StartCoroutine(InvincibleRoutine());
@@ -52,14 +54,23 @@ public class PlayerHealth : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            TakeDamage(1); 
+            TakeDamage(1);
         }
     }
 
     IEnumerator InvincibleRoutine()
     {
         isInvincible = true;
-        yield return new WaitForSeconds(invincibltyTime);
+        yield return new WaitForSeconds(invincibilityTime);
         isInvincible = false;
+    }
+
+    /// <summary>
+    /// Dash gibi mekanikler sırasında dışarıdan invincibility açıp kapamak için.
+    /// Hasar alındıktan sonraki otomatik invincibility ile karışmaz.
+    /// </summary>
+    public void SetInvincible(bool value)
+    {
+        isInvincible = value;
     }
 }

@@ -708,11 +708,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemy
   health: 2
-  maxHealth: 3
+  maxHealth: 2
   canTakeDamage: 1
   invincibilityDuration: 0.5
+  knockbackSpeed: 10
+  knockbackDuration: 0.25
   enemyHealthSlider: {fileID: 1424538606384250320}
   hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
+  currentState: 0
   wizardType: 0
   projectilePrefab: {fileID: 9063514842149012542, guid: 130e4021cbaadf245a10abfb9d9cb563, type: 3}
   hitEffectPrefab: {fileID: 4830294202082529915, guid: 04e8b0b6ae02ffb419cc12f41626e4e5, type: 3}
@@ -725,6 +728,7 @@ MonoBehaviour:
   strafeSpeed: 2
   fireRate: 2
   spellDelay: 0.5
+  impactHitRadius: 1.5
 --- !u!65 &4768582005796849192
 BoxCollider:
   m_ObjectHideFlags: 0

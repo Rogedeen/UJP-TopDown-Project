@@ -21,6 +21,28 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float speed = 5.0f;
+    [SerializeField] private float sprintSpeedMultiplier = 1.5f;
+
+    [Header("Energy (Charge) Settings")]
+    public float maxEnergy = 100f;
+    [SerializeField] private float energyRegenRate = 10f; // Saniyede dolan miktar
+    [SerializeField] private float sprintEnergyCost = 20f; // Saniyede harcanan
+    [SerializeField] private float dashEnergyCost = 30f; // Anlık harcanan
+    [SerializeField] private float exhaustionDelay = 2f; // Enerji tamamen bitince beklenilen süre
+    [SerializeField] private float regenDelay = 1f; // Enerji harcandıktan sonra dolmaya başlaması için bekleme
+
+    // Enerji durumu (HUD için okunabilir)
+    private float currentEnergy;
+    private float exhaustionTimer = 0f;
+    private float regenTimer = 0f;
+    public float CurrentEnergy => currentEnergy;
+    public float MaxEnergy => maxEnergy;
+
+    public void RestoreEnergy(float amount)
+    {
+        currentEnergy += amount;
+        if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
+    }
 
     [Header("Dash Settings")]
     [SerializeField] private float dashSpeed = 20f;
@@ -58,6 +80,7 @@ public class PlayerController : MonoBehaviour
     private InputAction dashAction;
     private InputAction skillAction;
     private InputAction lookAction;
+    private InputAction sprintAction;
     private Vector2 moveInput;
 
     // Dash state
@@ -75,6 +98,7 @@ public class PlayerController : MonoBehaviour
     private static readonly int IsAttackingHash = Animator.StringToHash("isAttacking");
     private static readonly int TakeDamageHash = Animator.StringToHash("takeDamage");
     private static readonly int IsDashingHash = Animator.StringToHash("isDashing");
+    private static readonly int IsSprintingHash = Animator.StringToHash("isSprinting");
 
     // OrbitWeapon referansı - Skill tuşu basıldığında tetiklenir
     private OrbitWeapon orbitWeapon;
@@ -93,6 +117,7 @@ public class PlayerController : MonoBehaviour
         dashAction = playerMap.FindAction("Dash");
         skillAction = playerMap.FindAction("Skill");
         lookAction = playerMap.FindAction("Look");
+        sprintAction = playerMap.FindAction("Sprint");
     }
 
     void Start()
@@ -100,6 +125,7 @@ public class PlayerController : MonoBehaviour
         mainCamera = Camera.main;
         camScript = mainCamera.GetComponent<FollowPlayer>();
         originalSpeed = speed;
+        currentEnergy = maxEnergy;
 
         // OrbitWeapon varsa bul
         orbitWeapon = GetComponentInChildren<OrbitWeapon>();
@@ -130,6 +156,7 @@ public class PlayerController : MonoBehaviour
             (IsAttackingHash, "isAttacking", AnimatorControllerParameterType.Bool),
             (TakeDamageHash, "takeDamage", AnimatorControllerParameterType.Trigger),
             (IsDashingHash, "isDashing", AnimatorControllerParameterType.Bool),
+            (IsSprintingHash, "isSprinting", AnimatorControllerParameterType.Bool),
         };
 
         foreach (var (hash, name, type) in requiredParams)
@@ -196,13 +223,61 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDirection = new(moveInput.x, 0, moveInput.y);
         if (moveDirection.magnitude > 1) moveDirection.Normalize();
 
-        Vector3 newVelocity = new(moveDirection.x * speed, playerRb.linearVelocity.y, moveDirection.z * speed);
+        // ─── SPRİNT VE ENERJİ SİSTEMİ ───
+        bool isTryingToSprint = sprintAction.IsPressed() && moveDirection.sqrMagnitude > 0.1f;
+        float currentSpeed = speed;
+        bool isSprinting = false;
+
+        // Exhaustion (Tamamen Yorulma) cezasını bekleme kontrolü
+        if (exhaustionTimer > 0)
+        {
+            exhaustionTimer -= Time.fixedDeltaTime;
+        }
+        
+        // Normal Regen bekleme kontrolü
+        if (regenTimer > 0)
+        {
+            regenTimer -= Time.fixedDeltaTime;
+        }
+
+        // Eğer tükenmiş durumdaysa veya enerji 0 ise sprint atılamaz
+        if (isTryingToSprint && currentEnergy > 0 && exhaustionTimer <= 0)
+        {
+            isSprinting = true;
+            currentSpeed *= sprintSpeedMultiplier;
+            currentEnergy -= sprintEnergyCost * Time.fixedDeltaTime;
+            
+            // Sprint atıldığı için normal bekleme süresini (1 sn) sıfırla
+            regenTimer = regenDelay;
+
+            if (currentEnergy <= 0)
+            {
+                currentEnergy = 0;
+                // Bar tamamen bittiğinde cezayı uygula
+                exhaustionTimer = exhaustionDelay;
+            }
+        }
+        else if (!isTryingToSprint && exhaustionTimer <= 0 && regenTimer <= 0)
+        {
+            // Kullanılmıyorsa ve bekleme süreleri bittiyse enerjiyi doldur
+            if (currentEnergy < maxEnergy)
+            {
+                currentEnergy += energyRegenRate * Time.fixedDeltaTime;
+                if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
+            }
+        }
+
+        Vector3 newVelocity = new(moveDirection.x * currentSpeed, playerRb.linearVelocity.y, moveDirection.z * currentSpeed);
         playerRb.linearVelocity = newVelocity;
 
         Vector3 localMove = transform.InverseTransformDirection(moveDirection);
         animator.SetFloat(HorizontalHash, localMove.x, 0.15f, Time.fixedDeltaTime);
         animator.SetFloat(VerticalHash, localMove.z, 0.15f, Time.fixedDeltaTime);
         animator.SetFloat(MoveSpeedHash, moveDirection.magnitude, 0.15f, Time.fixedDeltaTime);
+        
+        // Karakter herhangi bir yöne hareket ediyorsa ve sprint tuşuna basılıysa sprint animasyonunu tetikle
+        bool isMoving = moveDirection.sqrMagnitude > 0.1f;
+        animator.SetBool(IsSprintingHash, isSprinting && isMoving);
 
         HandleLook();
     }
@@ -268,6 +343,10 @@ public class PlayerController : MonoBehaviour
     void OnDash(InputAction.CallbackContext ctx)
     {
         if (!GameManager.isGameActive || !canDash || isDashing) return;
+        
+        // Enerji yetiyor mu kontrol et
+        if (currentEnergy < dashEnergyCost) return;
+
         StartCoroutine(DashRoutine());
     }
 
@@ -289,6 +368,18 @@ public class PlayerController : MonoBehaviour
     {
         isDashing = true;
         canDash = false;
+        
+        // Dash enerjisini düş
+        currentEnergy -= dashEnergyCost;
+        if (currentEnergy <= 0)
+        {
+            currentEnergy = 0;
+            exhaustionTimer = exhaustionDelay; // Dash ile enerji sıfırlanırsa da ceza al
+        }
+        else
+        {
+            regenTimer = regenDelay; // Dash kullanıldığında 1 saniye bekle
+        }
 
         // Doğrudan klavye/gamepad durumunu oku
         Vector2 currentInput = ReadCurrentMovementInput();

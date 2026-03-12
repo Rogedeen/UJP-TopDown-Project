@@ -5,9 +5,10 @@ public enum PowerUpType
 {
     Health,
     OrbitCoolDownReduce,
-    MovementSpeed,
+    EnergyCharge, // Eskiden MovementSpeed idi
     DamageBoost
 }
+
 public class PowerUp : MonoBehaviour
 {
     public PowerUpType type;
@@ -25,11 +26,8 @@ public class PowerUp : MonoBehaviour
 
     IEnumerator DestroyIfUncollected()
     {
-
         yield return new WaitForSeconds(floorLifeTime - 2f);
-
         // Buraya yanıp sönme animasyonu veya ses gelebilir
-
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
     }
@@ -72,8 +70,13 @@ public class PowerUp : MonoBehaviour
     {
         switch (type)
         {
-            case PowerUpType.MovementSpeed:
-                pc.speed += amount * multiplier;
+            case PowerUpType.EnergyCharge:
+                // Sadece alındığında (multiplier == 1) enerjiyi fulle
+                // Geri alma işlemine (multiplier == -1) gerek yok
+                if (multiplier > 0 && pc != null)
+                {
+                    pc.RestoreEnergy(pc.MaxEnergy);
+                }
                 break;
             case PowerUpType.DamageBoost:
                 if (w != null) w.damage += (int)(amount * multiplier);

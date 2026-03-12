@@ -33,6 +33,10 @@ public class HUDManager : MonoBehaviour
     [Header("Gate Display")]
     [SerializeField] private TextMeshProUGUI gateText;
 
+    [Header("Energy Display")]
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private Slider energySlider;
+
     // Cache — gereksiz UI güncellemelerini önlemek için
     private int lastHealth = -1;
     private int lastWave = -1;
@@ -45,6 +49,7 @@ public class HUDManager : MonoBehaviour
         UpdateHealthDisplay();
         UpdateWaveDisplay();
         UpdateGateDisplay();
+        UpdateEnergyDisplay();
     }
 
     void UpdateHealthDisplay()
@@ -89,5 +94,18 @@ public class HUDManager : MonoBehaviour
 
         int total = waveManager.TotalGateCount;
         gateText.text = $"Kapılar: {closed}/{total}";
+    }
+
+    void UpdateEnergyDisplay()
+    {
+        if (playerController == null || energySlider == null) return;
+
+        // Slider değerini PlayerController'daki CurrentEnergy ile eşle
+        // Değer değişmemişse atlamaya gerek yok çünkü Slider.value ataması Unity içinde zaten optimize çalışır,
+        // ancak yine de performans için değer farkı var mı diye bakabiliriz
+        if (Mathf.Abs(energySlider.value - playerController.CurrentEnergy) > 0.1f)
+        {
+            energySlider.value = playerController.CurrentEnergy;
+        }
     }
 }

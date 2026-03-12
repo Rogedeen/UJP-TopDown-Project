@@ -97,29 +97,43 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-        float difficultyScore = (float)(gates.Length - activeGates.Count) / gates.Length;
+        int closedGates = gates.Length - activeGates.Count;
+        float difficultyScore = (float)closedGates / gates.Length;
 
+        // Kademeli (Phased) Zorluk Sistemi:
+        // Aşama 1 (0-1 kapı kapalı): SADECE normal düşmanlar. Sayıları biraz fazla olabilir ama öldürmesi kolay.
+        // Aşama 2 (2-3 kapı kapalı): Güçlü düşmanlar (şövalyeler vs.) ve ufaktan büyücüler başlar.
+        // Aşama 3 (Son 1-2 kapı): Her şey serbest, max zorluk.
+        
         for (int i = 0; i < firstWaveCount; i++)
         {
             Gates randomGate = activeGates[Random.Range(0, activeGates.Count)];
-            GameObject prefabToSpawn;
+            GameObject prefabToSpawn = normalEnemyPrefab; // Varsayılanı her zaman normaldir
             float roll = Random.value;
 
-            if (roll < difficultyScore * 0.5f)
+            // Aşama 3 (Sonlara doğru)
+            if (closedGates >= gates.Length - 2)
             {
-                prefabToSpawn = GetRandomWizardPrefab();
+                if (roll < 0.25f) prefabToSpawn = GetRandomWizardPrefab(); // %25 Büyücü
+                else if (roll < 0.65f) prefabToSpawn = strongEnemyPrefab;  // %40 Güçlü
+                                                                           // Kalan %35 Normal
             }
-            else if (roll < difficultyScore)
+            // Aşama 2 (Oyunun ortaları - en az 2 kapı kapalı)
+            else if (closedGates >= 2)
             {
-                prefabToSpawn = strongEnemyPrefab;
+                if (roll < 0.10f) prefabToSpawn = GetRandomWizardPrefab(); // Sadece %10 Büyücü (tadımlık)
+                else if (roll < 0.35f) prefabToSpawn = strongEnemyPrefab;  // %25 Güçlü
+                                                                           // Kalan %65 Normal
             }
+            // Aşama 1 (Oyunun başı - 0 veya 1 kapı kapalı)
             else
             {
+                // Her zaman %100 normal düşman
                 prefabToSpawn = normalEnemyPrefab;
             }
 
             SpawnAtGate(prefabToSpawn, randomGate.spawnPoint.position);
-            yield return new WaitForSeconds(0.8f);
+            yield return new WaitForSeconds(0.6f); // Doğma hızını 0.8'den 0.6'ya çektim ki başlardaki tempo artsın
         }
 
         firstWaveCount += enemyToAddByWave;

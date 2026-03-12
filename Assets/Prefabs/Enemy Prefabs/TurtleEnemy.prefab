@@ -385,9 +385,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   health: 4
-  maxHealth: 2
+  maxHealth: 4
   canTakeDamage: 1
   invincibilityDuration: 0.5
+  knockbackSpeed: 10
+  knockbackDuration: 0.25
   enemyHealthSlider: {fileID: 6981729356390908538}
   hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
 --- !u!54 &8327390451245997028

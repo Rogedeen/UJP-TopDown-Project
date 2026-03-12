@@ -12,7 +12,18 @@ public class Projectile : MonoBehaviour
     public float slowAmount = 0.4f;   
     public float slowDuration = 2f;
 
-
+    private void Awake()
+    {
+        // ÖNEMLİ: Unity'de OnTriggerEnter'ın çalışması için çarpan objelerden
+        // en az birinde Rigidbody olması zorunludur. Büyücü mermilerinde (VFX)
+        // Rigidbody yoksa kapıların (static collider) içinden geçer.
+        if (GetComponent<Rigidbody>() == null)
+        {
+            Rigidbody rb = gameObject.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {

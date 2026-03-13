@@ -149,6 +149,32 @@ public class WaveManager : MonoBehaviour
         return supportWizardPrefab;
     }
 
+    public void HandleGateClosed()
+    {
+        bool allClosed = true;
+        foreach (var gate in gates)
+        {
+            if (gate.isActive) 
+            {
+                allClosed = false;
+                break;
+            }
+        }
+
+        if (allClosed)
+        {
+            StartCoroutine(gameManager.WinGame());
+        }
+        else
+        {
+            // Tüm kapılar henüz kapanmadıysa, oyuncuya Level Up (Upgrade) seçeneği sun.
+            if (UpgradeManager.Instance != null)
+            {
+                UpgradeManager.Instance.TriggerUpgradeSelection();
+            }
+        }
+    }
+
     public void CheckForVictory()
     {
         foreach (var gate in gates)

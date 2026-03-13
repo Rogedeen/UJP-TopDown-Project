@@ -73,4 +73,33 @@ public class PlayerHealth : MonoBehaviour
     {
         isInvincible = value;
     }
+
+    /// <summary>
+    /// StatUpgrade'den çağrılıp maksimum canı (kalp sayısını) kalıcı olarak artırır.
+    /// </summary>
+    public void IncreaseMaxHealth(int amount)
+    {
+        maxPlayerHealth += amount;
+        playerHealth += amount; // Yeni gelen kalbi dolu olarak veriyoruz
+        
+        if (playerHealthBar != null)
+        {
+            playerHealthBar.maxValue = maxPlayerHealth;
+            playerHealthBar.value = playerHealth;
+        }
+    }
+
+    /// <summary>
+    /// Mevcut canı iyileştirir (MaxHealth'i geçemez).
+    /// </summary>
+    public void Heal(int amount)
+    {
+        playerHealth += amount;
+        if (playerHealth > maxPlayerHealth) playerHealth = maxPlayerHealth;
+
+        if (playerHealthBar != null)
+        {
+            playerHealthBar.value = playerHealth;
+        }
+    }
 }

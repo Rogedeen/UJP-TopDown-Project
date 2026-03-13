@@ -44,6 +44,14 @@ public class PlayerController : MonoBehaviour
         if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
     }
 
+    /// <summary>
+    /// StatUpgrade üzerinden enerji yenilenme hızını (pasif) artırmak için.
+    /// </summary>
+    public void IncreaseRegenRate(float amount)
+    {
+        energyRegenRate += amount;
+    }
+
     [Header("Dash Settings")]
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.15f;

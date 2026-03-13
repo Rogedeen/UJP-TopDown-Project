@@ -39,8 +39,26 @@ public class HUDManager : MonoBehaviour
 
     // Cache — gereksiz UI güncellemelerini önlemek için
     private int lastHealth = -1;
+    private int lastMaxHealth = -1;
     private int lastWave = -1;
     private int lastClosedGates = -1;
+    private float lastMaxEnergy = -1f;
+
+    private RectTransform energyRectTransform;
+    private float initialEnergyWidth = -1f;
+    private float initialMaxEnergy = -1f;
+
+    void Start()
+    {
+        if (energySlider != null)
+        {
+            energyRectTransform = energySlider.GetComponent<RectTransform>();
+            initialEnergyWidth = energyRectTransform.sizeDelta.x;
+            
+            if (playerController != null)
+                initialMaxEnergy = playerController.maxEnergy;
+        }
+    }
 
     void Update()
     {
@@ -57,17 +75,29 @@ public class HUDManager : MonoBehaviour
         if (playerHealth == null || heartImages.Length == 0) return;
 
         int currentHP = playerHealth.playerHealth;
+        int maxHP = playerHealth.maxPlayerHealth;
 
         // Aynıysa güncelleme yapma (performans)
-        if (currentHP == lastHealth) return;
+        if (currentHP == lastHealth && maxHP == lastMaxHealth) return;
+        
         lastHealth = currentHP;
+        lastMaxHealth = maxHP;
 
         for (int i = 0; i < heartImages.Length; i++)
         {
             if (heartImages[i] == null) continue;
 
-            // i < currentHP → dolu kalp, değilse → boş kalp
-            heartImages[i].texture = (i < currentHP) ? fullHeartTexture : emptyHeartTexture;
+            // Upgrade mekaniğine göre: Sadece maxHealth kadar olan kalpler aktif (görünür) olsun
+            if (i < maxHP)
+            {
+                heartImages[i].gameObject.SetActive(true);
+                heartImages[i].texture = (i < currentHP) ? fullHeartTexture : emptyHeartTexture;
+            }
+            else
+            {
+                // Max health'i geçen kalpler UI'da gizlenir. Upgrade alınınca açılır.
+                heartImages[i].gameObject.SetActive(false);
+            }
         }
     }
 
@@ -100,12 +130,31 @@ public class HUDManager : MonoBehaviour
     {
         if (playerController == null || energySlider == null) return;
 
-        // Slider değerini PlayerController'daki CurrentEnergy ile eşle
+        float currentMax = playerController.maxEnergy;
+        float currentEnergy = playerController.CurrentEnergy;
+
+        // Max enerji değiştiyse slider'a yansıt ve görseli uzat
+        if (Mathf.Abs(currentMax - lastMaxEnergy) > 0.1f)
+        {
+            lastMaxEnergy = currentMax;
+            energySlider.maxValue = currentMax;
+
+            if (energyRectTransform != null && initialEnergyWidth > 0 && initialMaxEnergy > 0)
+            {
+                // Mevcut Max enerjinin, ilk andaki max enerjiye oranını hesapla (örn 120 / 100 = 1.2x)
+                float ratio = currentMax / initialMaxEnergy;
+                float newWidth = initialEnergyWidth * ratio;
+
+                // Slider'ın RectTransform Width (Genişlik) değerini güncelle
+                energyRectTransform.sizeDelta = new Vector2(newWidth, energyRectTransform.sizeDelta.y);
+            }
+        }
+
         // Değer değişmemişse atlamaya gerek yok çünkü Slider.value ataması Unity içinde zaten optimize çalışır,
         // ancak yine de performans için değer farkı var mı diye bakabiliriz
-        if (Mathf.Abs(energySlider.value - playerController.CurrentEnergy) > 0.1f)
+        if (Mathf.Abs(energySlider.value - currentEnergy) > 0.1f)
         {
-            energySlider.value = playerController.CurrentEnergy;
+            energySlider.value = currentEnergy;
         }
     }
 }

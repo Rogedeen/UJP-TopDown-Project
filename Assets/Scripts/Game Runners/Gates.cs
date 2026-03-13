@@ -27,7 +27,7 @@ public class Gates : MonoBehaviour
                 other.transform.SetPositionAndRotation(snapPoint.position, snapPoint.rotation);
             }
 
-            waveManager.CheckForVictory();
+            waveManager.HandleGateClosed();
         }
     }
 }

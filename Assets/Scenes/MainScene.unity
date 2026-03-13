@@ -4064,7 +4064,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4623338955901336621, guid: 6afb085745104054ab948b1454ed8729, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -1.55
       objectReference: {fileID: 0}
     - target: {fileID: 4623338955901336621, guid: 6afb085745104054ab948b1454ed8729, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6379,7 +6379,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1480464825
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9136,7 +9136,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4623338955901336621, guid: 6afb085745104054ab948b1454ed8729, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.26
+      value: 8.11
       objectReference: {fileID: 0}
     - target: {fileID: 4623338955901336621, guid: 6afb085745104054ab948b1454ed8729, type: 3}
       propertyPath: m_LocalPosition.y
@@ -9267,6 +9267,14 @@ PrefabInstance:
       propertyPath: gameManager
       value: 
       objectReference: {fileID: 1144158818}
+    - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: playerHealth
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: maxPlayerHealth
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -136,7 +136,7 @@ MonoBehaviour:
   type: 1
   powerUpDuration: 5
   amount: 2
-  destroyAfterThisMuchSeconds: 5
+  floorLifeTime: 12
 --- !u!135 &4087371106271798998
 SphereCollider:
   m_ObjectHideFlags: 0

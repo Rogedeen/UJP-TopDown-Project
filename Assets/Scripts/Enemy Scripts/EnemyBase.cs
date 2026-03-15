@@ -92,7 +92,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
         }
     }
 
-    public virtual void TakeDamage(int damage, Vector3 knockbackSource)
+    public virtual void TakeDamage(int damage, Vector3 knockbackSource, float knockbackMultiplier = 1f)
     {
         if (!canTakeDamage) return;
         health -= damage;
@@ -106,7 +106,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
         SafeResetTrigger(animator, TakeDamageHash);
         SafeSetTrigger(animator, TakeDamageHash);
         StartCoroutine(HitFlashRoutine());
-        StartCoroutine(ApplyKnockback(knockbackSource));
+        StartCoroutine(ApplyKnockback(knockbackSource, knockbackMultiplier));
 
         if (health <= 0)
         {
@@ -118,7 +118,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
         StartCoroutine(Invincible(invincibilityDuration));
     }
 
-    protected IEnumerator ApplyKnockback(Vector3 source)
+    protected IEnumerator ApplyKnockback(Vector3 source, float knockbackMultiplier = 1f)
     {
         isKnockedBack = true;
 
@@ -138,7 +138,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
             elapsed += Time.deltaTime;
 
             float t = 1f - (elapsed / knockbackDuration);
-            Vector3 movement = knockbackSpeed * t * Time.deltaTime * pushDir;
+            Vector3 movement = (knockbackSpeed * knockbackMultiplier) * t * Time.deltaTime * pushDir;
 
             if (agent != null && agent.isActiveAndEnabled)
             {

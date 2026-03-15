@@ -94,14 +94,14 @@ public class ExplosiveBarrel : MonoBehaviour, IDamageable
         }
     }
 
-    public void ApplyKnockback(Vector3 source)
+    public void ApplyKnockback(Vector3 source, float knockbackMultiplier = 1f)
     {
         // Zaten knockback'teyse veya patladıysa tekrar başlatma
         if (hasExploded || isKnockedBack) return;
-        StartCoroutine(KnockbackRoutine(source));
+        StartCoroutine(KnockbackRoutine(source, knockbackMultiplier));
     }
 
-    IEnumerator KnockbackRoutine(Vector3 source)
+    IEnumerator KnockbackRoutine(Vector3 source, float knockbackMultiplier = 1f)
     {
         isKnockedBack = true;
         if (navObstacle != null) navObstacle.enabled = false;
@@ -114,7 +114,7 @@ public class ExplosiveBarrel : MonoBehaviour, IDamageable
         {
             elapsed += Time.deltaTime;
             float t = 1f - (elapsed / knockbackDuration);
-            Vector3 targetPos = transform.position + knockbackSpeed * t * Time.deltaTime * pushDir;
+            Vector3 targetPos = transform.position + (knockbackSpeed * knockbackMultiplier) * t * Time.deltaTime * pushDir;
 
             // NavMesh üzerinde geçerli bir pozisyon var mı diye kontrol et
             // SamplePosition "bu noktaya en yakın NavMesh yüzeyi neresi?" diye sorar
@@ -133,10 +133,10 @@ public class ExplosiveBarrel : MonoBehaviour, IDamageable
 
     // IDamageable interface implementasyonu
     // Hasar veren kodların "IDamageable mısın?" diye sormasına olanak tanır
-    public void TakeDamage(int damage, Vector3 knockbackSource)
+    public void TakeDamage(int damage, Vector3 knockbackSource, float knockbackMultiplier = 1f)
     {
         TakeBarrelDamage(damage);
-        ApplyKnockback(knockbackSource);
+        ApplyKnockback(knockbackSource, knockbackMultiplier);
     }
 
     public void TakeBarrelDamage(int damage)

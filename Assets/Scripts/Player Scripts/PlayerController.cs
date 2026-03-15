@@ -52,6 +52,22 @@ public class PlayerController : MonoBehaviour
         energyRegenRate += amount;
     }
 
+    [Header("Combo System Settings")]
+    public int maxCombo = 3;
+    public float comboResetTime = 1.0f; // 1 saniye içinde atak yapılmazsa kombo sıfırlanır
+    [SerializeField] private float heavyFinisherKnockbackMultiplier = 3.0f;
+    
+    [Tooltip("Her kombo adımı için X, Y, Z dönme açıları (Örn: 0,0,0 Yatay ise, 0,0,90 Dikey olabilir).")]
+    public Vector3[] comboSlashAngles = new Vector3[] {
+        new Vector3(0, 0, 0),     // Combo 1 
+        new Vector3(0, 0, 180),   // Combo 2 
+        new Vector3(0, 0, -90),   // Combo 3 (Chop/Dikey)
+        new Vector3(0, 0, 90)     // Combo 4 (Finisher vb.)
+    };
+
+    private int comboStep = 0;
+    private float lastAttackTime = 0f;
+
     [Header("Dash Settings")]
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.15f;
@@ -107,6 +123,7 @@ public class PlayerController : MonoBehaviour
     private static readonly int TakeDamageHash = Animator.StringToHash("takeDamage");
     private static readonly int IsDashingHash = Animator.StringToHash("isDashing");
     private static readonly int IsSprintingHash = Animator.StringToHash("isSprinting");
+    private static readonly int ComboStepHash = Animator.StringToHash("comboStep");
 
     // OrbitWeapon referansı - Skill tuşu basıldığında tetiklenir
     private OrbitWeapon orbitWeapon;
@@ -165,6 +182,7 @@ public class PlayerController : MonoBehaviour
             (TakeDamageHash, "takeDamage", AnimatorControllerParameterType.Trigger),
             (IsDashingHash, "isDashing", AnimatorControllerParameterType.Bool),
             (IsSprintingHash, "isSprinting", AnimatorControllerParameterType.Bool),
+            (ComboStepHash, "comboStep", AnimatorControllerParameterType.Int),
         };
 
         foreach (var (hash, name, type) in requiredParams)
@@ -342,7 +360,9 @@ public class PlayerController : MonoBehaviour
     void OnAttack(InputAction.CallbackContext ctx)
     {
         if (!GameManager.isGameActive) return;
-        if (!animator.GetBool(IsAttackingHash))
+        
+        // Eğer kombo devam edebilecek durumdaysa (ve aktif bir atak animasyonu beklemesinde değilse)
+        if (!animator.GetBool(IsAttackingHash) && comboStep < maxCombo)
         {
             StartCoroutine(AttackRoutine());
         }
@@ -356,6 +376,18 @@ public class PlayerController : MonoBehaviour
         if (currentEnergy < dashEnergyCost) return;
 
         StartCoroutine(DashRoutine());
+    }
+
+    void Update()
+    {
+        if (!GameManager.isGameActive) return;
+
+        // Kombo sıfırlama süresi kontrolü
+        if (comboStep > 0 && Time.time - lastAttackTime > comboResetTime)
+        {
+            comboStep = 0;
+            if (animator != null) animator.SetInteger(ComboStepHash, comboStep);
+        }
     }
 
     void OnSkill(InputAction.CallbackContext ctx)
@@ -461,20 +493,30 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator AttackRoutine()
     {
+        // Zamanlayıcıyı ve komboyu güncelle
+        lastAttackTime = Time.time;
+        comboStep++;
+        
+        animator.SetInteger(ComboStepHash, comboStep);
         animator.SetBool(IsAttackingHash, true);
 
-        // Attack Layer'da animasyonu zorla başlat
-        // (Input System callback zamanlaması nedeniyle bool tek başına yetmiyor)
+        // Attack layer index bul, eğer 4 farklı animasyon (Attack1, Attack2 vs.) bağlanacaksa,
+        // state adları "Attack1", "Attack2" kurallarına uymalı. 
+        // Kullanıcı Editörden bu ayarları yapana kadar Play ile tetiklemiyoruz (Animator "comboStep" ile kendisi geçecek), 
+        // Ama yine de eski düzen için fallback olarak "Attack" + comboStep çağırabiliriz.
         int attackLayerIndex = animator.GetLayerIndex("Attack Layer");
         if (attackLayerIndex >= 0)
         {
             yield return null;
-            animator.Play("Attack", attackLayerIndex, 0f);
+            animator.Play("Attack" + comboStep, attackLayerIndex, 0f);
         }
 
         if (whooshSounds.Length > 0)
         {
-            audioSource.PlayOneShot(whooshSounds[Random.Range(0, whooshSounds.Length)]);
+            // Kombo 1 için Index 0, Kombo 2 için Index 1 çalar. 
+            // array'den taşmamak için Modulo (%) kullanıyoruz.
+            int soundIndex = (comboStep - 1) % whooshSounds.Length;
+            audioSource.PlayOneShot(whooshSounds[soundIndex]);
         }
 
         yield return new WaitForSeconds(0.20f);
@@ -483,13 +525,23 @@ public class PlayerController : MonoBehaviour
 
         if (vfxToSpawn != null && vfxSpawnPoint != null)
         {
-            GameObject vfx = Instantiate(vfxToSpawn, vfxSpawnPoint.position, vfxSpawnPoint.rotation);
+            // vfxSpawnPoint'in içine (child) olarak Instantiate ediyoruz ki kılıcı/karakteri takip etsin
+            GameObject vfx = Instantiate(vfxToSpawn, vfxSpawnPoint.position, vfxSpawnPoint.rotation, vfxSpawnPoint);
+            
+            // Kombo adımına göre yerel (local) rotasyonu ayarlıyoruz
+            if (comboSlashAngles.Length > 0)
+            {
+                int angleIndex = (comboStep - 1) % comboSlashAngles.Length;
+                vfx.transform.localEulerAngles = comboSlashAngles[angleIndex];
+            }
+
             Destroy(vfx, 1.5f);
         }
 
         List<Component> hitEnemiesInThisSwing = new();
         float timer = 0f;
-        float attackDuration = 0.3f;
+        float attackDuration = 0.3f; // Atak hit süresi
+        float currentKnockbackMultiplier = (comboStep == 4) ? heavyFinisherKnockbackMultiplier : 1f;
 
         while (timer < attackDuration)
         {
@@ -506,6 +558,7 @@ public class PlayerController : MonoBehaviour
                         Vector3 directionToEnemy = col.transform.position - transform.position;
                         float distanceToEnemy = directionToEnemy.magnitude;
 
+                        // Duvar arkasından vurmamak için Raycast
                         if (Physics.Raycast(transform.position + Vector3.up, directionToEnemy, out RaycastHit hit, distanceToEnemy))
                         {
                             if (hit.collider.CompareTag("Barrier"))
@@ -513,9 +566,14 @@ public class PlayerController : MonoBehaviour
                                 continue;
                             }
                         }
-                        enemyBase.TakeDamage(activeWeapon.damage, transform.position);
+                        
+                        enemyBase.TakeDamage(activeWeapon.damage, transform.position, currentKnockbackMultiplier);
                         hitEnemiesInThisSwing.Add(enemyBase);
-                        camScript.TriggerShake(0.1f, 0.15f);
+                        
+                        // 4. vuruşta ekran daha şiddetli sarsılsın
+                        float shakeMag = (comboStep == 4) ? 0.3f : 0.1f;
+                        float shakeDur = (comboStep == 4) ? 0.25f : 0.15f;
+                        camScript.TriggerShake(shakeMag, shakeDur);
                     }
                 }
 
@@ -523,7 +581,7 @@ public class PlayerController : MonoBehaviour
                 {
                     if (!hitEnemiesInThisSwing.Contains(barrel))
                     {
-                        barrel.TakeBarrelDamage(activeWeapon.damage);
+                        barrel.TakeDamage(activeWeapon.damage, transform.position, currentKnockbackMultiplier);
                         hitEnemiesInThisSwing.Add(barrel);
                     }
                 }

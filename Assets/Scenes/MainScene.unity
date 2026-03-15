@@ -6121,6 +6121,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -2563110241736481954, guid: e0788580023c35d40a98d2ff51488d98, type: 3}
+      propertyPath: m_UseGravity
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3584477659805971674, guid: e0788580023c35d40a98d2ff51488d98, type: 3}
       propertyPath: m_Name
       value: ExplosiveBarrel (3)
@@ -11648,17 +11652,25 @@ PrefabInstance:
       propertyPath: dashCooldown
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: whooshSounds.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: 'whooshSounds.Array.data[3]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d73b68fbd83ce408689d2a6659ded8f8, type: 3}
     - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: gameManager
       value: 
       objectReference: {fileID: 1144158818}
     - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: playerHealth
-      value: 7
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: maxPlayerHealth
-      value: 7
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -157,4 +157,4 @@ MonoBehaviour:
   type: 2
   powerUpDuration: 5
   amount: 3
-  floorLifeTime: 7
+  floorLifeTime: 12

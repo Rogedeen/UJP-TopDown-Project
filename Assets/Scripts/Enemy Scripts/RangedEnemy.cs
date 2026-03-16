@@ -268,7 +268,8 @@ public class RangedEnemy : EnemyBase
 
             if (pHealth != null)
             {
-                pHealth.TakeDamage(1);
+                float damageMultiplier = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentEnemyDamageMultiplier : 1f;
+                pHealth.TakeDamage(Mathf.RoundToInt(1 * damageMultiplier));
 
                 if (wizardType == WizardType.Ice && pController != null)
                 {

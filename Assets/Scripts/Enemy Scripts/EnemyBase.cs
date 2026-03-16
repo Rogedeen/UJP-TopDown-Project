@@ -69,6 +69,12 @@ public class EnemyBase : MonoBehaviour, IDamageable
         animator = GetComponentInChildren<Animator>();
         player = CachedPlayer;
 
+        // Varsa Gece/Gündüz zorluk çarpanını NavMesh hızına uygula
+        if (agent != null && DayNightManager.Instance != null)
+        {
+            agent.speed *= DayNightManager.Instance.CurrentEnemySpeedMultiplier;
+        }
+
         if (enemyHealthSlider != null)
         {
             enemyHealthSlider.maxValue = maxHealth;

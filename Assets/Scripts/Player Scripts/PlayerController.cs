@@ -305,7 +305,19 @@ public class PlayerController : MonoBehaviour
         bool isMoving = moveDirection.sqrMagnitude > 0.1f;
         animator.SetBool(IsSprintingHash, isSprinting && isMoving);
 
-        HandleLook();
+        // Eğer saldırı halindeysek farenin / tetikçinin olduğu yöne dön (Kesin İsabet İçin)
+        if (animator.GetBool(IsAttackingHash))
+        {
+            HandleLook();
+        }
+        else if (isMoving)
+        {
+            // Saldırmıyorsak ve hareket ediyorsak, sadece GİTTİĞİMİZ YÖNE (WASD) doğru dön
+            // Bu, "Moonwalk" veya garip strafe animasyonları hissini yok edip 
+            // karakteri saf bir Action-RPG (Hades, Bastion) akıcılığına kavuşturur.
+            Quaternion targetRot = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * 15f);
+        }
     }
 
     /// <summary>
@@ -314,27 +326,25 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void HandleLook()
     {
-        // 1. Mouse hareket ediyor mu?
-        bool isMouseMoving = Mouse.current != null && Mouse.current.delta.ReadValue().sqrMagnitude > 0.5f;
+        bool isMouseMoving = Mouse.current != null && Mouse.current.delta.ReadValue().sqrMagnitude > 0.1f;
 
-        // 2. Gamepad sağ analog GERÇEKTEN hareket ediyor mu? (Deadzone'u yükselttik)
         bool gamepadRightStickActive = Gamepad.current != null &&
             Gamepad.current.rightStick.ReadValue().sqrMagnitude > 0.1f;
 
-        // Mouse hareket etmiyorsa ve Gamepad aktifse -> Gamepad kullan
         if (gamepadRightStickActive && !isMouseMoving)
         {
             Vector2 stickInput = Gamepad.current.rightStick.ReadValue();
             Vector3 lookDir = new(stickInput.x, 0, stickInput.y);
             if (lookDir != Vector3.zero)
             {
+                // Saldırı anında döndüğü için Slerp hızını oldukça yüksek tutarak hedefe "snap" edebiliriz
                 Quaternion targetRot = Quaternion.LookRotation(lookDir);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * 15f);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * 25f);
             }
         }
         else
         {
-            // Mouse ile bak (varsayılan)
+            // Farenin bulunduğu yere ışınlanarak (LookAt ile) anında dön
             RotateTowardsMouse();
         }
     }
@@ -361,6 +371,10 @@ public class PlayerController : MonoBehaviour
     {
         if (!GameManager.isGameActive) return;
         
+        // Atak komutu verildiğinde ilk iş olarak imlece (Mouse) bir kez bakılmasını sağla
+        // Bu, klavye ile ileri giderken (WASD) hemen arkasındaki adama anında sırtını dönüp vurmasını sağlar
+        HandleLook();
+
         // Eğer kombo devam edebilecek durumdaysa (ve aktif bir atak animasyonu beklemesinde değilse)
         if (!animator.GetBool(IsAttackingHash) && comboStep < maxCombo)
         {

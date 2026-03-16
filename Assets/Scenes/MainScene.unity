@@ -17,7 +17,7 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.48627454, g: 0.6, b: 0.7686275, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.015
+  m_FogDensity: 0.025
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 2bd8959f5fbd3644aa33af1a155fc147, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 410087040}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -66,7 +66,7 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_ReflectionCompression: 2
+    m_ReflectionCompression: 0
     m_MixedBakeMode: 2
     m_BakeBackend: 1
     m_PVRSampling: 1
@@ -94,7 +94,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 112000000, guid: c547b9adeb37a5e4da31c770c29b5e4a, type: 2}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 2281cd1760a80724d8c3aafb72458740, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -1827,8 +1827,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68c083fbbf2335a43bf1819fb2e118ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveManager
-  firstWaveCount: 2
-  enemyToAddByWave: 1
+  firstWaveCount: 5
+  enemyToAddByWave: 2
   normalEnemyPrefab: {fileID: 3848567225260116286, guid: 5a5194ccb7e909c4bb2b7ead51135a24, type: 3}
   strongEnemyPrefab: {fileID: 1877747612521769358, guid: 229ae840da0218649aeb7d9e5ac63712, type: 3}
   fireWizardPrefab: {fileID: 1875963150541319173, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
@@ -1856,6 +1856,84 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1866997741}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &379665005
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 379665006}
+  - component: {fileID: 379665007}
+  m_Layer: 0
+  m_Name: DayNightManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &379665006
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379665005}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1866997741}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &379665007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379665005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f0be8ec46d03864db5002b5e78ac9ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DayNightManager
+  skyboxMaterial: {fileID: 2100000, guid: 2bd8959f5fbd3644aa33af1a155fc147, type: 2}
+  directionalLight: {fileID: 410087040}
+  transitionDuration: 3
+  timePhases:
+  - phaseName: Day Phase
+    phaseSkyboxMaterial: {fileID: 2100000, guid: 2bd8959f5fbd3644aa33af1a155fc147, type: 2}
+    skyTint: {r: 1, g: 1, b: 1, a: 0}
+    skyExposure: 1
+    fogIntensity: 0
+    fogHeight: 0
+    lightColor: {r: 1, g: 0.95686275, b: 0.8392157, a: 0}
+    lightIntensity: 1
+    enemySpeedMultiplier: 1
+    enemyDamageMultiplier: 0
+  - phaseName: Afternoon
+    phaseSkyboxMaterial: {fileID: 2100000, guid: 1cf6f4c6e6e0518419839d3f5448dd99, type: 2}
+    skyTint: {r: 1, g: 0.30077457, b: 0.16666657, a: 0}
+    skyExposure: 0.85
+    fogIntensity: 0.35
+    fogHeight: 2.5
+    lightColor: {r: 1, g: 0.69803923, b: 0.4, a: 0}
+    lightIntensity: 0.8
+    enemySpeedMultiplier: 1.15
+    enemyDamageMultiplier: 1.25
+  - phaseName: Night
+    phaseSkyboxMaterial: {fileID: 2100000, guid: cc421da483ed06c49933077a621bff25, type: 2}
+    skyTint: {r: 0.11411194, g: 0, b: 0.23899364, a: 0}
+    skyExposure: 0.4
+    fogIntensity: 0.85
+    fogHeight: 5
+    lightColor: {r: 0.3529412, g: 0.38431373, b: 0.5882353, a: 0}
+    lightIntensity: 0.4
+    enemySpeedMultiplier: 1.4
+    enemyDamageMultiplier: 2
 --- !u!1 &406310447
 GameObject:
   m_ObjectHideFlags: 0
@@ -6121,14 +6199,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: -2563110241736481954, guid: e0788580023c35d40a98d2ff51488d98, type: 3}
-      propertyPath: m_UseGravity
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -2563110241736481954, guid: e0788580023c35d40a98d2ff51488d98, type: 3}
-      propertyPath: m_ImplicitCom
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3584477659805971674, guid: e0788580023c35d40a98d2ff51488d98, type: 3}
       propertyPath: m_Name
       value: ExplosiveBarrel (3)
@@ -9360,6 +9430,7 @@ Transform:
   - {fileID: 161060465}
   - {fileID: 769138312}
   - {fileID: 1373285967}
+  - {fileID: 379665006}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1871083481
@@ -11602,7 +11673,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1241488825052241317, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.97
+      value: -3.98
       objectReference: {fileID: 0}
     - target: {fileID: 1241488825052241317, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -11610,7 +11681,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1241488825052241317, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 1.26
       objectReference: {fileID: 0}
     - target: {fileID: 1241488825052241317, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_LocalRotation.w

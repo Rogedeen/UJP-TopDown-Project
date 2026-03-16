@@ -167,7 +167,13 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            // Tüm kapılar henüz kapanmadıysa, oyuncuya Level Up (Upgrade) seçeneği sun.
+            // Tüm kapılar henüz kapanmadıysa, atmosferi ve zorluğu ilerlet (Geceye yaklaş)
+            if (DayNightManager.Instance != null)
+            {
+                DayNightManager.Instance.AdvanceTimePhase();
+            }
+
+            // Oyuncuya Level Up (Upgrade) seçeneği sun.
             if (UpgradeManager.Instance != null)
             {
                 UpgradeManager.Instance.TriggerUpgradeSelection();

@@ -84,6 +84,10 @@ public class PlayerController : MonoBehaviour
     public Transform vfxSpawnPoint;
     public int damageUpgradeThreshold = 2;
 
+    [Header("Night Settings")]
+    [Tooltip("Gece olunca otomatik yanan karakter ışığı (Point Light)")]
+    public Light nightLight;
+
     [Header("Sound Settings")]
     public AudioSource audioSource;
     public AudioClip[] whooshSounds;
@@ -155,6 +159,12 @@ public class PlayerController : MonoBehaviour
         // OrbitWeapon varsa bul
         orbitWeapon = GetComponentInChildren<OrbitWeapon>();
 
+        // Başlangıçta gece ışığı durumunu kontrol et
+        if (nightLight != null && DayNightManager.Instance != null)
+        {
+            nightLight.enabled = DayNightManager.Instance.CurrentPhaseIndex >= 2;
+        }
+
         // ─── PARAMETRE DOĞRULAMASI ───
         // Animator Controller'da hangi parametrelerin eksik olduğunu tespit et
         ValidateAnimatorParameters();
@@ -219,6 +229,11 @@ public class PlayerController : MonoBehaviour
         attackAction.performed += OnAttack;
         dashAction.performed += OnDash;
         skillAction.performed += OnSkill;
+
+        if (DayNightManager.Instance != null)
+        {
+            DayNightManager.Instance.OnPhaseChanged += HandlePhaseChanged;
+        }
     }
 
     void OnDisable()
@@ -228,7 +243,21 @@ public class PlayerController : MonoBehaviour
         dashAction.performed -= OnDash;
         skillAction.performed -= OnSkill;
 
+        if (DayNightManager.Instance != null)
+        {
+            DayNightManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
+        }
+
         inputActions.Disable();
+    }
+
+    private void HandlePhaseChanged(int newPhaseIndex)
+    {
+        if (nightLight != null)
+        {
+            // Eğer gece fazına (Index 2 ve sonrası) geldiysek ışığı yak
+            nightLight.enabled = (newPhaseIndex >= 2);
+        }
     }
 
     void FixedUpdate()

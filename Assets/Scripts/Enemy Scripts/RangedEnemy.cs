@@ -44,6 +44,11 @@ public class RangedEnemy : EnemyBase
     [Header("Timing")]
     public float spellDelay = 1.5f;
 
+    [Header("Prediction")]
+    [Range(0f, 1f)]
+    [Tooltip("Tahmin doğruluğu. 1.0 = mükemmel nişancı, 0.5 = %50 hata. Önerilen: 0.7")]
+    public float predictionAccuracy = 0.7f;
+
     [Header("Damage Settings")]
     [SerializeField] private float impactHitRadius = 1.5f;
 
@@ -273,7 +278,7 @@ public class RangedEnemy : EnemyBase
 
                 if (wizardType == WizardType.Ice && pController != null)
                 {
-                    pController.StartSlow(0.4f, 2.5f);
+                    pController.StartSlow(0.5f, 1.5f);
                 }
             }
 
@@ -295,7 +300,12 @@ public class RangedEnemy : EnemyBase
 
         if (pRb != null && pRb.linearVelocity.magnitude > 0.1f)
         {
-            currentPos += pRb.linearVelocity * timeToArrive;
+            Vector3 prediction = pRb.linearVelocity * timeToArrive;
+            
+            // Tahmini saptır: accuracy=0.7 ise %30 hata payı ekle
+            Vector3 randomOffset = Random.insideUnitSphere * (1f - predictionAccuracy) * prediction.magnitude;
+            randomOffset.y = 0;
+            currentPos += prediction * predictionAccuracy + randomOffset;
         }
 
         return currentPos;

@@ -388,6 +388,7 @@ MonoBehaviour:
   maxHealth: 4
   canTakeDamage: 1
   invincibilityDuration: 0.5
+  lootWeight: 2
   knockbackSpeed: 10
   knockbackDuration: 0.25
   enemyHealthSlider: {fileID: 6981729356390908538}
@@ -449,8 +450,8 @@ NavMeshAgent:
   m_GameObject: {fileID: 1877747612521769358}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 6.5
+  m_Radius: 1
+  m_Speed: 6
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120

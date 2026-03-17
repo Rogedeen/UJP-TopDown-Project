@@ -711,6 +711,7 @@ MonoBehaviour:
   maxHealth: 2
   canTakeDamage: 1
   invincibilityDuration: 0.5
+  lootWeight: 3
   knockbackSpeed: 10
   knockbackDuration: 0.25
   enemyHealthSlider: {fileID: 1424538606384250320}
@@ -728,6 +729,7 @@ MonoBehaviour:
   strafeSpeed: 2
   fireRate: 2
   spellDelay: 0.5
+  predictionAccuracy: 0.6
   impactHitRadius: 1.5
 --- !u!65 &4768582005796849192
 BoxCollider:
@@ -759,8 +761,8 @@ NavMeshAgent:
   m_GameObject: {fileID: 1875963150541319173}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 2.5
+  m_Radius: 1
+  m_Speed: 4
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120

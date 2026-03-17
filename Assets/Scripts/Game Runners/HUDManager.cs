@@ -40,7 +40,6 @@ public class HUDManager : MonoBehaviour
     // Cache — gereksiz UI güncellemelerini önlemek için
     private int lastHealth = -1;
     private int lastMaxHealth = -1;
-    private int lastWave = -1;
     private int lastClosedGates = -1;
     private float lastMaxEnergy = -1f;
 
@@ -106,11 +105,11 @@ public class HUDManager : MonoBehaviour
         if (waveManager == null || waveText == null) return;
 
         int wave = waveManager.CurrentWave;
+        float timeLeft = waveManager.WaveTimeRemaining;
+        int minutes = Mathf.FloorToInt(timeLeft / 60f);
+        int seconds = Mathf.FloorToInt(timeLeft % 60f);
 
-        if (wave == lastWave) return;
-        lastWave = wave;
-
-        waveText.text = $"Wave {wave}";
+        waveText.text = $"Wave {wave} — {minutes}:{seconds:00}";
     }
 
     void UpdateGateDisplay()

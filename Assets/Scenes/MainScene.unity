@@ -1827,13 +1827,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68c083fbbf2335a43bf1819fb2e118ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveManager
-  firstWaveCount: 5
-  enemyToAddByWave: 2
-  normalEnemyPrefab: {fileID: 3848567225260116286, guid: 5a5194ccb7e909c4bb2b7ead51135a24, type: 3}
-  strongEnemyPrefab: {fileID: 1877747612521769358, guid: 229ae840da0218649aeb7d9e5ac63712, type: 3}
-  fireWizardPrefab: {fileID: 1875963150541319173, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
-  iceWizardPrefab: {fileID: 1327078113790282888, guid: a21e7e67c0f59314dbd1c4f14739e921, type: 3}
-  supportWizardPrefab: {fileID: 3765176598023835571, guid: f1389e89c7b94a4408fe2542e342579c, type: 3}
+  waveConfigs:
+  - {fileID: 11400000, guid: 693e0c112028dfa4bb294a6bfabd148c, type: 2}
+  - {fileID: 11400000, guid: 399213534d94d5346895122e92a0e21e, type: 2}
+  - {fileID: 11400000, guid: fe3d4e0094acc004eb3964466434dcdd, type: 2}
+  - {fileID: 11400000, guid: 39883f779efe3ef4fb1b7ee3f01de186, type: 2}
   powerUpManager: {fileID: 769138313}
   gameManager: {fileID: 1144158818}
   gates:
@@ -4672,6 +4670,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 146f25baa04b9544d8676f108ecc686e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PowerUpManager
+  baseDropChance: 0.25
+  lootTables:
+  - minEnemyWeight: 1
+    entries:
+    - powerUpPrefab: {fileID: 463107931856031619, guid: 76052b144962c2f4fa8851765ca645b0, type: 3}
+      dropWeight: 5
+    - powerUpPrefab: {fileID: 3586597863669091523, guid: 7141b6f1a20985749a68f81e8b8169ae, type: 3}
+      dropWeight: 5
+    - powerUpPrefab: {fileID: 2310444904914611008, guid: 869812a707848a34aa81ca3ec030500c, type: 3}
+      dropWeight: 5
+    - powerUpPrefab: {fileID: 7474401964471204629, guid: 365fa4d52ef7ad5449f22b8d31ef2d71, type: 3}
+      dropWeight: 5
+  - minEnemyWeight: 2
+    entries:
+    - powerUpPrefab: {fileID: 3586597863669091523, guid: 7141b6f1a20985749a68f81e8b8169ae, type: 3}
+      dropWeight: 20
+    - powerUpPrefab: {fileID: 7474401964471204629, guid: 365fa4d52ef7ad5449f22b8d31ef2d71, type: 3}
+      dropWeight: 20
+    - powerUpPrefab: {fileID: 2310444904914611008, guid: 869812a707848a34aa81ca3ec030500c, type: 3}
+      dropWeight: 10
+  - minEnemyWeight: 3
+    entries:
+    - powerUpPrefab: {fileID: 463107931856031619, guid: 76052b144962c2f4fa8851765ca645b0, type: 3}
+      dropWeight: 100
+  useWaveSpawn: 0
   firstWavePowerUpCount: 1
   powerUpToAddByWave: 1
   spawnRange: 20
@@ -11718,9 +11741,25 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6736750329908058874, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: damage
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6736750329908058874, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: cooldown
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 6736750329908058874, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: duration
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6736750329908058874, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: rotationSpeed
+      value: 450
+      objectReference: {fileID: 0}
     - target: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: speed
-      value: 5
+      value: 5.5
       objectReference: {fileID: 0}
     - target: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: maxCombo

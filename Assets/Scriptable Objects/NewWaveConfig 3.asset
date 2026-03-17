@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393266b0ab73eb848862ceaa3ca72c81, type: 3}
+  m_Name: NewWaveConfig 3
+  m_EditorClassIdentifier: Assembly-CSharp::WaveConfig
+  waveName: Wave 3
+  waveDuration: 90
+  spawnInterval: 2
+  minAliveEnemies: 5
+  maxAliveEnemies: 15
+  spawnTable:
+  - enemyPrefab: {fileID: 3848567225260116286, guid: 5a5194ccb7e909c4bb2b7ead51135a24, type: 3}
+    spawnWeight: 35
+  - enemyPrefab: {fileID: 1877747612521769358, guid: 229ae840da0218649aeb7d9e5ac63712, type: 3}
+    spawnWeight: 25
+  - enemyPrefab: {fileID: 1875963150541319173, guid: 7a1c84de34961e34991cc380a5d9083a, type: 3}
+    spawnWeight: 25
+  - enemyPrefab: {fileID: 1327078113790282888, guid: a21e7e67c0f59314dbd1c4f14739e921, type: 3}
+    spawnWeight: 15

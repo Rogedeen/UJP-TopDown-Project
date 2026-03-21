@@ -4870,29 +4870,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PowerUpManager
   baseDropChance: 0.25
-  lootTables:
-  - minEnemyWeight: 1
-    entries:
-    - powerUpPrefab: {fileID: 463107931856031619, guid: 76052b144962c2f4fa8851765ca645b0, type: 3}
-      dropWeight: 5
-    - powerUpPrefab: {fileID: 3586597863669091523, guid: 7141b6f1a20985749a68f81e8b8169ae, type: 3}
-      dropWeight: 5
-    - powerUpPrefab: {fileID: 2310444904914611008, guid: 869812a707848a34aa81ca3ec030500c, type: 3}
-      dropWeight: 5
-    - powerUpPrefab: {fileID: 7474401964471204629, guid: 365fa4d52ef7ad5449f22b8d31ef2d71, type: 3}
-      dropWeight: 5
-  - minEnemyWeight: 2
-    entries:
-    - powerUpPrefab: {fileID: 3586597863669091523, guid: 7141b6f1a20985749a68f81e8b8169ae, type: 3}
-      dropWeight: 20
-    - powerUpPrefab: {fileID: 7474401964471204629, guid: 365fa4d52ef7ad5449f22b8d31ef2d71, type: 3}
-      dropWeight: 20
-    - powerUpPrefab: {fileID: 2310444904914611008, guid: 869812a707848a34aa81ca3ec030500c, type: 3}
-      dropWeight: 10
-  - minEnemyWeight: 3
-    entries:
-    - powerUpPrefab: {fileID: 463107931856031619, guid: 76052b144962c2f4fa8851765ca645b0, type: 3}
-      dropWeight: 100
+  lootTables: []
   useWaveSpawn: 0
   firstWavePowerUpCount: 1
   powerUpToAddByWave: 1
@@ -8486,7 +8464,7 @@ MonoBehaviour:
   gateText: {fileID: 8553330}
   playerController: {fileID: 6734093373688703458}
   energySlider: {fileID: 705344977}
-  orbitCooldownSlider: {fileID: 552585714}
+  orbitCooldownSlider: {fileID: 0}
   orbitCooldownImage: {fileID: 0}
   skillPulseSpeed: 5
   skillPulseAmount: 0.15
@@ -12329,6 +12307,10 @@ PrefabInstance:
     - target: {fileID: 1241488825052241317, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
+      propertyPath: maxCombo
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7842327706078446965, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: nightLight

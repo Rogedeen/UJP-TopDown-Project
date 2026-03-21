@@ -310,6 +310,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Hız ve Enerji Önceliği (Saldırı > İtme > Koşma > Dinlenme)
+        bool isAttacking = animator.GetBool(IsAttackingHash);
         if (isAttacking)
         {
             currentSpeed *= 0.5f;

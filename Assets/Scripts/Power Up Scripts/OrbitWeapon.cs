@@ -12,6 +12,20 @@ public class OrbitWeapon : MonoBehaviour
     public bool canUseSkill = true;
     public bool isRotating = false;
 
+    // UI için 0 ile 1 arasında doluluk oranı (1 = kullanıma hazır)
+    public float currentCooldownRatio { get; private set; } = 1f;
+    private float elapsedCooldown = 0f;
+
+    public void AdvanceCooldown(float timeAmount)
+    {
+        // Eğer şu an bekleme süresindeysek (cooldown), barı ileri sar
+        if (!canUseSkill && !isRotating)
+        {
+            elapsedCooldown += timeAmount;
+            currentCooldownRatio = Mathf.Clamp01(elapsedCooldown / cooldown);
+        }
+    }
+
     private Renderer weaponRenderer;
     private Collider weaponCollider;
 
@@ -48,14 +62,30 @@ public class OrbitWeapon : MonoBehaviour
         isRotating = true;
         weaponRenderer.enabled = true;
         weaponCollider.enabled = true;
-
-        yield return new WaitForSeconds(duration);
+        
+        // 1) Kullanım Süresi (Duration): Bar 1'den 0'a yavaşça boşalır
+        float elapsedDuration = 0f;
+        while (elapsedDuration < duration)
+        {
+            elapsedDuration += Time.deltaTime;
+            currentCooldownRatio = 1f - Mathf.Clamp01(elapsedDuration / duration);
+            yield return null;
+        }
 
         weaponRenderer.enabled = false;
         weaponCollider.enabled = false;
         isRotating = false;
 
-        yield return new WaitForSeconds(cooldown);
+        // 2) Bekleme Süresi (Cooldown): Bar 0'dan 1'e yavaşça dolar
+        elapsedCooldown = 0f;
+        while (elapsedCooldown < cooldown)
+        {
+            elapsedCooldown += Time.deltaTime;
+            currentCooldownRatio = Mathf.Clamp01(elapsedCooldown / cooldown);
+            yield return null;
+        }
+
+        currentCooldownRatio = 1f;
         canUseSkill = true;
     }
 }

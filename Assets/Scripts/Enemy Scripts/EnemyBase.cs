@@ -12,6 +12,10 @@ public class EnemyBase : MonoBehaviour, IDamageable
     public bool canTakeDamage = true;
     public float invincibilityDuration = 0.5f;
 
+    [Header("Loot")]
+    [Tooltip("Ölünce düşen power-up için ağırlık. Normal=1, Strong=2, Wizard=3")]
+    public int lootWeight = 1;
+
     [Header("Knockback")]
     [SerializeField] protected float knockbackSpeed = 10f;
     [SerializeField] protected float knockbackDuration = 0.25f;
@@ -68,6 +72,12 @@ public class EnemyBase : MonoBehaviour, IDamageable
         enemyRb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
         player = CachedPlayer;
+
+        // Varsa Gece/Gündüz zorluk çarpanını NavMesh hızına uygula
+        if (agent != null && DayNightManager.Instance != null)
+        {
+            agent.speed *= DayNightManager.Instance.CurrentEnemySpeedMultiplier;
+        }
 
         if (enemyHealthSlider != null)
         {
@@ -190,6 +200,12 @@ public class EnemyBase : MonoBehaviour, IDamageable
             enemyRb.linearVelocity = Vector3.zero;
 
         GetComponent<Collider>().enabled = false;
+
+        // Loot drop: Ölüm pozisyonunda ağırlığa uygun power-up düşür
+        if (PowerUpManager.Instance != null)
+        {
+            PowerUpManager.Instance.TryDropLoot(transform.position, lootWeight);
+        }
 
         // Event sistemi ile "bir düşman öldü" sinyali yayınla
         // WaveManager bu sinyali dinliyor ve kendi sayacını azaltıyor

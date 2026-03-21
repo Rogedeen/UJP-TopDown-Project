@@ -121,7 +121,10 @@ public class ExplosiveBarrel : MonoBehaviour, IDamageable
             // Bu sayede varil NavMesh dışına veya collider içine giremez
             if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
             {
-                transform.position = hit.position;
+                // Y eksenini koru! SamplePosition zeminin altına çekiyordu.
+                Vector3 safePos = hit.position;
+                safePos.y = transform.position.y;
+                transform.position = safePos;
             }
 
             yield return null;

@@ -7,7 +7,7 @@ public class Enemy : EnemyBase
     protected override void Start()
     {
         base.Start();
-        if (agent != null) agent.speed = 4f;
+        // Hız SADECE NavMeshAgent Inspector'ından ayarlanır, burada ezilmez!
     }
 
     void Update()

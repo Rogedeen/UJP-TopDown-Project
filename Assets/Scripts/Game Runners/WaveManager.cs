@@ -4,17 +4,9 @@ using UnityEngine;
 
 public class WaveManager : MonoBehaviour
 {
-    public int firstWaveCount = 2;
-    public int enemyToAddByWave = 1;
-
-    [Header("Melee Enemy Prefabs")]
-    public GameObject normalEnemyPrefab;
-    public GameObject strongEnemyPrefab;
-
-    [Header("Wizard Enemy Prefabs")]
-    public GameObject fireWizardPrefab;
-    public GameObject iceWizardPrefab;
-    public GameObject supportWizardPrefab;
+    [Header("Wave Configs (Her kapı arası için bir tane)")]
+    [Tooltip("Sırasıyla her wave'in ayarlarını buraya ekle")]
+    public WaveConfig[] waveConfigs;
 
     [Header("References")]
     [SerializeField] private PowerUpManager powerUpManager;
@@ -22,17 +14,25 @@ public class WaveManager : MonoBehaviour
 
     public Gates[] gates;
 
+    // ─── DURUM DEĞİŞKENLERİ ───
     private int activeEnemyCount = 0;
-    private bool isSpawning = false;
-    private int currentWave = 0;
+    private int currentWaveIndex = -1; // -1 = henüz başlamadı
+    private float waveTimer = 0f;
+    private float spawnTimer = 0f;
+    private bool waveActive = false;
 
     // ─── HUD İÇİN PUBLIC GETTER'LAR ───
-    public int CurrentWave => currentWave;
+    public int CurrentWave => currentWaveIndex + 1; // 1-indexed
     public int ActiveEnemyCount => activeEnemyCount;
+    public float WaveTimeRemaining => waveActive ? Mathf.Max(0, CurrentConfig.waveDuration - waveTimer) : 0f;
+    public float WaveDuration => CurrentConfig != null ? CurrentConfig.waveDuration : 0f;
+    public bool IsWaveActive => waveActive;
 
-    /// <summary>
-    /// Kapatılmış kapı sayısını döndürür (HUD için).
-    /// </summary>
+    private WaveConfig CurrentConfig =>
+        (currentWaveIndex >= 0 && currentWaveIndex < waveConfigs.Length)
+            ? waveConfigs[currentWaveIndex]
+            : null;
+
     public int ClosedGateCount
     {
         get
@@ -61,100 +61,134 @@ public class WaveManager : MonoBehaviour
     void Start()
     {
         activeEnemyCount = 0;
-        currentWave = 0;
+        StartNextWave();
     }
 
     void Update()
     {
-        if (!GameManager.isGameActive) return;
+        if (!GameManager.isGameActive || !waveActive || CurrentConfig == null) return;
 
-        if (activeEnemyCount == 0 && !isSpawning)
+        // ─── WAVE ZAMANLAYICISI ───
+        waveTimer += Time.deltaTime;
+        spawnTimer += Time.deltaTime;
+
+        // ─── QUOTA SİSTEMİ ───
+        // 1) Düşman sayısı minimumun altındaysa → HIZLI DOLUM (her frame kontrol)
+        if (activeEnemyCount < CurrentConfig.minAliveEnemies)
         {
-            StartCoroutine(SpawnWaveRoutine());
+            // minAlive'a ulaşana kadar her frame'de bir düşman doğur
+            SpawnRandomEnemy();
+            spawnTimer = 0f; // Normal spawn zamanlayıcısını sıfırla
+        }
+        // 2) Normal spawn aralığı geldiyse ve max'ın altındaysak → doğur
+        else if (spawnTimer >= CurrentConfig.spawnInterval && activeEnemyCount < CurrentConfig.maxAliveEnemies)
+        {
+            SpawnRandomEnemy();
+            spawnTimer = 0f;
+        }
+
+        // ─── WAVE SÜRESİ DOLDU MU? ───
+        if (waveTimer >= CurrentConfig.waveDuration)
+        {
+            EndCurrentWave();
         }
     }
 
-    private void HandleEnemyDied()
+    // ─── WAVE YÖNETİMİ ───
+
+    private void StartNextWave()
     {
-        activeEnemyCount--;
+        currentWaveIndex++;
+
+        if (currentWaveIndex >= waveConfigs.Length)
+        {
+            // Tüm wave'ler bitti, son wave'i tekrar et (sonsuz mod)
+            currentWaveIndex = waveConfigs.Length - 1;
+        }
+
+        waveTimer = 0f;
+        spawnTimer = 0f;
+        waveActive = true;
+
+        // Her wave başında powerup
+        if (currentWaveIndex > 0) // İlk wave'de değilse
+        {
+            powerUpManager.SpawnPowerUp();
+        }
+
+        Debug.Log($"[WaveManager] {CurrentConfig.waveName} başladı! Süre: {CurrentConfig.waveDuration}s");
     }
 
-    IEnumerator SpawnWaveRoutine()
+    private void EndCurrentWave()
     {
-        isSpawning = true;
-        currentWave++;
-        powerUpManager.SpawnPowerUp();
+        waveActive = false;
+        Debug.Log($"[WaveManager] {CurrentConfig.waveName} süresi doldu. Yeni wave bekleniyor...");
 
+        // Süre dolunca bir sonraki wave'i başlat (kapı kapatmayı beklemiyor)
+        StartNextWave();
+    }
+
+    // ─── SPAWN MEKANİĞİ ───
+
+    private void SpawnRandomEnemy()
+    {
+        WaveConfig config = CurrentConfig;
+        if (config == null || config.spawnTable == null || config.spawnTable.Length == 0) return;
+
+        // Aktif kapılardan birini seç
         List<Gates> activeGates = new List<Gates>();
         foreach (var gate in gates)
         {
             if (gate.isActive) activeGates.Add(gate);
         }
 
-        if (activeGates.Count == 0)
+        if (activeGates.Count == 0) return;
+
+        Gates randomGate = activeGates[Random.Range(0, activeGates.Count)];
+        GameObject prefab = GetWeightedRandomPrefab(config.spawnTable);
+
+        if (prefab != null)
         {
-            CheckForVictory();
-            yield break;
+            SpawnAtGate(prefab, randomGate.spawnPoint.position);
         }
-
-        int closedGates = gates.Length - activeGates.Count;
-        float difficultyScore = (float)closedGates / gates.Length;
-
-        // Kademeli (Phased) Zorluk Sistemi:
-        // Aşama 1 (0-1 kapı kapalı): SADECE normal düşmanlar. Sayıları biraz fazla olabilir ama öldürmesi kolay.
-        // Aşama 2 (2-3 kapı kapalı): Güçlü düşmanlar (şövalyeler vs.) ve ufaktan büyücüler başlar.
-        // Aşama 3 (Son 1-2 kapı): Her şey serbest, max zorluk.
-        
-        for (int i = 0; i < firstWaveCount; i++)
-        {
-            Gates randomGate = activeGates[Random.Range(0, activeGates.Count)];
-            GameObject prefabToSpawn = normalEnemyPrefab; // Varsayılanı her zaman normaldir
-            float roll = Random.value;
-
-            // Aşama 3 (Sonlara doğru)
-            if (closedGates >= gates.Length - 2)
-            {
-                if (roll < 0.25f) prefabToSpawn = GetRandomWizardPrefab(); // %25 Büyücü
-                else if (roll < 0.65f) prefabToSpawn = strongEnemyPrefab;  // %40 Güçlü
-                                                                           // Kalan %35 Normal
-            }
-            // Aşama 2 (Oyunun ortaları - en az 2 kapı kapalı)
-            else if (closedGates >= 2)
-            {
-                if (roll < 0.10f) prefabToSpawn = GetRandomWizardPrefab(); // Sadece %10 Büyücü (tadımlık)
-                else if (roll < 0.35f) prefabToSpawn = strongEnemyPrefab;  // %25 Güçlü
-                                                                           // Kalan %65 Normal
-            }
-            // Aşama 1 (Oyunun başı - 0 veya 1 kapı kapalı)
-            else
-            {
-                // Her zaman %100 normal düşman
-                prefabToSpawn = normalEnemyPrefab;
-            }
-
-            SpawnAtGate(prefabToSpawn, randomGate.spawnPoint.position);
-            yield return new WaitForSeconds(0.6f); // Doğma hızını 0.8'den 0.6'ya çektim ki başlardaki tempo artsın
-        }
-
-        firstWaveCount += enemyToAddByWave;
-        isSpawning = false;
     }
 
-    GameObject GetRandomWizardPrefab()
+    /// <summary>
+    /// Ağırlıklı rastgele seçim. spawnWeight'i yüksek olan düşman daha sık çıkar.
+    /// </summary>
+    private GameObject GetWeightedRandomPrefab(SpawnEntry[] table)
     {
-        float wizardRoll = Random.value;
+        int totalWeight = 0;
+        foreach (var entry in table)
+        {
+            totalWeight += entry.spawnWeight;
+        }
 
-        if (wizardRoll < 0.4f) return fireWizardPrefab;
-        if (wizardRoll < 0.8f) return iceWizardPrefab;
-        return supportWizardPrefab;
+        if (totalWeight <= 0) return null;
+
+        int roll = Random.Range(0, totalWeight);
+        int cumulative = 0;
+
+        foreach (var entry in table)
+        {
+            cumulative += entry.spawnWeight;
+            if (roll < cumulative)
+            {
+                return entry.enemyPrefab;
+            }
+        }
+
+        return table[0].enemyPrefab; // Fallback
     }
+
+    // ─── KAPI SİSTEMİ (AYNEN KALIYOR) ───
 
     public void HandleGateClosed()
     {
         bool allClosed = true;
         foreach (var gate in gates)
         {
-            if (gate.isActive) 
+            if (gate.isActive)
             {
                 allClosed = false;
                 break;
@@ -167,7 +201,13 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            // Tüm kapılar henüz kapanmadıysa, oyuncuya Level Up (Upgrade) seçeneği sun.
+            // Atmosferi ilerlet (Gece/Gündüz)
+            if (DayNightManager.Instance != null)
+            {
+                DayNightManager.Instance.AdvanceTimePhase();
+            }
+
+            // Upgrade seçimi sun
             if (UpgradeManager.Instance != null)
             {
                 UpgradeManager.Instance.TriggerUpgradeSelection();
@@ -184,7 +224,14 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(gameManager.WinGame());
     }
 
-    void SpawnAtGate(GameObject enemyPrefab, Vector3 spawnPosition)
+    // ─── YARDIMCI METODLAR ───
+
+    private void HandleEnemyDied()
+    {
+        activeEnemyCount--;
+    }
+
+    private void SpawnAtGate(GameObject enemyPrefab, Vector3 spawnPosition)
     {
         if (enemyPrefab == null) return;
         Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);

@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExplosiveBarrel
   barrelHealth: 2
-  explosionRadius: 4
+  explosionRadius: 6
   explosionDamage: 2
   criticalAutoExplodeTime: 1.5
   pulseSpeed: 10

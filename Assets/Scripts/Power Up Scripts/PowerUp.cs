@@ -83,7 +83,15 @@ public class PowerUp : MonoBehaviour
                 if (ow != null) ow.damage += (int)(amount * multiplier);
                 break;
             case PowerUpType.OrbitCoolDownReduce:
-                if (ow != null) ow.cooldown -= amount * multiplier;
+                if (ow != null) 
+                {
+                    // Alındığı anda barı `amount` kadar (örn: 2 saniye) hızlıca doldurur (sadece ileri sarar)
+                    // Silahın kalıcı maksimum bekleme süresini (örn: 8 saniye) DEĞİŞTİRMEZ.
+                    if (multiplier > 0)
+                    {
+                        ow.AdvanceCooldown(amount);
+                    }
+                }
                 break;
             case PowerUpType.Health:
                 if (multiplier > 0 && ph.playerHealth < ph.maxPlayerHealth) 

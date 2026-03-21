@@ -12,6 +12,10 @@ public class EnemyBase : MonoBehaviour, IDamageable
     public bool canTakeDamage = true;
     public float invincibilityDuration = 0.5f;
 
+    [Header("Loot")]
+    [Tooltip("Ölünce düşen power-up için ağırlık. Normal=1, Strong=2, Wizard=3")]
+    public int lootWeight = 1;
+
     [Header("Knockback")]
     [SerializeField] protected float knockbackSpeed = 10f;
     [SerializeField] protected float knockbackDuration = 0.25f;
@@ -69,6 +73,12 @@ public class EnemyBase : MonoBehaviour, IDamageable
         animator = GetComponentInChildren<Animator>();
         player = CachedPlayer;
 
+        // Varsa Gece/Gündüz zorluk çarpanını NavMesh hızına uygula
+        if (agent != null && DayNightManager.Instance != null)
+        {
+            agent.speed *= DayNightManager.Instance.CurrentEnemySpeedMultiplier;
+        }
+
         if (enemyHealthSlider != null)
         {
             enemyHealthSlider.maxValue = maxHealth;
@@ -92,7 +102,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
         }
     }
 
-    public virtual void TakeDamage(int damage, Vector3 knockbackSource)
+    public virtual void TakeDamage(int damage, Vector3 knockbackSource, float knockbackMultiplier = 1f)
     {
         if (!canTakeDamage) return;
         health -= damage;
@@ -106,7 +116,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
         SafeResetTrigger(animator, TakeDamageHash);
         SafeSetTrigger(animator, TakeDamageHash);
         StartCoroutine(HitFlashRoutine());
-        StartCoroutine(ApplyKnockback(knockbackSource));
+        StartCoroutine(ApplyKnockback(knockbackSource, knockbackMultiplier));
 
         if (health <= 0)
         {
@@ -118,7 +128,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
         StartCoroutine(Invincible(invincibilityDuration));
     }
 
-    protected IEnumerator ApplyKnockback(Vector3 source)
+    protected IEnumerator ApplyKnockback(Vector3 source, float knockbackMultiplier = 1f)
     {
         isKnockedBack = true;
 
@@ -138,7 +148,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
             elapsed += Time.deltaTime;
 
             float t = 1f - (elapsed / knockbackDuration);
-            Vector3 movement = knockbackSpeed * t * Time.deltaTime * pushDir;
+            Vector3 movement = (knockbackSpeed * knockbackMultiplier) * t * Time.deltaTime * pushDir;
 
             if (agent != null && agent.isActiveAndEnabled)
             {
@@ -190,6 +200,12 @@ public class EnemyBase : MonoBehaviour, IDamageable
             enemyRb.linearVelocity = Vector3.zero;
 
         GetComponent<Collider>().enabled = false;
+
+        // Loot drop: Ölüm pozisyonunda ağırlığa uygun power-up düşür
+        if (PowerUpManager.Instance != null)
+        {
+            PowerUpManager.Instance.TryDropLoot(transform.position, lootWeight);
+        }
 
         // Event sistemi ile "bir düşman öldü" sinyali yayınla
         // WaveManager bu sinyali dinliyor ve kendi sayacını azaltıyor

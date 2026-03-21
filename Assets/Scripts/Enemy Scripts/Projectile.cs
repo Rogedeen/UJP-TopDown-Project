@@ -67,11 +67,13 @@ public class Projectile : MonoBehaviour
         switch (type)
         {
             case ProjectileType.Damage:
-                pHealth.TakeDamage(value);
+                float damageMultiplier = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentEnemyDamageMultiplier : 1f;
+                pHealth.TakeDamage(Mathf.RoundToInt(value * damageMultiplier));
                 break;
 
             case ProjectileType.Slow:
-                pHealth.TakeDamage(value);
+                float slowDamageMultiplier = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentEnemyDamageMultiplier : 1f;
+                pHealth.TakeDamage(Mathf.RoundToInt(value * slowDamageMultiplier));
                 pController.StartSlow(slowAmount, slowDuration);
                 break;
 

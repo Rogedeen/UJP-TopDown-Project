@@ -10,5 +10,5 @@ using UnityEngine;
 /// </summary>
 public interface IDamageable
 {
-    void TakeDamage(int damage, Vector3 knockbackSource);
+    void TakeDamage(int damage, Vector3 knockbackSource, float knockbackMultiplier = 1f);
 }

@@ -54,7 +54,8 @@ public class PlayerHealth : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            TakeDamage(1);
+            float damageMultiplier = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentEnemyDamageMultiplier : 1f;
+            TakeDamage(Mathf.RoundToInt(1 * damageMultiplier));
         }
     }
 
@@ -72,5 +73,34 @@ public class PlayerHealth : MonoBehaviour
     public void SetInvincible(bool value)
     {
         isInvincible = value;
+    }
+
+    /// <summary>
+    /// StatUpgrade'den çağrılıp maksimum canı (kalp sayısını) kalıcı olarak artırır.
+    /// </summary>
+    public void IncreaseMaxHealth(int amount)
+    {
+        maxPlayerHealth += amount;
+        playerHealth += amount; // Yeni gelen kalbi dolu olarak veriyoruz
+        
+        if (playerHealthBar != null)
+        {
+            playerHealthBar.maxValue = maxPlayerHealth;
+            playerHealthBar.value = playerHealth;
+        }
+    }
+
+    /// <summary>
+    /// Mevcut canı iyileştirir (MaxHealth'i geçemez).
+    /// </summary>
+    public void Heal(int amount)
+    {
+        playerHealth += amount;
+        if (playerHealth > maxPlayerHealth) playerHealth = maxPlayerHealth;
+
+        if (playerHealthBar != null)
+        {
+            playerHealthBar.value = playerHealth;
+        }
     }
 }

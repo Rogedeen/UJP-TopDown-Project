@@ -157,4 +157,4 @@ MonoBehaviour:
   type: 0
   powerUpDuration: 0
   amount: 1
-  destroyAfterThisMuchSeconds: 5
+  floorLifeTime: 12

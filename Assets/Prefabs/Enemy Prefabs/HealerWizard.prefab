@@ -1141,7 +1141,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 3765176598023835571}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 1
   m_Speed: 4.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -1170,6 +1170,9 @@ MonoBehaviour:
   maxHealth: 2
   canTakeDamage: 1
   invincibilityDuration: 0.5
+  lootWeight: 3
+  knockbackSpeed: 10
+  knockbackDuration: 0.25
   enemyHealthSlider: {fileID: 3515808736806497310}
   hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
   healingAuraPrefab: {fileID: 207745087118991948, guid: 89d63d299ec082e4ba294b11ce63d5ec, type: 3}

@@ -115,6 +115,13 @@ public class PlayerController : MonoBehaviour
     private float originalSpeed;
     private Coroutine activeSlowCoroutine;
 
+    // ─── PUSH MEKANİĞİ ───
+    [Header("Push Action")]
+    [Tooltip("Kapı iterken oyuncunun hızını ne kadar düşürecek (Örn: 0.3 = %30 hız)")]
+    public float pushSpeedMultiplier = 0.3f;
+    private bool isPushingBarrier = false;
+    private float pushTimer = 0f;
+
     // Animator hash'ler
     private static readonly int HorizontalHash = Animator.StringToHash("Horizontal");
     private static readonly int VerticalHash = Animator.StringToHash("Vertical");
@@ -124,6 +131,7 @@ public class PlayerController : MonoBehaviour
     private static readonly int IsDashingHash = Animator.StringToHash("isDashing");
     private static readonly int IsSprintingHash = Animator.StringToHash("isSprinting");
     private static readonly int ComboStepHash = Animator.StringToHash("comboStep");
+    private static readonly int IsPushingHash = Animator.StringToHash("isPushing");
 
     // OrbitWeapon referansı - Skill tuşu basıldığında tetiklenir
     private OrbitWeapon orbitWeapon;
@@ -233,6 +241,9 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        isPushingBarrier = (pushTimer > 0f);
+        if (pushTimer > 0f) pushTimer -= Time.fixedDeltaTime;
+
         if (isDashing) return; // Dash sırasında normal hareket yok
 
         // Move action'dan Vector2 oku
@@ -266,30 +277,44 @@ public class PlayerController : MonoBehaviour
             regenTimer -= Time.fixedDeltaTime;
         }
 
-        // Eğer tükenmiş durumdaysa veya enerji 0 ise sprint atılamaz
-        if (isTryingToSprint && currentEnergy > 0 && exhaustionTimer <= 0)
+        // Hız ve Enerji Önceliği (Saldırı > İtme > Koşma > Dinlenme)
+        if (isAttacking)
         {
-            isSprinting = true;
-            currentSpeed *= sprintSpeedMultiplier;
-            currentEnergy -= sprintEnergyCost * Time.fixedDeltaTime;
-            
-            // Sprint atıldığı için normal bekleme süresini (1 sn) sıfırla
-            regenTimer = regenDelay;
-
-            if (currentEnergy <= 0)
-            {
-                currentEnergy = 0;
-                // Bar tamamen bittiğinde cezayı uygula
-                exhaustionTimer = exhaustionDelay;
-            }
+            currentSpeed *= 0.5f;
+            animator.SetBool(IsPushingHash, false);
         }
-        else if (!isTryingToSprint && exhaustionTimer <= 0 && regenTimer <= 0)
+        else if (isPushingBarrier)
         {
-            // Kullanılmıyorsa ve bekleme süreleri bittiyse enerjiyi doldur
-            if (currentEnergy < maxEnergy)
+            currentSpeed *= pushSpeedMultiplier;
+            animator.SetBool(IsPushingHash, true);
+        }
+        else
+        {
+            animator.SetBool(IsPushingHash, false);
+
+            if (isTryingToSprint && currentEnergy > 0 && exhaustionTimer <= 0)
             {
-                currentEnergy += energyRegenRate * Time.fixedDeltaTime;
-                if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
+                isSprinting = true;
+                currentSpeed *= sprintSpeedMultiplier;
+                currentEnergy -= sprintEnergyCost * Time.fixedDeltaTime;
+                
+                // Sprint atıldığı için normal bekleme süresini (1 sn) sıfırla
+                regenTimer = regenDelay;
+
+                if (currentEnergy <= 0)
+                {
+                    currentEnergy = 0;
+                    exhaustionTimer = exhaustionDelay;
+                }
+            }
+            else if (!isTryingToSprint && exhaustionTimer <= 0 && regenTimer <= 0)
+            {
+                // Kullanılmıyorsa ve bekleme süreleri bittiyse enerjiyi doldur
+                if (currentEnergy < maxEnergy)
+                {
+                    currentEnergy += energyRegenRate * Time.fixedDeltaTime;
+                    if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
+                }
             }
         }
 
@@ -662,4 +687,19 @@ public class PlayerController : MonoBehaviour
 
     // Dash durumunu dışarıdan kontrol etmek için
     public bool IsDashing => isDashing;
+
+    void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Barrier"))
+        {
+            if (moveInput.magnitude > 0.1f)
+            {
+                Vector3 dirToBarrier = (collision.transform.position - transform.position).normalized;
+                if (Vector3.Dot(transform.forward, dirToBarrier) > 0.5f)
+                {
+                    pushTimer = 0.15f;
+                }
+            }
+        }
+    }
 }

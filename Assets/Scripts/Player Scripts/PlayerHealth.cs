@@ -102,4 +102,25 @@ public class PlayerHealth : MonoBehaviour
             playerHealthBar.value = playerHealth;
         }
     }
+
+    public IEnumerator PostUpgradeInvincibilityRoutine()
+    {
+        isInvincible = true;
+        float blinkDuration = 2.5f;
+        float elapsed = 0f;
+        bool isVisible = true;
+        
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+
+        while (elapsed < blinkDuration)
+        {
+            elapsed += 0.15f;
+            isVisible = !isVisible;
+            foreach (var r in renderers) { if(r != null) r.enabled = isVisible; }
+            yield return new WaitForSeconds(0.15f);
+        }
+        
+        foreach (var r in renderers) { if(r != null) r.enabled = true; }
+        isInvincible = false;
+    }
 }

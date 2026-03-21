@@ -95,6 +95,13 @@ public class UpgradeManager : MonoBehaviour
         if (playerController != null && selectedUpgrade != null)
         {
             selectedUpgrade.ApplyUpgrade(playerController);
+
+            // Seçim sonrası dokunulmazlık (yanıp sönme) başlat
+            PlayerHealth ph = playerController.GetComponent<PlayerHealth>();
+            if (ph != null)
+            {
+                ph.StartCoroutine(ph.PostUpgradeInvincibilityRoutine());
+            }
         }
 
         // 2. Oyunu kaldığı yerden devam ettir

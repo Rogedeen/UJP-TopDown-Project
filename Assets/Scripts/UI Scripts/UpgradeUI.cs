@@ -42,6 +42,7 @@ public class UpgradeUI : MonoBehaviour
     {
         activeUpgrades = upgradesToDisplay;
         upgradeContainer.SetActive(true);
+        StartCoroutine(ShowAnimationRoutine());
 
         // Maksimum desteklenen kart sayısı kadar (örn 3) döngü yap
         for (int i = 0; i < cardButtons.Length; i++)
@@ -102,5 +103,26 @@ public class UpgradeUI : MonoBehaviour
         {
             upgradeContainer.SetActive(false);
         }
+    }
+
+    private System.Collections.IEnumerator ShowAnimationRoutine()
+    {
+        CanvasGroup cg = upgradeContainer.GetComponent<CanvasGroup>();
+        if (cg == null) cg = upgradeContainer.AddComponent<CanvasGroup>();
+
+        cg.alpha = 0f;
+        upgradeContainer.transform.localScale = Vector3.one * 0.8f;
+
+        float duration = 0.4f;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime; // Oyun süresi 0 olsa da çalışır
+            cg.alpha = Mathf.Lerp(0f, 1f, elapsed / duration);
+            upgradeContainer.transform.localScale = Vector3.Lerp(Vector3.one * 0.8f, Vector3.one, elapsed / duration);
+            yield return null;
+        }
+        cg.alpha = 1f;
+        upgradeContainer.transform.localScale = Vector3.one;
     }
 }

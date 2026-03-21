@@ -238,34 +238,74 @@ public class RangedEnemy : EnemyBase
         float travelTimeToPlayer = distToPlayer / projectilePhysicalSpeed;
 
         Vector3 predictedPoint = CalculatePredictedPosition(travelTimeToPlayer);
-
         Vector3 fireDirection = (predictedPoint - firePoint.position).normalized;
+
         float maxDistance = 50f;
         Vector3 farAwayTarget = firePoint.position + fireDirection * maxDistance;
-        float totalTravelTime = maxDistance / projectilePhysicalSpeed;
+        float expectedTravelTime = maxDistance / projectilePhysicalSpeed;
+        
+        bool hitObstacle = false;
+        Vector3 obstacleHitPoint = Vector3.zero;
+
+        // ENGEL KONTROLÜ (RaycastAll ile bütün objeleri tarayarak atış yapanın kendi bedenini es geç)
+        RaycastHit[] hits = Physics.RaycastAll(firePoint.position, fireDirection, maxDistance);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance)); // Yakından uzağa sırala
+
+        foreach (var hit in hits)
+        {
+            // Atış yapanın kendisini, diğer düşmanları veya sadece alan tarayan hayalet(trigger) collider'ları görmezden gel
+            if (hit.collider.gameObject == gameObject || hit.collider.CompareTag("Enemy") || hit.collider.isTrigger) 
+                continue;
+
+            if (hit.collider.CompareTag("Barrier") || hit.collider.CompareTag("Barrel") || hit.collider.gameObject.layer == LayerMask.NameToLayer("Environment"))
+            {
+                farAwayTarget = hit.point;
+                expectedTravelTime = hit.distance / projectilePhysicalSpeed;
+                hitObstacle = true;
+                obstacleHitPoint = hit.point;
+                break; // İlk engele çarptığında dur
+            }
+
+            // Oyuncuya (Player) rastlarsan, demek ki arada engel yok; aramayı bırak
+            if (hit.collider.CompareTag("Player"))
+            {
+                break;
+            }
+        }
 
         GameObject spellObj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
         ProjectileVfx vfx = spellObj.GetComponent<ProjectileVfx>();
 
         if (vfx != null)
         {
-            vfx._FlySpeed = totalTravelTime;
-            VfxData data = new VfxData(firePoint, farAwayTarget, totalTravelTime, 0f);
+            vfx._FlySpeed = expectedTravelTime;
+            VfxData data = new VfxData(firePoint, farAwayTarget, expectedTravelTime, 0f);
             vfx.Play(data);
 
-            StartCoroutine(DealDamageOnArrival(travelTimeToPlayer, predictedPoint, spellObj));
-            Destroy(spellObj, totalTravelTime + 1f);
+            StartCoroutine(DealDamageOnArrival(travelTimeToPlayer, predictedPoint, spellObj, hitObstacle, expectedTravelTime, obstacleHitPoint));
+            Destroy(spellObj, expectedTravelTime + 0.1f);
         }
     }
 
-    IEnumerator DealDamageOnArrival(float delay, Vector3 targetedPosition, GameObject spellObj)
+    IEnumerator DealDamageOnArrival(float delay, Vector3 targetedPosition, GameObject spellObj, bool hitObstacle, float obstacleHitTime, Vector3 obstacleHitPoint)
     {
+        // 1. Senaryo: Engel oyuncudan önce! Mermi oyuncuya ulaşamadan duvarda patlar.
+        if (hitObstacle && obstacleHitTime <= delay)
+        {
+            yield return new WaitForSeconds(obstacleHitTime);
+            if (hitEffectPrefab != null) Instantiate(hitEffectPrefab, obstacleHitPoint, Quaternion.identity);
+            if (spellObj != null) spellObj.SetActive(false);
+            yield break; // Mermi duvarda patladı, oyuncuya hasar tespiti yapma
+        }
+
+        // 2. Senaryo: Mermi oyuncunun olduğu hizaya ulaştı.
         yield return new WaitForSeconds(delay);
 
         if (player == null || spellObj == null) yield break;
 
         float distancePlayerToImpact = Vector3.Distance(player.transform.position, targetedPosition);
 
+        // Mermi oyuncuyu vurdu mu?
         if (distancePlayerToImpact <= impactHitRadius)
         {
             PlayerHealth pHealth = player.GetComponent<PlayerHealth>();
@@ -288,8 +328,17 @@ public class RangedEnemy : EnemyBase
                 Destroy(hitFx, 2f);
             }
 
-            spellObj.SetActive(false);
-            Destroy(spellObj, 0.1f);
+            if (spellObj != null) spellObj.SetActive(false);
+            yield break; // Oyuncuyu vurduysa biter
+        }
+
+        // 3. Senaryo: Oyuncuyu ISKALADI. Eğer arkadaki duvara çarpacaksa oraya kadar git.
+        if (hitObstacle && obstacleHitTime > delay)
+        {
+            float remainingTime = obstacleHitTime - delay;
+            yield return new WaitForSeconds(remainingTime);
+            if (hitEffectPrefab != null) Instantiate(hitEffectPrefab, obstacleHitPoint, Quaternion.identity);
+            if (spellObj != null) spellObj.SetActive(false);
         }
     }
 

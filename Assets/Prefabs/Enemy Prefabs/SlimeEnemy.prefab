@@ -353,8 +353,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d6b14eafe3aeaa4a9087f4680238cf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  health: 2
-  maxHealth: 2
+  health: 1
+  maxHealth: 1
   canTakeDamage: 1
   invincibilityDuration: 0.5
   lootWeight: 1

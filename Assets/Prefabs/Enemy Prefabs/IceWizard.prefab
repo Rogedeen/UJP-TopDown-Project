@@ -585,9 +585,9 @@ MonoBehaviour:
   projectileArrivalTime: 2
   projectilePhysicalSpeed: 15
   strafeSpeed: 2
-  fireRate: 2
+  fireRate: 3
   spellDelay: 0.5
-  predictionAccuracy: 0.5
+  predictionAccuracy: 0.3
   impactHitRadius: 1.5
 --- !u!65 &4864437151569029271
 BoxCollider:

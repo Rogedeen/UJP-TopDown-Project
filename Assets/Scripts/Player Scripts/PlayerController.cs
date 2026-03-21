@@ -131,6 +131,7 @@ public class PlayerController : MonoBehaviour
 
     // OrbitWeapon referansı - Skill tuşu basıldığında tetiklenir
     private OrbitWeapon orbitWeapon;
+    public OrbitWeapon ActiveOrbitWeapon => orbitWeapon;
 
     void Awake()
     {
@@ -160,9 +161,10 @@ public class PlayerController : MonoBehaviour
         orbitWeapon = GetComponentInChildren<OrbitWeapon>();
 
         // Başlangıçta gece ışığı durumunu kontrol et
-        if (nightLight != null && DayNightManager.Instance != null)
+        if (nightLight != null && DayNightManager.Instance != null && DayNightManager.Instance.timePhases != null)
         {
-            nightLight.enabled = DayNightManager.Instance.CurrentPhaseIndex >= 2;
+            int lastPhase = DayNightManager.Instance.timePhases.Length - 1;
+            nightLight.enabled = (DayNightManager.Instance.CurrentPhaseIndex >= lastPhase);
         }
 
         // ─── PARAMETRE DOĞRULAMASI ───
@@ -253,10 +255,11 @@ public class PlayerController : MonoBehaviour
 
     private void HandlePhaseChanged(int newPhaseIndex)
     {
-        if (nightLight != null)
+        if (nightLight != null && DayNightManager.Instance != null && DayNightManager.Instance.timePhases != null)
         {
-            // Eğer gece fazına (Index 2 ve sonrası) geldiysek ışığı yak
-            nightLight.enabled = (newPhaseIndex >= 2);
+            // Eğer son faza (Genelde Gece'dir) geldiysek ışığı yak
+            int lastPhase = DayNightManager.Instance.timePhases.Length - 1;
+            nightLight.enabled = (newPhaseIndex == lastPhase);
         }
     }
 

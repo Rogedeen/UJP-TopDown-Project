@@ -234,10 +234,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e59ea6dc578ccac4dace42da79ee3b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  speed: 6
+  speed: 5.5
+  sprintSpeedMultiplier: 1.5
+  maxEnergy: 100
+  energyRegenRate: 10
+  sprintEnergyCost: 20
+  dashEnergyCost: 30
+  exhaustionDelay: 2
+  regenDelay: 1
+  maxCombo: 1
+  comboResetTime: 1
+  heavyFinisherKnockbackMultiplier: 3
+  comboSlashAngles:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 180}
+  - {x: 0, y: 0, z: -90}
+  - {x: 0, y: 0, z: 90}
   dashSpeed: 20
   dashDuration: 0.15
-  dashCooldown: 1
+  dashCooldown: 0.5
   activeWeapon: {fileID: 7823102358665122030}
   hitRadius: 1.5
   hitOffset: 1.5
@@ -245,11 +260,13 @@ MonoBehaviour:
   fireVFXPrefab: {fileID: 5313456068782518071, guid: 50f1354827c77ef4b99c4dca0ee3411d, type: 3}
   vfxSpawnPoint: {fileID: 239263915140626063}
   damageUpgradeThreshold: 5
+  nightLight: {fileID: 0}
   audioSource: {fileID: 1140215351310039320}
   whooshSounds:
   - {fileID: 8300000, guid: 2f8a783f075bf4155ab4b59bdd5fd2be, type: 3}
   - {fileID: 8300000, guid: 936e0c7b18e034f1db5890e9aa95bc42, type: 3}
   - {fileID: 8300000, guid: 5777bd69665764cfcb1873a61f617a18, type: 3}
+  - {fileID: 8300000, guid: d73b68fbd83ce408689d2a6659ded8f8, type: 3}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &8541911570114308902
 MonoBehaviour:
@@ -900,7 +917,7 @@ RectTransform:
   m_Father: {fileID: 3325542935440582376}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2143,7 +2160,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4340172788667147880
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2513,8 +2530,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 7521220299710121878}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2873,11 +2890,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75a6e974bf5ff3b4a905f57fb79b36ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrbitWeapon
-  rotationSpeed: 360
+  rotationSpeed: 450
   orbitTransform: {fileID: 27789492408927112}
-  damage: 1
-  duration: 5
-  cooldown: 10
+  damage: 2
+  duration: 6
+  cooldown: 12
   canUseSkill: 1
   isRotating: 0
 --- !u!65 &2566147495544448351

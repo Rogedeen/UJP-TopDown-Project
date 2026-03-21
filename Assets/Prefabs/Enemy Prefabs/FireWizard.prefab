@@ -729,7 +729,7 @@ MonoBehaviour:
   strafeSpeed: 2
   fireRate: 2
   spellDelay: 0.5
-  predictionAccuracy: 0.6
+  predictionAccuracy: 0.4
   impactHitRadius: 1.5
 --- !u!65 &4768582005796849192
 BoxCollider:

@@ -37,6 +37,14 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private PlayerController playerController;
     [SerializeField] private Slider energySlider;
 
+    [Header("Skill Display")]
+    [Tooltip("Orbit weapon cooldown bar (Slider olarak)")]
+    [SerializeField] private Slider orbitCooldownSlider;
+    [Tooltip("Orbit weapon cooldown bar (Image Fill Amount olarak) - İkisinden birini atayın")]
+    [SerializeField] private Image orbitCooldownImage;
+    [SerializeField] private float skillPulseSpeed = 5f;
+    [SerializeField] private float skillPulseAmount = 0.15f;
+
     // Cache — gereksiz UI güncellemelerini önlemek için
     private int lastHealth = -1;
     private int lastMaxHealth = -1;
@@ -46,6 +54,8 @@ public class HUDManager : MonoBehaviour
     private RectTransform energyRectTransform;
     private float initialEnergyWidth = -1f;
     private float initialMaxEnergy = -1f;
+
+    private Vector3 originalSkillScale = Vector3.one;
 
     void Start()
     {
@@ -57,6 +67,9 @@ public class HUDManager : MonoBehaviour
             if (playerController != null)
                 initialMaxEnergy = playerController.maxEnergy;
         }
+
+        if (orbitCooldownSlider != null) originalSkillScale = orbitCooldownSlider.transform.localScale;
+        else if (orbitCooldownImage != null) originalSkillScale = orbitCooldownImage.transform.localScale;
     }
 
     void Update()
@@ -67,6 +80,7 @@ public class HUDManager : MonoBehaviour
         UpdateWaveDisplay();
         UpdateGateDisplay();
         UpdateEnergyDisplay();
+        UpdateSkillDisplay();
     }
 
     void UpdateHealthDisplay()
@@ -154,6 +168,52 @@ public class HUDManager : MonoBehaviour
         if (Mathf.Abs(energySlider.value - currentEnergy) > 0.1f)
         {
             energySlider.value = currentEnergy;
+        }
+    }
+
+    void UpdateSkillDisplay()
+    {
+        if (playerController == null) return;
+        
+        OrbitWeapon skill = playerController.ActiveOrbitWeapon;
+        // Eğer OrbitWeapon henüz bulunamadıysa işlem yapma
+        if (skill == null) return;
+
+        float ratio = skill.currentCooldownRatio;
+        bool isReady = skill.canUseSkill;
+
+        Transform activeUI = null;
+
+        if (orbitCooldownSlider != null)
+        {
+            orbitCooldownSlider.minValue = 0f;
+            orbitCooldownSlider.maxValue = 1f;
+            orbitCooldownSlider.value = ratio;
+            activeUI = orbitCooldownSlider.transform;
+        }
+        else if (orbitCooldownImage != null)
+        {
+            if (orbitCooldownImage.type != Image.Type.Filled)
+            {
+                orbitCooldownImage.type = Image.Type.Filled;
+                orbitCooldownImage.fillMethod = Image.FillMethod.Horizontal;
+            }
+            orbitCooldownImage.fillAmount = ratio;
+            activeUI = orbitCooldownImage.transform;
+        }
+
+        // Pulse / Nefes animasyonu (Kullanıma hazır olduğunda)
+        if (activeUI != null)
+        {
+            if (isReady && ratio >= 1f)
+            {
+                float pulse = 1f + Mathf.Sin(Time.time * skillPulseSpeed) * skillPulseAmount;
+                activeUI.localScale = originalSkillScale * pulse;
+            }
+            else
+            {
+                activeUI.localScale = originalSkillScale;
+            }
         }
     }
 }

@@ -111,7 +111,14 @@ public partial class PlayerController : MonoBehaviour
     private static readonly int IsPushingHash = Animator.StringToHash("isPushing");
 
     private OrbitWeapon orbitWeapon;
-    public OrbitWeapon ActiveOrbitWeapon => orbitWeapon;
+    public OrbitWeapon ActiveOrbitWeapon 
+    {
+        get 
+        {
+            if (orbitWeapon == null) orbitWeapon = GetComponentInChildren<OrbitWeapon>();
+            return orbitWeapon;
+        }
+    }
     public bool IsDashing => isDashing;
 
     void Awake()

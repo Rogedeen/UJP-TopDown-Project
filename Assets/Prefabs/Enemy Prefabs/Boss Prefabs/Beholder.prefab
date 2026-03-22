@@ -762,7 +762,7 @@ Animator:
   m_GameObject: {fileID: 3408314601382568404}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: b51ed164db424ea38696614fa639565a, type: 3}
-  m_Controller: {fileID: 9100000, guid: cb76a9889dd44316984379a119683768, type: 2}
+  m_Controller: {fileID: 9100000, guid: 7429ef522af886d4eb88ca8578c5beca, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -798,12 +798,16 @@ MonoBehaviour:
   hitFlashMaterial: {fileID: 2100000, guid: fcc5688730fcc6240af071ba69768065, type: 2}
   bossName: The Eye of Terror
   currentState: 0
+  moveSpeed: 3.5
+  stoppingDistance: 6
   eyeFirePoint: {fileID: 5189102042438433225}
-  beamVfxPrefab: {fileID: 0}
+  beamVfxPrefab: {fileID: 4258341324361696382, guid: 46b18078ebe1d564d90a15de681cfb0e, type: 3}
   beamDamageFrequency: 0.2
   beamDamage: 1
+  chargeUpDuration: 1
   sweepDuration: 4
   sweepRotationSpeed: 45
+  dizzyDuration: 4
 --- !u!136 &7124423320260791383
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -849,7 +853,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 84
@@ -1763,13 +1767,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8995405643037999684}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.00000014901153, y: -0.0000010132784, z: 0.79463017, w: 0.6070938}
+  m_LocalRotation: {x: 0.4292786, y: -0.5618896, z: 0.5618896, w: 0.4292786}
   m_LocalPosition: {x: -0.0082, y: -0.1603, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3721564323125890544}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 105.241}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 105.241}
 --- !u!1 &9164979499641858615
 GameObject:
   m_ObjectHideFlags: 0

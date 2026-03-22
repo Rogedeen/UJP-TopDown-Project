@@ -8,6 +8,10 @@ public class PlayerHealth : MonoBehaviour
     public int maxPlayerHealth = 5;
     public float invincibilityTime = 1f;
 
+    [Header("Visual Effects")]
+    [Tooltip("Dokunulmaz olduğunda (hasar yenince veya kart seçilince) açılacak kalkan objesi.")]
+    public GameObject invincibilityShield;
+
     [SerializeField] private GameManager gameManager;
     [SerializeField] private PlayerController playerController;
 
@@ -47,7 +51,7 @@ public class PlayerHealth : MonoBehaviour
             return;
         }
 
-        StartCoroutine(InvincibleRoutine());
+        StartCoroutine(InvincibleRoutine(invincibilityTime, false));
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -63,10 +67,47 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    IEnumerator InvincibleRoutine()
+    IEnumerator InvincibleRoutine(float duration, bool useBlinking = false)
     {
         isInvincible = true;
-        yield return new WaitForSeconds(invincibilityTime);
+        
+        // Kalkan özelliği ileride power-up olarak eklenmek üzere hazırda bekliyor
+        if (invincibilityShield != null && invincibilityShield.activeSelf == false) 
+        {
+            // İleride kalkan skill'i eklersek burayı true yapabiliriz
+            // invincibilityShield.SetActive(true);
+        }
+
+        if (useBlinking)
+        {
+            float elapsed = 0f;
+            bool isVisible = true;
+            
+            // Tüm rendererları al ama Particle veya Trail olan (VFX) renderları yoksay!
+            var renderers = new System.Collections.Generic.List<Renderer>();
+            foreach (var r in GetComponentsInChildren<Renderer>())
+            {
+                // Görsel efektlerin (VFX) ve ayrıca kılıcın (OrbitWeapon) kendi kendine görünür olmasını engelle
+                if (!(r is ParticleSystemRenderer) && !(r is TrailRenderer) && r.GetComponentInParent<OrbitWeapon>() == null)
+                    renderers.Add(r);
+            }
+
+            while (elapsed < duration)
+            {
+                elapsed += 0.15f;
+                isVisible = !isVisible;
+                foreach (var r in renderers) { if (r != null) r.enabled = isVisible; }
+                yield return new WaitForSeconds(0.15f);
+            }
+            
+            foreach (var r in renderers) { if (r != null) r.enabled = true; }
+        }
+        else
+        {
+            yield return new WaitForSeconds(duration);
+        }
+        
+        if (invincibilityShield != null) invincibilityShield.SetActive(false);
         isInvincible = false;
     }
 
@@ -110,22 +151,7 @@ public class PlayerHealth : MonoBehaviour
 
     public IEnumerator PostUpgradeInvincibilityRoutine()
     {
-        isInvincible = true;
-        float blinkDuration = 2.5f;
-        float elapsed = 0f;
-        bool isVisible = true;
-        
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-
-        while (elapsed < blinkDuration)
-        {
-            elapsed += 0.15f;
-            isVisible = !isVisible;
-            foreach (var r in renderers) { if(r != null) r.enabled = isVisible; }
-            yield return new WaitForSeconds(0.15f);
-        }
-        
-        foreach (var r in renderers) { if(r != null) r.enabled = true; }
-        isInvincible = false;
+        // Eski sisteme dönüldü: 2.5 saniye boyunca yanıp sönüyor (ama artık VFX'ler etkilenmiyor)
+        yield return StartCoroutine(InvincibleRoutine(2.5f, true));
     }
 }

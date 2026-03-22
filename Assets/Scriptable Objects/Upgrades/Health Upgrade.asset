@@ -15,5 +15,7 @@ MonoBehaviour:
   upgradeName: Health Upgrade
   description: Increases max health by 1
   icon: {fileID: 0}
+  vfxPrefab: {fileID: 5766691976136461342, guid: 43d1d06cf70fcb2488255051aaae40a5, type: 3}
+  pickupSound: {fileID: 0}
   statToModify: 0
   amountToAdd: 1

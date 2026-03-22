@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b516ed4f383db3b49a620a2de68708d0, type: 3}
-  m_Name: Movement Speed Upgrade
+  m_Name: Energy Regen Boost
   m_EditorClassIdentifier: Assembly-CSharp::StatUpgrade
-  upgradeName: Move Faster
-  description: Increases movement speed
+  upgradeName: Energy Regen Boost
+  description: Increases your energy regen rate
   icon: {fileID: 0}
-  statToModify: 4
-  amountToAdd: 1
+  vfxPrefab: {fileID: 952961124639765284, guid: 1095a5c9f65bfbe4383f63d5d1886c65, type: 3}
+  pickupSound: {fileID: 0}
+  statToModify: 3
+  amountToAdd: 2

@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b516ed4f383db3b49a620a2de68708d0, type: 3}
-  m_Name: Charge Upgrade
+  m_Name: Restore Health
   m_EditorClassIdentifier: Assembly-CSharp::StatUpgrade
-  upgradeName: Charge Upgrade
-  description: Increases max charge by 10 (default 100)
+  upgradeName: HealMax
+  description: Restores all of your HP
   icon: {fileID: 0}
-  statToModify: 2
-  amountToAdd: 10
+  vfxPrefab: {fileID: 9017484664307500583, guid: 1245b8d2997d5b34fb1637be70a7eb05, type: 3}
+  pickupSound: {fileID: 0}
+  statToModify: 1
+  amountToAdd: 1000

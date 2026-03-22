@@ -12,6 +12,9 @@ public class EnemyBase : MonoBehaviour, IDamageable
     public bool canTakeDamage = true;
     public float invincibilityDuration = 0.5f;
 
+    [Tooltip("Eğer kapatılırsa oyuncu bu düşmana çarptığında fiziksel temas hasarı almaz (Örn: Büyücüler)")]
+    public bool dealsContactDamage = true;
+
     [Header("Loot")]
     [Tooltip("Ölünce düşen power-up için ağırlık. Normal=1, Strong=2, Wizard=3")]
     public int lootWeight = 1;
@@ -54,6 +57,40 @@ public class EnemyBase : MonoBehaviour, IDamageable
             if (_cachedPlayer == null)
                 _cachedPlayer = GameObject.FindGameObjectWithTag("Player");
             return _cachedPlayer;
+        }
+    }
+
+    protected virtual void OnEnable()
+    {
+        // Object Pool'dan (havuzdan) çekildiğinde değerleri ilk baştaki taze haline sıfırla
+        health = maxHealth;
+        canTakeDamage = true;
+        isKnockedBack = false;
+        
+        if (enemyRb != null)
+        {
+            enemyRb.isKinematic = false;
+            enemyRb.linearVelocity = Vector3.zero;
+        }
+
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            col.enabled = true;
+        }
+
+        if (enemyHealthSlider != null)
+        {
+            enemyHealthSlider.value = health;
+            enemyHealthSlider.gameObject.SetActive(false);
+        }
+
+        // Animasyonları sıfırlamak için Rebind hayat kurtarıcıdır
+        if (animator != null)
+        {
+            SafeSetBool(animator, IsFizzyHash, false);
+            animator.Rebind();
+            animator.Update(0f);
         }
     }
 
@@ -213,7 +250,15 @@ public class EnemyBase : MonoBehaviour, IDamageable
         enemyRb.isKinematic = true;
 
         yield return new WaitForSeconds(2f);
-        Destroy(gameObject);
+        
+        if (PoolManager.Instance != null)
+        {
+            PoolManager.Instance.Despawn(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject); // Fallback fail-safe
+        }
     }
 
     // ─── GÜVENLİ ANİMATOR YARDIMCILARI ───

@@ -234,7 +234,15 @@ public class WaveManager : MonoBehaviour
     private void SpawnAtGate(GameObject enemyPrefab, Vector3 spawnPosition)
     {
         if (enemyPrefab == null) return;
-        Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        
+        if (PoolManager.Instance != null)
+        {
+            PoolManager.Instance.Spawn(enemyPrefab, spawnPosition, Quaternion.identity);
+        }
+        else
+        {
+            Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        }
         activeEnemyCount++;
     }
 }

@@ -48,7 +48,15 @@ public class PowerUpManager : MonoBehaviour
         {
             Vector3 spawnPos = position;
             spawnPos.y = 1f; // Yere gömülmesin
-            Instantiate(prefab, spawnPos, Quaternion.identity);
+            
+            if (PoolManager.Instance != null)
+            {
+                PoolManager.Instance.Spawn(prefab, spawnPos, Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(prefab, spawnPos, Quaternion.identity);
+            }
         }
     }
 
@@ -102,7 +110,15 @@ public class PowerUpManager : MonoBehaviour
                 1f,
                 Random.Range(-spawnRange, spawnRange)
             );
-            Instantiate(powerUpTypes[randIndex], randPos, powerUpTypes[randIndex].transform.rotation);
+            
+            if (PoolManager.Instance != null)
+            {
+                PoolManager.Instance.Spawn(powerUpTypes[randIndex], randPos, powerUpTypes[randIndex].transform.rotation);
+            }
+            else
+            {
+                Instantiate(powerUpTypes[randIndex], randPos, powerUpTypes[randIndex].transform.rotation);
+            }
         }
         firstWavePowerUpCount += powerUpToAddByWave;
     }

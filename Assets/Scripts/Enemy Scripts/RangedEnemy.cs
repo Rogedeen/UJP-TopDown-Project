@@ -64,6 +64,8 @@ public class RangedEnemy : EnemyBase
     {
         base.Start();
 
+        dealsContactDamage = false; // Büyücüler dokunarak hasar vermemeli!
+
         if (agent != null)
         {
             defaultAgentSpeed = agent.speed;

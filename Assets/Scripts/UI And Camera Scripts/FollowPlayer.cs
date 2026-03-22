@@ -23,12 +23,19 @@ public class FollowPlayer : MonoBehaviour
 
         while (elapsed < duration)
         {
-            float x = Random.Range(-1f, 1f) * magnitude;
-            float y = Random.Range(-1f, 1f) * magnitude;
+            if (Time.timeScale > 0f)
+            {
+                float x = Random.Range(-1f, 1f) * magnitude;
+                float y = Random.Range(-1f, 1f) * magnitude;
+                shakeOffset = new Vector3(x, y, 0);
+                elapsed += Time.deltaTime;
+            }
+            else
+            {
+                // Oyun durdurulduysa sallanmayı sıfırla
+                shakeOffset = Vector3.zero;
+            }
 
-            shakeOffset = new Vector3(x, y, 0);
-
-            elapsed += Time.deltaTime;
             yield return null; 
         }
 

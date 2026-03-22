@@ -15,6 +15,13 @@ public class GameManager : MonoBehaviour
     public GameObject player;
     public Animator playerControllerAnim;
 
+    void Update()
+    {
+        // Oyun herhangi bir sebepten ötürü durdurulduğunda (Ölüm, Kart seçimi vs.)
+        // Tüm dünyadaki sesleri (AudioListener) otomatik olarak dondurur.
+        AudioListener.pause = (Time.timeScale == 0f);
+    }
+
     void Start()
     {
         Application.targetFrameRate = 60;

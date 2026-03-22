@@ -96,6 +96,37 @@ public class UpgradeManager : MonoBehaviour
         {
             selectedUpgrade.ApplyUpgrade(playerController);
 
+            // GÖRSEL VE İŞİTSEL GERİ BİLDİRİM (JUICE)
+            Animator anim = playerController.GetComponent<Animator>();
+            if (anim != null)
+            {
+                // Animator parameter kontrolünü güvenli yapıyoruz (yoksa hata atar)
+                foreach (var param in anim.parameters)
+                {
+                    if (param.name == "PowerUpReceived")
+                    {
+                        anim.SetTrigger("PowerUpReceived");
+                        break;
+                    }
+                }
+            }
+
+            if (selectedUpgrade.vfxPrefab != null)
+            {
+                // Efekti oyuncunun içine at, onu takip etsin
+                GameObject vfx = Instantiate(selectedUpgrade.vfxPrefab, playerController.transform.position, Quaternion.identity, playerController.transform);
+                Destroy(vfx, 4f); // 4 saniye sonra temizle
+            }
+
+            if (selectedUpgrade.pickupSound != null)
+            {
+                AudioSource audioSource = playerController.GetComponent<AudioSource>();
+                if (audioSource != null)
+                {
+                    audioSource.PlayOneShot(selectedUpgrade.pickupSound);
+                }
+            }
+
             // Seçim sonrası dokunulmazlık (yanıp sönme) başlat
             PlayerHealth ph = playerController.GetComponent<PlayerHealth>();
             if (ph != null)

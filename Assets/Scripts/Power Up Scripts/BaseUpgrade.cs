@@ -14,6 +14,13 @@ public abstract class BaseUpgrade : ScriptableObject
     
     public Sprite icon; // Kartın üzerinde görünecek resim
 
+    [Header("Juice (Polishing & Feedback)")]
+    [Tooltip("Bu güçlendirme alındığında oyuncunun üzerinde patlayacak görsel efekt (VFX).")]
+    public GameObject vfxPrefab;
+    
+    [Tooltip("Bu güçlendirme alındığında çalacak özel ses (SFX).")]
+    public AudioClip pickupSound;
+
     /// <summary>
     /// Bu upgrade seçildiğinde çalışacak asıl fonksiyondur.
     /// Her bir alt sınıf (örn: StatUpgrade) bu fonksiyonu kendine göre "override" eder.

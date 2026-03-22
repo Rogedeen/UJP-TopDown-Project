@@ -37,7 +37,8 @@ public class Projectile : MonoBehaviour
                 if (target == null) target = other.GetComponentInParent<EnemyBase>();
                 if (target != null) target.Heal(value);
             }
-            Destroy(gameObject);
+            if (PoolManager.Instance != null) PoolManager.Instance.Despawn(gameObject);
+            else Destroy(gameObject);
             return;
         }
 
@@ -46,15 +47,18 @@ public class Projectile : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             ApplyEffect(other);
-            Destroy(gameObject);
+            if (PoolManager.Instance != null) PoolManager.Instance.Despawn(gameObject);
+            else Destroy(gameObject);
         }
         else if (other.CompareTag("Barrier") || other.CompareTag("Barrel"))
         {
-            Destroy(gameObject);
+            if (PoolManager.Instance != null) PoolManager.Instance.Despawn(gameObject);
+            else Destroy(gameObject);
         }
         else
         {
-            Destroy(gameObject);
+            if (PoolManager.Instance != null) PoolManager.Instance.Despawn(gameObject);
+            else Destroy(gameObject);
         }
     }
 

@@ -54,8 +54,12 @@ public class PlayerHealth : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            float damageMultiplier = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentEnemyDamageMultiplier : 1f;
-            TakeDamage(Mathf.RoundToInt(1 * damageMultiplier));
+            EnemyBase enemy = collision.gameObject.GetComponentInParent<EnemyBase>();
+            if (enemy != null && enemy.dealsContactDamage)
+            {
+                float damageMultiplier = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentEnemyDamageMultiplier : 1f;
+                TakeDamage(Mathf.RoundToInt(1 * damageMultiplier));
+            }
         }
     }
 

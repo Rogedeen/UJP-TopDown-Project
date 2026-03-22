@@ -12,6 +12,12 @@ public class OrbitWeapon : MonoBehaviour
     public bool canUseSkill = true;
     public bool isRotating = false;
 
+    [Header("Juice (Polishing & Feedback)")]
+    [Tooltip("Yetenek (Skill) kullanıldığı an patlayacak görsel efekt (VFX).")]
+    public GameObject skillStartVfxPrefab;
+    [Tooltip("Yetenek (Skill) kullanıldığında çalacak özel ses (SFX).")]
+    public AudioClip skillStartSound;
+
     // UI için 0 ile 1 arasında doluluk oranı (1 = kullanıma hazır)
     public float currentCooldownRatio { get; private set; } = 1f;
     private float elapsedCooldown = 0f;
@@ -26,16 +32,30 @@ public class OrbitWeapon : MonoBehaviour
         }
     }
 
-    private Renderer weaponRenderer;
-    private Collider weaponCollider;
+    private Renderer[] weaponRenderers;
+    private Collider[] weaponColliders;
 
-    void Start()
+    void Awake()
     {
-        weaponRenderer = GetComponent<Renderer>();
-        weaponCollider = GetComponent<Collider>();
+        weaponRenderers = GetComponentsInChildren<Renderer>();
+        weaponColliders = GetComponentsInChildren<Collider>();
 
-        weaponRenderer.enabled = false;
-        weaponCollider.enabled = false;
+        SetVisibilityAndCollision(false);
+    }
+
+    private void SetVisibilityAndCollision(bool state)
+    {
+        if (weaponRenderers != null)
+        {
+            foreach (var r in weaponRenderers) 
+                if (r != null) r.enabled = state;
+        }
+        if (weaponColliders != null)
+        {
+            foreach (var c in weaponColliders) 
+                if (c != null && !c.isTrigger) c.enabled = state; // Trigger olmayanları kapatıp aç
+                else if (c != null && c.isTrigger) c.enabled = state; // Trigger ise doğrudan çarpışmayı kapat
+        }
     }
 
     void Update()
@@ -60,8 +80,19 @@ public class OrbitWeapon : MonoBehaviour
     {
         canUseSkill = false;
         isRotating = true;
-        weaponRenderer.enabled = true;
-        weaponCollider.enabled = true;
+        SetVisibilityAndCollision(true);
+        
+        // GÖRSEL VE İŞİTSEL EFEKTLER (JUICE)
+        if (skillStartVfxPrefab != null)
+        {
+            GameObject vfx = Instantiate(skillStartVfxPrefab, transform.position, Quaternion.identity, transform);
+            Destroy(vfx, 3f);
+        }
+
+        if (skillStartSound != null)
+        {
+            AudioSource.PlayClipAtPoint(skillStartSound, transform.position);
+        }
         
         // 1) Kullanım Süresi (Duration): Bar 1'den 0'a yavaşça boşalır
         float elapsedDuration = 0f;
@@ -72,8 +103,7 @@ public class OrbitWeapon : MonoBehaviour
             yield return null;
         }
 
-        weaponRenderer.enabled = false;
-        weaponCollider.enabled = false;
+        SetVisibilityAndCollision(false);
         isRotating = false;
 
         // 2) Bekleme Süresi (Cooldown): Bar 0'dan 1'e yavaşça dolar

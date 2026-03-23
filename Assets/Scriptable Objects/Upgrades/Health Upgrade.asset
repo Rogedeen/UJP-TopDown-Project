@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatUpgrade
   upgradeName: Health Upgrade
   description: Increases max health by 1
-  icon: {fileID: 0}
+  rarity: 2
+  icon: {fileID: 21300000, guid: 1d9401fdc0e1e1b4e91decddc9ba030b, type: 3}
   vfxPrefab: {fileID: 5766691976136461342, guid: 43d1d06cf70fcb2488255051aaae40a5, type: 3}
   pickupSound: {fileID: 0}
   statToModify: 0

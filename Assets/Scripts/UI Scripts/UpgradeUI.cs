@@ -12,18 +12,13 @@ public class UpgradeUI : MonoBehaviour
     [Tooltip("Kartların hepsini kapsayan ekran tasarımı (Siyah arka plan vs.)")]
     public GameObject upgradeContainer;
 
-    [Header("Card Arrays")]
-    [Tooltip("3 adet Kartın (Butonun) kendisi")]
-    public Button[] cardButtons;
+    [Header("UI System")]
+    [Tooltip("Görsel temalar ve nadirlik ayarları")]
+    public CardVisualSettings cardVisualSettings;
 
-    [Tooltip("3 adet Kartın İsim (TMP_Text) Teksleri")]
-    public TMP_Text[] titleTexts;
-    
-    [Tooltip("3 adet Kartın Açıklama (TMP_Text) Textleri")]
-    public TMP_Text[] descriptionTexts;
-    
-    [Tooltip("3 adet Kartın Resim Yeri (Image) Referansları")]
-    public Image[] iconImages;
+    [Header("Card Arrays")]
+    [Tooltip("Sahnede tanımlanmış kart arayüzleri")]
+    public CardUI[] cards;
 
     // Seçilen 3 aktif kartın listesini tutar (Index takibi için)
     private List<BaseUpgrade> activeUpgrades;
@@ -45,52 +40,32 @@ public class UpgradeUI : MonoBehaviour
         StartCoroutine(ShowAnimationRoutine());
 
         // Maksimum desteklenen kart sayısı kadar (örn 3) döngü yap
-        for (int i = 0; i < cardButtons.Length; i++)
+        for (int i = 0; i < cards.Length; i++)
         {
             if (i < activeUpgrades.Count)
             {
                 BaseUpgrade currentUpgrade = activeUpgrades[i];
-                cardButtons[i].gameObject.SetActive(true);
-
-                // Kart UI elemanlarını doldur ("Index Out of Range" koruması ile)
-                if (i < titleTexts.Length && titleTexts[i] != null) 
-                    titleTexts[i].text = currentUpgrade.upgradeName;
+                cards[i].SetupCard(currentUpgrade, cardVisualSettings, this);
                 
-                if (i < descriptionTexts.Length && descriptionTexts[i] != null) 
-                    descriptionTexts[i].text = currentUpgrade.description;
-                
-                if (i < iconImages.Length && iconImages[i] != null)
-                {
-                    if (currentUpgrade.icon != null)
-                    {
-                        iconImages[i].sprite = currentUpgrade.icon;
-                        iconImages[i].enabled = true;
-                    }
-                    else
-                    {
-                        iconImages[i].enabled = false;
-                    }
-                }
+                // Kap düşme/açılma animasyonuna (0.4f) ek olarak her karta 0.15f gecikme ekle
+                StartCoroutine(cards[i].FlipRoutine(0.4f + (i * 0.15f)));
             }
             else
             {
                 // Havuzda yeterli kart kalmamışsa fazla butonları kapat
-                cardButtons[i].gameObject.SetActive(false);
+                cards[i].gameObject.SetActive(false);
             }
         }
     }
 
     /// <summary>
-    /// Kullanıcı UI butonlarından birine tıkladığında EventSystem üzerinden tetiklenir!
-    /// Unity Editor'de butonun OnClick() fonksiyonuna bu metodu verip Index (0, 1 veya 2) vereceğiz.
+    /// CardUI üzerinden kullanıcı tıkladığında tetiklenir.
     /// </summary>
-    public void OnCardClicked(int cardIndex)
+    public void OnCardSelected(BaseUpgrade selectedUpgrade)
     {
-        if (cardIndex >= 0 && cardIndex < activeUpgrades.Count)
+        if (selectedUpgrade != null)
         {
-            // Tıklanan kartı al ve Game Manager / Upgrade Manager'a bildir
-            BaseUpgrade selected = activeUpgrades[cardIndex];
-            UpgradeManager.Instance.OnUpgradeSelected(selected);
+            UpgradeManager.Instance.OnUpgradeSelected(selectedUpgrade);
         }
     }
 

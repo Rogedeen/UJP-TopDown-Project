@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5761ceb6372b8504b95b6ca07bca5a53, type: 3}
+  m_Name: CardVisualSettings
+  m_EditorClassIdentifier: Assembly-CSharp::CardVisualSettings
+  globalFrame: {fileID: 21300000, guid: 62479eaee53cbfe45abee90b27da6bbc, type: 3}
+  globalNamePlate: {fileID: 21300000, guid: 75c2c86cdf27a734f83eafc50071d000, type: 3}
+  globalDescriptionPlate: {fileID: 21300000, guid: b0cf794a107ee894db93476e0e0e48b7, type: 3}
+  rarityVisuals:
+  - rarity: 0
+    cardBack: {fileID: 21300000, guid: 4de008abc95061948b14ae2d907a2713, type: 3}
+    cardBackground: {fileID: 21300000, guid: 9358253cb85ec044b8e4ca930d915e5f, type: 3}
+    rarityGem: {fileID: 21300000, guid: 4fc9ea16bcf572d41bb6f5b8e4881e73, type: 3}
+    hoverGlowColor: {r: 1, g: 1, b: 1, a: 0}
+  - rarity: 1
+    cardBack: {fileID: 21300000, guid: 867d00dd8224d424d9d0b6393eb97c36, type: 3}
+    cardBackground: {fileID: 21300000, guid: b0a3338ae7d688f488433fdd1801721d, type: 3}
+    rarityGem: {fileID: 21300000, guid: 8dca14a017b3306408b4b987560dbdd9, type: 3}
+    hoverGlowColor: {r: 1, g: 1, b: 1, a: 0}
+  - rarity: 2
+    cardBack: {fileID: 21300000, guid: 77786aabfa792294dae82e3151ae3ab9, type: 3}
+    cardBackground: {fileID: 21300000, guid: fea4c3cbab7dbbb41b6ca4ca620719b2, type: 3}
+    rarityGem: {fileID: 21300000, guid: 2879d87b8a1a73145b3b92a3196811b2, type: 3}
+    hoverGlowColor: {r: 1, g: 1, b: 1, a: 0}
+  - rarity: 3
+    cardBack: {fileID: 21300000, guid: 5998e9984bc428d49b3b18d3bf102f44, type: 3}
+    cardBackground: {fileID: 21300000, guid: 3e8efd90b00227a4ba256008589afa92, type: 3}
+    rarityGem: {fileID: 21300000, guid: 31ec86797a204d646888fbded8d803a8, type: 3}
+    hoverGlowColor: {r: 1, g: 1, b: 1, a: 0}

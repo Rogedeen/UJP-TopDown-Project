@@ -4,6 +4,8 @@ using UnityEngine;
 /// Tüm Rogue-Lite güçlendirmelerinin (upgrades) türetileceği ana sınıftır.
 /// Bu sayede Unity Editor içinde kartları veri olarak tasarlayabiliriz.
 /// </summary>
+public enum CardRarity { Common, Rare, Epic, Legendary }
+
 public abstract class BaseUpgrade : ScriptableObject
 {
     [Header("UI Information")]
@@ -12,6 +14,7 @@ public abstract class BaseUpgrade : ScriptableObject
     [TextArea(2, 4)]
     public string description = "Upgrade Description";
     
+    public CardRarity rarity = CardRarity.Common;
     public Sprite icon; // Kartın üzerinde görünecek resim
 
     [Header("Juice (Polishing & Feedback)")]

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatUpgrade
   upgradeName: Move Faster
   description: Increases movement speed
-  icon: {fileID: 0}
+  rarity: 2
+  icon: {fileID: 21300000, guid: 0bff7be837e8d024e8b90a84cc395a46, type: 3}
   vfxPrefab: {fileID: 7647375919561907788, guid: 035ce8c9cfc34104991ce416daf8aebe, type: 3}
   pickupSound: {fileID: 0}
   statToModify: 4

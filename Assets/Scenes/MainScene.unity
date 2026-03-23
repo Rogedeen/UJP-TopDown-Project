@@ -12799,7 +12799,7 @@ PrefabInstance:
       objectReference: {fileID: 1144158818}
     - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: playerHealth
-      value: 55
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8541911570114308902, guid: e073629197bed2b439056054cae76f3e, type: 3}
       propertyPath: invincibilityShield

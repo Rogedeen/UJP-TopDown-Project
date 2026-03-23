@@ -18,4 +18,4 @@ MonoBehaviour:
   vfxPrefab: {fileID: 952961124639765284, guid: 1095a5c9f65bfbe4383f63d5d1886c65, type: 3}
   pickupSound: {fileID: 0}
   statToModify: 3
-  amountToAdd: 2
+  amountToAdd: 5

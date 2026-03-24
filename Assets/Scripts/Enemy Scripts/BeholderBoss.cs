@@ -136,8 +136,29 @@ public class BeholderBoss : EnemyBase
         {
             // 1. CHASE (Yaklaşma Evresi)
             currentState = BeholderState.Chasing;
-            // 3 ile 5 saniye boyunca serbestçe oyuncuyu kovala / pozisyon al
-            yield return new WaitForSeconds(Random.Range(3f, 5f));
+            
+            // Rastgele bir kovalamaca süresi yerine, oyuncuya yaklaşana kadar inatla kovala!
+            float chaseTimer = 0f;
+            while (health > 0 && currentState == BeholderState.Chasing)
+            {
+                chaseTimer += Time.deltaTime;
+                float dist = 999f;
+                if (player != null) dist = Vector3.Distance(transform.position, player.transform.position);
+
+                // En az 2 saniye kovalasın. Oyuncuya yeterince yaklaşmışsa saldırıya geç!
+                if (chaseTimer > 2f && dist <= stoppingDistance + 5f)
+                {
+                    break;
+                }
+                
+                // Oyuncu çok iyi kaçıyorsa en fazla 12 saniye sonra yorulup olduğu yerden lazer atsın.
+                if (chaseTimer > 12f)
+                {
+                    break;
+                }
+                
+                yield return null;
+            }
             
             if (currentState == BeholderState.Dead) break;
 

@@ -27,6 +27,18 @@ public class Gates : MonoBehaviour
                 other.transform.SetPositionAndRotation(snapPoint.position, snapPoint.rotation);
             }
 
+            // Player animatörünü tetikle
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                Animator anim = playerObj.GetComponent<Animator>();
+                if (anim != null)
+                {
+                    Debug.Log("[Gates] PushGate Trigger'ı gönderildi!");
+                    anim.SetTrigger("PushGate");
+                }
+            }
+
             waveManager.HandleGateClosed();
         }
     }

@@ -36,20 +36,10 @@ public partial class PlayerController : MonoBehaviour
         }
 
         bool isAttacking = animator.GetBool(IsAttackingHash);
-        if (isAttacking)
-        {
-            currentSpeed *= 0.5f;
-            animator.SetBool(IsPushingHash, false);
-        }
-        else if (isPushingBarrier)
-        {
-            currentSpeed *= pushSpeedMultiplier;
-            animator.SetBool(IsPushingHash, true);
-        }
-        else
-        {
-            animator.SetBool(IsPushingHash, false);
 
+        // ─── SPRINT & ENERJİ YÖNETİMİ ───
+        if (!isAttacking)
+        {
             if (isTryingToSprint && currentEnergy > 0 && exhaustionTimer <= 0)
             {
                 isSprinting = true;
@@ -72,6 +62,22 @@ public partial class PlayerController : MonoBehaviour
                     if (currentEnergy > maxEnergy) currentEnergy = maxEnergy;
                 }
             }
+        }
+
+        // ─── HIZ VE DURUM KONTROLLERİ (ATAK / İTME) ───
+        if (isAttacking)
+        {
+            currentSpeed *= 0.5f;
+            animator.SetBool(IsPushingHash, false);
+        }
+        else if (isPushingBarrier)
+        {
+            currentSpeed *= pushSpeedMultiplier; // Sprint atılıyorsa hem sprint çarpanını hem itme çarpanını alır (Hızlı İtme)
+            animator.SetBool(IsPushingHash, true);
+        }
+        else
+        {
+            animator.SetBool(IsPushingHash, false);
         }
 
         Vector3 newVelocity = new(moveDirection.x * currentSpeed, playerRb.linearVelocity.y, moveDirection.z * currentSpeed);
@@ -243,12 +249,17 @@ public partial class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Barrier"))
         {
+            Debug.Log("[PlayerController] Barrier ile temas halindeyiz!");
             if (moveInput.magnitude > 0.1f)
             {
                 Vector3 dirToBarrier = (collision.transform.position - transform.position).normalized;
-                if (Vector3.Dot(transform.forward, dirToBarrier) > 0.5f)
+                float dot = Vector3.Dot(transform.forward, dirToBarrier);
+                
+                Debug.Log($"[PlayerController] İtme Denemesi: MoveInput: {moveInput.magnitude}, Dot Product: {dot}");
+                if (dot > 0.5f)
                 {
                     pushTimer = 0.15f;
+                    Debug.Log("[PlayerController] isPushing AKTİF!");
                 }
             }
         }

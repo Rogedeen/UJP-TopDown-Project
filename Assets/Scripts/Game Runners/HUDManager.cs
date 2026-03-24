@@ -180,8 +180,7 @@ public class HUDManager : MonoBehaviour
         lastHealth = currentHP;
         lastMaxHealth = maxHP;
 
-        // ── Max health değiştiyse barı uzat/kısalt ──
-        ResizeBar(healthBarRoot, maxHP, initialMaxHealth, initialHealthWidth);
+        // ── Boyut sabit tutuluyor (ResizeBar kaldırıldı) ──
 
         // ── Fill amount (0-1 arası) ──
         float ratio = (maxHP > 0) ? (float)currentHP / maxHP : 0f;
@@ -242,9 +241,7 @@ public class HUDManager : MonoBehaviour
         lastEnergy = currentEnergy;
         lastMaxEnergy = currentMax;
 
-        // ── Max enerji değiştiyse barı uzat/kısalt ──
-        if (maxChanged)
-            ResizeBar(energyBarRoot, currentMax, initialMaxEnergy, initialEnergyWidth);
+        // ── Boyut sabit tutuluyor (ResizeBar kaldırıldı) ──
 
         // ── Fill amount ──
         float ratio = (currentMax > 0) ? currentEnergy / currentMax : 0f;
@@ -337,14 +334,8 @@ public class HUDManager : MonoBehaviour
 
     void UpdateWaveDisplay()
     {
-        if (waveManager == null || waveText == null) return;
-
-        int wave = waveManager.CurrentWave;
-        float timeLeft = waveManager.WaveTimeRemaining;
-        int minutes = Mathf.FloorToInt(timeLeft / 60f);
-        int seconds = Mathf.FloorToInt(timeLeft % 60f);
-
-        waveText.text = $"Wave {wave} — {minutes}:{seconds:00}";
+        if (waveText != null && waveText.gameObject.activeSelf) 
+            waveText.gameObject.SetActive(false);
     }
 
     void UpdateGateDisplay()

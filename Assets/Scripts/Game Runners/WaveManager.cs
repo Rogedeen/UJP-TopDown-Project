@@ -12,26 +12,31 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private PowerUpManager powerUpManager;
     [SerializeField] private GameManager gameManager;
 
+    [Header("Boss Configuration")]
+    [Tooltip("Oyunun son aşamasında (Örn: 3 kapı kapandığında) patronu tam 1 kez çağırır.")]
+    public int bossSpawnGateCount = 3;
+    public GameObject bossPrefab;
+    private bool hasSpawnedBoss = false;
+
     public Gates[] gates;
 
     // ─── DURUM DEĞİŞKENLERİ ───
     private int activeEnemyCount = 0;
-    private int currentWaveIndex = -1; // -1 = henüz başlamadı
-    private float waveTimer = 0f;
     private float spawnTimer = 0f;
-    private bool waveActive = false;
 
     // ─── HUD İÇİN PUBLIC GETTER'LAR ───
-    public int CurrentWave => currentWaveIndex + 1; // 1-indexed
     public int ActiveEnemyCount => activeEnemyCount;
-    public float WaveTimeRemaining => waveActive ? Mathf.Max(0, CurrentConfig.waveDuration - waveTimer) : 0f;
-    public float WaveDuration => CurrentConfig != null ? CurrentConfig.waveDuration : 0f;
-    public bool IsWaveActive => waveActive;
 
-    private WaveConfig CurrentConfig =>
-        (currentWaveIndex >= 0 && currentWaveIndex < waveConfigs.Length)
-            ? waveConfigs[currentWaveIndex]
-            : null;
+    private WaveConfig CurrentConfig
+    {
+        get
+        {
+            int index = ClosedGateCount;
+            if (waveConfigs == null || waveConfigs.Length == 0) return null;
+            if (index >= waveConfigs.Length) index = waveConfigs.Length - 1; // Tüm kapılar kapanıyorsa en son zora kilitlen
+            return waveConfigs[index];
+        }
+    }
 
     public int ClosedGateCount
     {
@@ -61,18 +66,25 @@ public class WaveManager : MonoBehaviour
     void Start()
     {
         activeEnemyCount = 0;
-        StartNextWave();
+        spawnTimer = 0f;
+        hasSpawnedBoss = false;
     }
 
     void Update()
     {
-        if (!GameManager.isGameActive || !waveActive || CurrentConfig == null) return;
+        if (!GameManager.isGameActive || CurrentConfig == null) return;
 
-        // ─── WAVE ZAMANLAYICISI ───
-        waveTimer += Time.deltaTime;
         spawnTimer += Time.deltaTime;
 
-        // ─── QUOTA SİSTEMİ ───
+        // ─── SÜREKLİ DOĞUŞ (CONTINUOUS SPAWN) SİSTEMİ ───
+        
+        // --- ÖZEL: BOSS DOGUŞU ---
+        if (!hasSpawnedBoss && ClosedGateCount >= bossSpawnGateCount && bossPrefab != null)
+        {
+            hasSpawnedBoss = true;
+            SpawnBoss();
+        }
+
         // 1) Düşman sayısı minimumun altındaysa → HIZLI DOLUM (her frame kontrol)
         if (activeEnemyCount < CurrentConfig.minAliveEnemies)
         {
@@ -80,52 +92,12 @@ public class WaveManager : MonoBehaviour
             SpawnRandomEnemy();
             spawnTimer = 0f; // Normal spawn zamanlayıcısını sıfırla
         }
-        // 2) Normal spawn aralığı geldiyse ve max'ın altındaysak → doğur
+        // 2) Normal spawn aralığı geldiğinde ve ekrandaki düşman sayısı max limitinden az olduğunda (Wave Cap)
         else if (spawnTimer >= CurrentConfig.spawnInterval && activeEnemyCount < CurrentConfig.maxAliveEnemies)
         {
             SpawnRandomEnemy();
             spawnTimer = 0f;
         }
-
-        // ─── WAVE SÜRESİ DOLDU MU? ───
-        if (waveTimer >= CurrentConfig.waveDuration)
-        {
-            EndCurrentWave();
-        }
-    }
-
-    // ─── WAVE YÖNETİMİ ───
-
-    private void StartNextWave()
-    {
-        currentWaveIndex++;
-
-        if (currentWaveIndex >= waveConfigs.Length)
-        {
-            // Tüm wave'ler bitti, son wave'i tekrar et (sonsuz mod)
-            currentWaveIndex = waveConfigs.Length - 1;
-        }
-
-        waveTimer = 0f;
-        spawnTimer = 0f;
-        waveActive = true;
-
-        // Her wave başında powerup
-        if (currentWaveIndex > 0) // İlk wave'de değilse
-        {
-            powerUpManager.SpawnPowerUp();
-        }
-
-        Debug.Log($"[WaveManager] {CurrentConfig.waveName} başladı! Süre: {CurrentConfig.waveDuration}s");
-    }
-
-    private void EndCurrentWave()
-    {
-        waveActive = false;
-        Debug.Log($"[WaveManager] {CurrentConfig.waveName} süresi doldu. Yeni wave bekleniyor...");
-
-        // Süre dolunca bir sonraki wave'i başlat (kapı kapatmayı beklemiyor)
-        StartNextWave();
     }
 
     // ─── SPAWN MEKANİĞİ ───
@@ -151,6 +123,21 @@ public class WaveManager : MonoBehaviour
         {
             SpawnAtGate(prefab, randomGate.spawnPoint.position);
         }
+    }
+
+    private void SpawnBoss()
+    {
+        List<Gates> activeGates = new List<Gates>();
+        foreach (var gate in gates)
+        {
+            if (gate.isActive) activeGates.Add(gate);
+        }
+
+        if (activeGates.Count == 0) return;
+
+        Gates randomGate = activeGates[Random.Range(0, activeGates.Count)];
+        SpawnAtGate(bossPrefab, randomGate.spawnPoint.position);
+        Debug.Log("[WaveManager] BOSS YARATILDI!");
     }
 
     /// <summary>

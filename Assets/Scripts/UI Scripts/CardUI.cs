@@ -27,6 +27,7 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
 
     private BaseUpgrade currentUpgrade;
     private UpgradeUI parentUI;
+    private bool isClickable = false;
 
     private void Update()
     {
@@ -38,6 +39,7 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     {
         currentUpgrade = upgrade;
         parentUI = uiManager;
+        isClickable = false; // Başlangıçta arkası dönük ve tıklanamaz
         
         // Reset scale and glow
         targetScale = Vector3.one;
@@ -112,8 +114,8 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
 
     public System.Collections.IEnumerator FlipRoutine(float delay)
     {
-        // UI'ın genel açılma süresini ve kart sırasını bekle
-        yield return new WaitForSecondsRealtime(delay);
+        // Ekstra 1 saniye beklet (oyuncunun kazara tıklamasını önlemek için)
+        yield return new WaitForSecondsRealtime(delay + 1.25f);
 
         float duration = 0.25f;
         float elapsed = 0f;
@@ -145,6 +147,8 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
 
         transform.localScale = Vector3.one;
         targetScale = Vector3.one; // Hover sistemini senkronize et
+        
+        isClickable = true; // Kart tamamen döndükten sonra tıklanabilir
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -171,6 +175,8 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!isClickable) return;
+
         if (currentUpgrade != null && parentUI != null)
         {
             parentUI.OnCardSelected(currentUpgrade);

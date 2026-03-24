@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public partial class PlayerController : MonoBehaviour
 {
     void OnAttack(InputAction.CallbackContext ctx)
     {
         if (!GameManager.isGameActive) return;
+        
+        // UI'daki Upgrade kartlarına tıklarken kazara kılıç sallamayı engelle
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
         
         HandleLook();
 

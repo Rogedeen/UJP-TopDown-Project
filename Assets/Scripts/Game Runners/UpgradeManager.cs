@@ -17,6 +17,13 @@ public class UpgradeManager : MonoBehaviour
     public UpgradeUI upgradeUI; // Seçilen kartları çizecek UI kodu
     private PlayerController playerController;
 
+    [Header("XP & Leveling System")]
+    public int currentLevel = 1;
+    public int currentXP = 0;
+    public int xpToNextLevel = 10;
+    [Tooltip("Her seviyede gereken XP miktarının artış çarpanı")]
+    public float xpScalingFactor = 1.5f;
+
     private void Awake()
     {
         // Basit Singleton yapısı
@@ -33,6 +40,34 @@ public class UpgradeManager : MonoBehaviour
         if (playerObj != null)
         {
             playerController = playerObj.GetComponent<PlayerController>();
+        }
+    }
+
+    private void OnEnable()
+    {
+        GameEvents.OnEnemyDiedWithXP += HandleEnemyDiedXP;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnEnemyDiedWithXP -= HandleEnemyDiedXP;
+    }
+
+    private void HandleEnemyDiedXP(int xpAmount)
+    {
+        if (!GameManager.isGameActive) return;
+
+        currentXP += xpAmount;
+        Debug.Log($"[UpgradeManager] Düşman Öldü! Kazanılan XP: {xpAmount}. Mevcut XP: {currentXP}/{xpToNextLevel}");
+
+        if (currentXP >= xpToNextLevel)
+        {
+            currentXP -= xpToNextLevel;
+            currentLevel++;
+            xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * xpScalingFactor);
+            
+            Debug.Log($"[UpgradeManager] SEVİYE ATLANDI! Yeni Level: {currentLevel}");
+            TriggerUpgradeSelection();
         }
     }
 

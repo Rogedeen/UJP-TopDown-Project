@@ -23,12 +23,22 @@ public static class GameEvents
     public static event Action OnEnemyDied;
 
     /// <summary>
+    /// Bir düşman öldüğünde XP değeriyle tetiklenir.
+    /// Dinleyen: UpgradeManager (Level Up sistemi için)
+    /// </summary>
+    public static event Action<int> OnEnemyDiedWithXP;
+
+    /// <summary>
     /// Oyuncu hasar aldığında tetiklenir.
     /// Dinleyen: İleride UI, ses sistemi vs. eklenebilir
     /// </summary>
     public static event Action<int> OnPlayerDamaged;
 
     // Event'leri tetiklemek için yardımcı metodlar
-    public static void EnemyDied() => OnEnemyDied?.Invoke();
+    public static void EnemyDied(int xpAmount = 1) 
+    {
+        OnEnemyDied?.Invoke(); 
+        OnEnemyDiedWithXP?.Invoke(xpAmount);
+    }
     public static void PlayerDamaged(int damage) => OnPlayerDamaged?.Invoke(damage);
 }

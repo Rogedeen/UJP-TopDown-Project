@@ -7,13 +7,15 @@ using UnityEngine.AI;
 public class EnemyBase : MonoBehaviour, IDamageable
 {
     [Header("Core Stats")]
-    public int health = 3;
-    public int maxHealth = 3;
+    public int health = 20;
+    public int maxHealth = 20;
     public bool canTakeDamage = true;
     public float invincibilityDuration = 0.5f;
 
     [Tooltip("Eğer kapatılırsa oyuncu bu düşmana çarptığında fiziksel temas hasarı almaz (Örn: Büyücüler)")]
     public bool dealsContactDamage = true;
+    [Tooltip("Oyuncuya temas ettiğinde vereceği hasar miktarı")]
+    public int contactDamage = 10;
 
     [Header("Loot")]
     [Tooltip("Ölünce düşen power-up için ağırlık. Normal=1, Strong=2, Wizard=3")]
@@ -244,9 +246,9 @@ public class EnemyBase : MonoBehaviour, IDamageable
             PowerUpManager.Instance.TryDropLoot(transform.position, lootWeight);
         }
 
-        // Event sistemi ile "bir düşman öldü" sinyali yayınla
-        // WaveManager bu sinyali dinliyor ve kendi sayacını azaltıyor
-        GameEvents.EnemyDied();
+        // Event sistemi ile "bir düşman öldü" sinyali yayınla (XP ile birlikte)
+        // WaveManager ve UpgradeManager bu sinyali dinliyor
+        GameEvents.EnemyDied(lootWeight);
         enemyRb.isKinematic = true;
 
         yield return new WaitForSeconds(2f);

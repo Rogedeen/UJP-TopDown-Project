@@ -156,5 +156,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PowerUp
   type: 2
   powerUpDuration: 5
-  amount: 3
+  amount: 20
   floorLifeTime: 12

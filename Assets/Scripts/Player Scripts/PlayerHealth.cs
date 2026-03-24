@@ -1,11 +1,10 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int playerHealth = 5;
-    public int maxPlayerHealth = 5;
+    public int playerHealth = 100;
+    public int maxPlayerHealth = 100;
     public float invincibilityTime = 1f;
 
     [Header("Visual Effects")]
@@ -15,21 +14,13 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private GameManager gameManager;
     [SerializeField] private PlayerController playerController;
 
-    public Slider playerHealthBar;
+
 
     private bool isInvincible = false;
     private bool isDead = false;
 
     void Start()
     {
-        if (playerHealthBar != null)
-        {
-            playerHealthBar.maxValue = maxPlayerHealth;
-            playerHealthBar.value = playerHealth;
-            playerHealthBar.gameObject.SetActive(false);
-        }
-
-        
     }
 
     public void TakeDamage(int damage)
@@ -38,11 +29,7 @@ public class PlayerHealth : MonoBehaviour
 
         playerController.TakeDamageEffect();
         playerHealth -= damage;
-        if (playerHealthBar != null)
-        {
-            playerHealthBar.value = playerHealth;
-            playerHealthBar.gameObject.SetActive(true);
-        }
+
 
         if (playerHealth <= 0)
         {
@@ -62,7 +49,7 @@ public class PlayerHealth : MonoBehaviour
             if (enemy != null && enemy.dealsContactDamage)
             {
                 float damageMultiplier = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentEnemyDamageMultiplier : 1f;
-                TakeDamage(Mathf.RoundToInt(1 * damageMultiplier));
+                TakeDamage(Mathf.RoundToInt(enemy.contactDamage * damageMultiplier));
             }
         }
     }
@@ -128,11 +115,7 @@ public class PlayerHealth : MonoBehaviour
         maxPlayerHealth += amount;
         playerHealth += amount; // Yeni gelen kalbi dolu olarak veriyoruz
         
-        if (playerHealthBar != null)
-        {
-            playerHealthBar.maxValue = maxPlayerHealth;
-            playerHealthBar.value = playerHealth;
-        }
+
     }
 
     /// <summary>
@@ -143,10 +126,7 @@ public class PlayerHealth : MonoBehaviour
         playerHealth += amount;
         if (playerHealth > maxPlayerHealth) playerHealth = maxPlayerHealth;
 
-        if (playerHealthBar != null)
-        {
-            playerHealthBar.value = playerHealth;
-        }
+
     }
 
     public IEnumerator PostUpgradeInvincibilityRoutine()

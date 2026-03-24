@@ -94,10 +94,9 @@ public class PowerUp : MonoBehaviour
                 }
                 break;
             case PowerUpType.Health:
-                if (multiplier > 0 && ph.playerHealth < ph.maxPlayerHealth) 
+                if (multiplier > 0 && ph != null && ph.playerHealth < ph.maxPlayerHealth) 
                 {
-                    ph.playerHealth++;
-                    ph.playerHealthBar.value = ph.playerHealth;
+                    ph.Heal(1);
                 } 
                 break;
         }

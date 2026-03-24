@@ -6,7 +6,7 @@ public class Projectile : MonoBehaviour
 
     [Header("Settings")]
     public ProjectileType type = ProjectileType.Damage;
-    public int value = 1;
+    public int value = 15;
 
     [Header("Slow Settings")]
     public float slowAmount = 0.4f;   

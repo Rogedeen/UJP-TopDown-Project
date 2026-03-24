@@ -786,12 +786,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95fbe287bc5fd8545a9aa709a634166f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeholderBoss
-  health: 5
-  maxHealth: 5
+  health: 500
+  maxHealth: 500
   canTakeDamage: 1
   invincibilityDuration: 0.5
   dealsContactDamage: 1
-  lootWeight: 4
+  contactDamage: 20
+  lootWeight: 20
   knockbackSpeed: 10
   knockbackDuration: 0.25
   enemyHealthSlider: {fileID: 0}
@@ -803,7 +804,7 @@ MonoBehaviour:
   eyeFirePoint: {fileID: 5189102042438433225}
   beamVfxPrefab: {fileID: 4258341324361696382, guid: 46b18078ebe1d564d90a15de681cfb0e, type: 3}
   beamDamageFrequency: 0.2
-  beamDamage: 1
+  beamDamage: 15
   chargeUpDuration: 1
   sweepDuration: 4
   sweepRotationSpeed: 45

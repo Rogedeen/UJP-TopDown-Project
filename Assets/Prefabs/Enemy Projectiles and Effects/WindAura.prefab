@@ -78,8 +78,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 010b21db00646dd46871859d3f2f35fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealingAura
-  healAmount: 1
-  healTickRate: 1
+  healAmount: 15
+  healTickRate: 15
 --- !u!135 &3834442212499159938
 SphereCollider:
   m_ObjectHideFlags: 0

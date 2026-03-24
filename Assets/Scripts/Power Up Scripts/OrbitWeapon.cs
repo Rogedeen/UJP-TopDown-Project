@@ -5,7 +5,7 @@ public class OrbitWeapon : MonoBehaviour
 {
     public float rotationSpeed;
     public Transform orbitTransform;
-    public int damage;
+    public int damage = 15;
     public float duration;
     public float cooldown;
 

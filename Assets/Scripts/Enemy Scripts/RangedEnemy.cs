@@ -51,6 +51,8 @@ public class RangedEnemy : EnemyBase
 
     [Header("Damage Settings")]
     [SerializeField] private float impactHitRadius = 1.5f;
+    [Tooltip("Fırlattığı merminin hasarı (Projectile scriptini ezer)")]
+    public int projectileDamage = 15;
 
     private float nextFireTime;
     private float strafeDirection = 1f;
@@ -276,6 +278,12 @@ public class RangedEnemy : EnemyBase
         }
 
         GameObject spellObj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        Projectile proj = spellObj.GetComponent<Projectile>();
+        if (proj != null)
+        {
+            proj.value = this.projectileDamage;
+        }
+        
         ProjectileVfx vfx = spellObj.GetComponent<ProjectileVfx>();
 
         if (vfx != null)
@@ -316,7 +324,8 @@ public class RangedEnemy : EnemyBase
             if (pHealth != null)
             {
                 float damageMultiplier = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentEnemyDamageMultiplier : 1f;
-                pHealth.TakeDamage(Mathf.RoundToInt(1 * damageMultiplier));
+                // Kendi mermi hasarımızı uygulatıyoruz. Proje mermisi oyuncuyu vurdu (hasarı fiziksel temas değil, koddan yolluyoruz)
+                pHealth.TakeDamage(Mathf.RoundToInt(projectileDamage * damageMultiplier));
 
                 if (wizardType == WizardType.Ice && pController != null)
                 {

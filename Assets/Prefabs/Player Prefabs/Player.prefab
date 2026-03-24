@@ -199,6 +199,7 @@ Transform:
   - {fileID: 6563836018092328408}
   - {fileID: 5881741829911187140}
   - {fileID: 2752355221156947507}
+  - {fileID: 673498147440875185}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 10, z: 0}
 --- !u!95 &5095744454163644248
@@ -237,8 +238,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   speed: 5.5
   sprintSpeedMultiplier: 1.5
-  maxEnergy: 100
-  energyRegenRate: 10
+  maxEnergy: 150
+  energyRegenRate: 20
   sprintEnergyCost: 20
   dashEnergyCost: 30
   exhaustionDelay: 2
@@ -282,12 +283,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9b185d1ec09e7943843f23577f022fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  playerHealth: 5
-  maxPlayerHealth: 5
+  playerHealth: 100
+  maxPlayerHealth: 100
   invincibilityTime: 1
+  invincibilityShield: {fileID: 577805474658993924}
   gameManager: {fileID: 0}
   playerController: {fileID: 7842327706078446965}
-  playerHealthBar: {fileID: 2374319625038943935}
 --- !u!54 &2826161343789828731
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2782,7 +2783,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b5822abeca20bc47b414ffd1405a091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
-  damage: 1
+  damage: 20
 --- !u!65 &9076483008810120550
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2804,6 +2805,97 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.5034447, y: 1.7752618, z: 0.13063352}
   m_Center: {x: -0.0000033385122, y: 0.5218651, z: -0.000000047387637}
+--- !u!1001 &1864954489419938015
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1241488825052241317}
+    m_Modifications:
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1289543790355709915, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_Name
+      value: Invincibility Shield
+      objectReference: {fileID: 0}
+    - target: {fileID: 1289543790355709915, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684423448260017312, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955197092750843386, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955197092750843386, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: NoiseModule.enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3906390675509293155, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5135780860574305825, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+--- !u!1 &577805474658993924 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1289543790355709915, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+  m_PrefabInstance: {fileID: 1864954489419938015}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &673498147440875185 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1205021609740332654, guid: b99922c2f59b1a542bdd06ae8bee47ae, type: 3}
+  m_PrefabInstance: {fileID: 1864954489419938015}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4592821018994028672
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2981,11 +3073,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrbitWeapon
   rotationSpeed: 450
   orbitTransform: {fileID: 27789492408927112}
-  damage: 2
+  damage: 15
   duration: 6
   cooldown: 12
   canUseSkill: 1
   isRotating: 0
+  skillStartVfxPrefab: {fileID: 0}
+  skillStartSound: {fileID: 0}
 --- !u!65 &2566147495544448351
 BoxCollider:
   m_ObjectHideFlags: 0

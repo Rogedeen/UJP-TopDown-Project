@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
-    public int damage = 1;
+    public int damage = 20;
     private Collider weaponCollider;
 
     void Start()

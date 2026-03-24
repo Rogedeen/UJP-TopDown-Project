@@ -299,9 +299,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 695f9d220c9657f42b259f558464f0ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExplosiveBarrel
-  barrelHealth: 2
+  barrelHealth: 40
   explosionRadius: 6
-  explosionDamage: 2
+  explosionDamage: 40
   criticalAutoExplodeTime: 1.5
   pulseSpeed: 10
   pulseAmount: 0.15

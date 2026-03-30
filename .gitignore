@@ -100,3 +100,7 @@ InitTestScene*.unity*
 
 # --- External Assets & Plugins ---
 /[Aa]ssets/[Ee]xternal[Aa]ssets/
+
+# Agent Documentation
+.agent_docs/
+

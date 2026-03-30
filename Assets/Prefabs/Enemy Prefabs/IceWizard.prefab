@@ -513,7 +513,7 @@ MonoBehaviour:
   projectilePhysicalSpeed: 15
   strafeSpeed: 2
   fireRate: 3
-  spellDelay: 1.5
+  spellDelay: 0.5
   predictionAccuracy: 0.3
   impactHitRadius: 1.5
   projectileDamage: 10

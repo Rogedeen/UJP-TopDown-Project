@@ -81,6 +81,9 @@ public class EnemyBase : MonoBehaviour, IDamageable
             col.enabled = true;
         }
 
+        foreach (var light in GetComponentsInChildren<Light>())
+            light.enabled = true;
+
         if (enemyHealthSlider != null)
         {
             enemyHealthSlider.value = health;
@@ -239,6 +242,9 @@ public class EnemyBase : MonoBehaviour, IDamageable
             enemyRb.linearVelocity = Vector3.zero;
 
         GetComponent<Collider>().enabled = false;
+
+        foreach (var light in GetComponentsInChildren<Light>())
+            light.enabled = false;
 
         // Loot drop: Ölüm pozisyonunda ağırlığa uygun power-up düşür
         if (PowerUpManager.Instance != null)

@@ -225,6 +225,9 @@ public class ExplosiveBarrel : MonoBehaviour, IDamageable
         if (barrelRenderer != null)
             barrelRenderer.enabled = false;
 
+        var lightComp = GetComponent<Light>();
+        if (lightComp != null) lightComp.enabled = false;
+
         yield return new WaitForSeconds(0.15f);
         camScript.TriggerShake(0.5f, 0.4f);
         yield return new WaitForSeconds(4.0f);

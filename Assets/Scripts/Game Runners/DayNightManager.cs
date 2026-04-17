@@ -23,9 +23,13 @@ public struct TimePhase
     [Tooltip("Gölgelerin ve karanlık alanların rengi. Çok koyu ve az doygun olmalı.")]
     public Color ambientColor;
     [Tooltip("Sis rengi. Açık gri veya koyu lacivert gibi doğal tonlar.")]
-    public Color fogColor;
+        public Color fogColor;
     [Tooltip("Sis yoğunluğu. Gündüz 0, Gece 0.015 civarı.")]
     public float fogDensity;
+    [Tooltip("Linear sisin başladığı mesafe (Linear Mode)")]
+    public float fogStartDistance;
+    [Tooltip("Linear sisin tam kapandığı mesafe (Linear Mode)")]
+    public float fogEndDistance;
 
     [Header("Düşman Zorluk")]
     [Tooltip("1.0 = normal hız.")]
@@ -111,10 +115,12 @@ public class DayNightManager : MonoBehaviour
             directionalLight.transform.rotation = Quaternion.Euler(phase.sunAngleX, directionalLight.transform.eulerAngles.y, 0f);
         }
 
-        // Çevre
+                // Çevre
         RenderSettings.ambientLight = phase.ambientColor;
         RenderSettings.fogColor = phase.fogColor;
         RenderSettings.fogDensity = phase.fogDensity;
+        RenderSettings.fogStartDistance = phase.fogStartDistance == 0 ? 15f : phase.fogStartDistance;
+        RenderSettings.fogEndDistance = phase.fogEndDistance == 0 ? 40f : phase.fogEndDistance;
 
         // Düşman
         CurrentEnemySpeedMultiplier = phase.enemySpeedMultiplier == 0 ? 1f : phase.enemySpeedMultiplier;
@@ -138,9 +144,11 @@ public class DayNightManager : MonoBehaviour
         float startSunAngle = directionalLight != null ? directionalLight.transform.eulerAngles.x : 50f;
         float sunY = directionalLight != null ? directionalLight.transform.eulerAngles.y : 0f;
 
-        Color startAmbient = RenderSettings.ambientLight;
+                Color startAmbient = RenderSettings.ambientLight;
         Color startFogCol = RenderSettings.fogColor;
         float startFogDens = RenderSettings.fogDensity;
+        float startFogStart = RenderSettings.fogStartDistance;
+        float startFogEnd = RenderSettings.fogEndDistance;
 
         float startSpeed = CurrentEnemySpeedMultiplier;
         float startDamage = CurrentEnemyDamageMultiplier;
@@ -175,9 +183,11 @@ public class DayNightManager : MonoBehaviour
             }
 
             // Çevre
-            RenderSettings.ambientLight = Color.Lerp(startAmbient, targetPhase.ambientColor, t);
+                        RenderSettings.ambientLight = Color.Lerp(startAmbient, targetPhase.ambientColor, t);
             RenderSettings.fogColor = Color.Lerp(startFogCol, targetPhase.fogColor, t);
             RenderSettings.fogDensity = Mathf.Lerp(startFogDens, targetPhase.fogDensity, t);
+            RenderSettings.fogStartDistance = Mathf.Lerp(startFogStart, targetPhase.fogStartDistance == 0 ? 15f : targetPhase.fogStartDistance, t);
+            RenderSettings.fogEndDistance = Mathf.Lerp(startFogEnd, targetPhase.fogEndDistance == 0 ? 40f : targetPhase.fogEndDistance, t);
 
             // Düşman
             CurrentEnemySpeedMultiplier = Mathf.Lerp(startSpeed, targetSpeed, t);

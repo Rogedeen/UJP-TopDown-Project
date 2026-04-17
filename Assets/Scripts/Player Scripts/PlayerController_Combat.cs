@@ -15,7 +15,13 @@ public partial class PlayerController : MonoBehaviour
         
         HandleLook();
 
-        if (!animator.GetBool(IsAttackingHash) && comboStep < maxCombo)
+        if (animator.GetBool(IsAttackingHash))
+        {
+            inputBuffer = true; 
+            return;
+        }
+
+        if (canAttack && comboStep < maxCombo)
         {
             StartCoroutine(AttackRoutine());
         }
@@ -23,6 +29,8 @@ public partial class PlayerController : MonoBehaviour
 
     IEnumerator AttackRoutine()
     {
+        canAttack = false;
+        inputBuffer = false;
         lastAttackTime = Time.time;
         comboStep++;
         
@@ -42,9 +50,37 @@ public partial class PlayerController : MonoBehaviour
             audioSource.PlayOneShot(whooshSounds[soundIndex]);
         }
 
-        yield return new WaitForSeconds(0.20f);
+        // Vuruş anı algısı - Çok hızlı hissettirmemesi için 0.08'den 0.12'ye çıkarıldı
+        yield return new WaitForSeconds(0.12f);
 
-        GameObject vfxToSpawn = (activeWeapon.damage >= damageUpgradeThreshold) ? fireVFXPrefab : windVFXPrefab;
+        SpawnAttackVFX();
+        DoHitCheck();
+
+        // Vuruş sonrası asılı kalma hissi (Recovery) - Kombo penceresi biraz genişletildi
+        yield return new WaitForSeconds(0.25f);
+
+        animator.SetBool(IsAttackingHash, false);
+
+        if (comboStep >= maxCombo)
+        {
+            // Eğer max komboya ulaştıysak (örn: 3) bir dinlenme (cooldown) süresi bırakalım
+            inputBuffer = false; // Spamlanmış fazladan tıklamayı çöpe at
+            yield return new WaitForSeconds(comboCooldown); // Oyuncu burada kilitli kalır
+            comboStep = 0;
+            animator.SetInteger(ComboStepHash, 0);
+        }
+
+        canAttack = true;
+
+        if (inputBuffer && comboStep < maxCombo && comboStep > 0) // Kombo sıfırlanmadıysa devam et
+        {
+            StartCoroutine(AttackRoutine());
+        }
+    }
+
+    private void SpawnAttackVFX()
+    {
+        GameObject vfxToSpawn = (activeWeapon != null && activeWeapon.damage >= damageUpgradeThreshold) ? fireVFXPrefab : windVFXPrefab;
 
         if (vfxToSpawn != null && vfxSpawnPoint != null)
         {
@@ -58,56 +94,50 @@ public partial class PlayerController : MonoBehaviour
 
             Destroy(vfx, 1.5f);
         }
+    }
+
+    private void DoHitCheck()
+    {
+        float currentKnockbackMultiplier = (comboStep == 4) ? heavyFinisherKnockbackMultiplier : 1f;
+        Vector3 hitCenter = transform.position + transform.forward * hitOffset;
+        Collider[] hitColliders = Physics.OverlapSphere(hitCenter, hitRadius);
 
         List<Component> hitEnemiesInThisSwing = new();
-        float timer = 0f;
-        float attackDuration = 0.3f; 
-        float currentKnockbackMultiplier = (comboStep == 4) ? heavyFinisherKnockbackMultiplier : 1f;
 
-        while (timer < attackDuration)
+        foreach (var col in hitColliders)
         {
-            timer += Time.deltaTime;
-            Vector3 hitCenter = transform.position + transform.forward * hitOffset;
-            Collider[] hitColliders = Physics.OverlapSphere(hitCenter, hitRadius);
-
-            foreach (var col in hitColliders)
+            if (col.CompareTag("Enemy") && col.TryGetComponent<EnemyBase>(out var enemyBase))
             {
-                if (col.CompareTag("Enemy") && col.TryGetComponent<EnemyBase>(out var enemyBase))
+                if (!hitEnemiesInThisSwing.Contains(enemyBase))
                 {
-                    if (!hitEnemiesInThisSwing.Contains(enemyBase))
-                    {
-                        Vector3 directionToEnemy = col.transform.position - transform.position;
-                        float distanceToEnemy = directionToEnemy.magnitude;
+                    Vector3 directionToEnemy = col.transform.position - transform.position;
+                    float distanceToEnemy = directionToEnemy.magnitude;
 
-                        if (Physics.Raycast(transform.position + Vector3.up, directionToEnemy, out RaycastHit hit, distanceToEnemy))
-                        {
-                            if (hit.collider.CompareTag("Barrier"))
-                            {
-                                continue;
-                            }
-                        }
-                        
-                        enemyBase.TakeDamage(activeWeapon.damage, transform.position, currentKnockbackMultiplier);
-                        hitEnemiesInThisSwing.Add(enemyBase);
-                        
-                        float shakeMag = (comboStep == 4) ? 0.3f : 0.1f;
-                        float shakeDur = (comboStep == 4) ? 0.25f : 0.15f;
-                        camScript.TriggerShake(shakeMag, shakeDur);
-                    }
-                }
-                else if (col.CompareTag("Barrel") && col.TryGetComponent<ExplosiveBarrel>(out var barrel))
-                {
-                    if (!hitEnemiesInThisSwing.Contains(barrel))
+                    if (Physics.Raycast(transform.position + Vector3.up, directionToEnemy, out RaycastHit hit, distanceToEnemy))
                     {
-                        barrel.TakeDamage(activeWeapon.damage, transform.position, currentKnockbackMultiplier);
-                        hitEnemiesInThisSwing.Add(barrel);
+                        if (hit.collider.CompareTag("Barrier"))
+                        {
+                            continue;
+                        }
                     }
+                    
+                    enemyBase.TakeDamage(activeWeapon != null ? activeWeapon.damage : 10, transform.position, currentKnockbackMultiplier);
+                    hitEnemiesInThisSwing.Add(enemyBase);
+                    
+                    float shakeMag = (comboStep == 4) ? 0.3f : 0.1f;
+                    float shakeDur = (comboStep == 4) ? 0.25f : 0.15f;
+                    camScript.TriggerShake(shakeMag, shakeDur);
                 }
             }
-            yield return null;
+            else if (col.CompareTag("Barrel") && col.TryGetComponent<ExplosiveBarrel>(out var barrel))
+            {
+                if (!hitEnemiesInThisSwing.Contains(barrel))
+                {
+                    barrel.TakeDamage(activeWeapon != null ? activeWeapon.damage : 10, transform.position, currentKnockbackMultiplier);
+                    hitEnemiesInThisSwing.Add(barrel);
+                }
+            }
         }
-
-        animator.SetBool(IsAttackingHash, false);
     }
 
     public void TakeDamageEffect()

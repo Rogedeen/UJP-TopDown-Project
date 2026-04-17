@@ -37,6 +37,7 @@ public partial class PlayerController : MonoBehaviour
     [Header("Combo System Settings")]
     public int maxCombo = 3;
     public float comboResetTime = 1.0f;
+    public float comboCooldown = 0.6f;
     [SerializeField] private float heavyFinisherKnockbackMultiplier = 3.0f;
     
     public Vector3[] comboSlashAngles = new Vector3[] {
@@ -58,6 +59,8 @@ public partial class PlayerController : MonoBehaviour
     public Weapon activeWeapon;
     public float hitRadius = 2.5f;
     public float hitOffset = 1.5f;
+    private bool inputBuffer = false;
+    private bool canAttack = true;
 
     [Header("VFX Settings")]
     public GameObject windVFXPrefab;
